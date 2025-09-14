@@ -1,8 +1,8 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
-#include "NatureKeeperGameMode.h"
-#include "NatureKeeperPlayerController.h"
-#include "NatureKeeperCharacter.h"
+#include "NatureKeeper/Public/NatureKeeperGameMode.h"
+#include "NatureKeeper/Public/NatureKeeperPlayerController.h"
+#include "NatureKeeper/Public/NatureKeeperCharacter.h"
 #include "UObject/ConstructorHelpers.h"
 
 ANatureKeeperGameMode::ANatureKeeperGameMode()
