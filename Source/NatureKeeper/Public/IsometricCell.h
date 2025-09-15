@@ -21,11 +21,11 @@ class NATUREKEEPER_API AIsometricCell : public AActor
 public:
 	AIsometricCell();
 
-protected:
-	virtual void BeginPlay() override;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Isometric")
 	EIsometricCellType CellType;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Isometric")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Isometric")
 	TArray<AIsometricCell*> Neighbours;
+
+protected:
+	virtual void BeginPlay() override;
 };

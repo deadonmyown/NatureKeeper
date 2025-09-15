@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "IntVector2D.h"
 #include "GameFramework/Actor.h"
 #include "IsometricGrid.generated.h"
 
@@ -18,16 +19,31 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void OnConstruction(const FTransform& Transform) override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Isometric")
-	FIntVector2 GridSize;
+	bool bCreateOnConstruct;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Isometric")
+	FIntVector2D GridSize;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Isometric")
 	FVector2D CellSize;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Isometric")
+	FVector2D CellRandomHeightOffset;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Isometric")
+	TSubclassOf<AIsometricCell> IsometricCellClass;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Isometric")
 	TArray<AIsometricCell*> Cells;
 
+	UFUNCTION(BlueprintCallable, Category = "Isometric")
+	void SetNeighbours();
+
 public:
 	UFUNCTION(BlueprintCallable, CallInEditor, Category = "Isometric")
 	void CreateGrid();
+	UFUNCTION(BlueprintCallable, CallInEditor, Category = "Isometric")
+	void ClearGrid();
+
+	
 };
