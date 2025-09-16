@@ -7,6 +7,7 @@
 #include "GameFramework/Actor.h"
 #include "IsometricGrid.generated.h"
 
+class UNoiseShapeComponent;
 class AIsometricCell;
 
 UCLASS()
@@ -16,6 +17,9 @@ class NATUREKEEPER_API AIsometricGrid : public AActor
 
 public:
 	AIsometricGrid();
+	
+	UPROPERTY(Category = Components, EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true, NoEditInline))
+	UNoiseShapeComponent* NoiseShapeComponent;
 
 protected:
 	virtual void BeginPlay() override;
@@ -28,8 +32,6 @@ protected:
 	FIntVector2D GridSize;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Isometric")
 	FVector2D CellSize;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Isometric")
-	FVector2D CellRandomHeightOffset;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Isometric")
 	TSubclassOf<AIsometricCell> IsometricCellClass;
 

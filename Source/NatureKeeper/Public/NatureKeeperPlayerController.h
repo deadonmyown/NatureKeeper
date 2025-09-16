@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerController.h"
 #include "NatureKeeperPlayerController.generated.h"
 
+class AIsometricCell;
 /** Forward declaration to improve compiling times */
 class UNiagaraSystem;
 class UInputMappingContext;
@@ -60,6 +61,10 @@ protected:
 
 private:
 	FVector CachedDestination;
+	UPROPERTY()
+	AIsometricCell* StartCell;
+	UPROPERTY()
+	AIsometricCell* TargetCell;
 
 	bool bIsTouch; // Is it a touch device
 	float FollowTime; // For how long it has been pressed

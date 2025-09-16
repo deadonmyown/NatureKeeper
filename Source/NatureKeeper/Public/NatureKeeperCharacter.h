@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Interfaces/CellMovable.h"
 #include "NatureKeeperCharacter.generated.h"
 
 UCLASS(Blueprintable)
-class ANatureKeeperCharacter : public ACharacter
+class ANatureKeeperCharacter : public ACharacter, public ICellMovable
 {
 	GENERATED_BODY()
 

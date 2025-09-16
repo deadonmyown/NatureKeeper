@@ -1,14 +1,15 @@
 #include "NatureKeeper/Public/IsometricGrid.h"
 
 #include "IsometricCell.h"
-#include "Kismet/KismetMathLibrary.h"
+#include "NoiseShapeComponent.h"
 
 AIsometricGrid::AIsometricGrid()
 {
+	NoiseShapeComponent = CreateDefaultSubobject<UNoiseShapeComponent>(TEXT("NoiseShapeComponent"));
+	
 	bCreateOnConstruct = false;
 	GridSize = FIntVector2D(2, 2);
 	CellSize = FVector2D(100, 100);
-	CellRandomHeightOffset = FVector2D(0, 1);
 }
 
 void AIsometricGrid::BeginPlay()
@@ -43,6 +44,7 @@ void AIsometricGrid::SetNeighbours()
 	{
 		for (int j = 0; j < GridSize.Y; j++)
 		{
+			Cells[Index]->SetPathNodeCoord(FIntVector2D(i, j));
 			Cells[Index]->Neighbours.Empty();
 
 			const int NeighbourBottom = Index - 1;
@@ -93,7 +95,7 @@ void AIsometricGrid::CreateGrid()
 		{
 			FActorSpawnParameters SpawnParams;
 			SpawnParams.Owner = this;
-			SpawnParams.Name = FName(FString::Printf(TEXT("IsometricCell_%i"), i));
+			SpawnParams.Name = MakeUniqueObjectName(GetWorld(), AIsometricCell::StaticClass(), FName(*FString::Printf(TEXT("IsometricCell_%i"), i)));
 			AIsometricCell* CreatedCell = GetWorld()->SpawnActor<AIsometricCell>(IsometricCellClass, FVector::ZeroVector,
 				FRotator::ZeroRotator, SpawnParams);
 			Cells.Add(CreatedCell);
@@ -118,7 +120,7 @@ void AIsometricGrid::CreateGrid()
 			{
 				FActorSpawnParameters SpawnParams;
 				SpawnParams.Owner = this;
-				SpawnParams.Name = FName(FString::Printf(TEXT("IsometricCell_%i"), i + Cells.Num()));
+				SpawnParams.Name = MakeUniqueObjectName(GetWorld(), AIsometricCell::StaticClass(), FName(*FString::Printf(TEXT("IsometricCell_%i"), i)));
 				AIsometricCell* CreatedCell = GetWorld()->SpawnActor<AIsometricCell>(IsometricCellClass, FVector::ZeroVector,
 					FRotator::ZeroRotator, SpawnParams);
 				Cells.Add(CreatedCell);
@@ -132,9 +134,10 @@ void AIsometricGrid::CreateGrid()
 	{
 		for (int j = 0; j < GridSize.Y; j++)
 		{
-			float RandHeight = UKismetMathLibrary::RandomFloatInRange(CellRandomHeightOffset.X, CellRandomHeightOffset.Y);
 			FVector CurrentCellLocation = FVector(InitialCellLocation.X + i * CellSize.X, InitialCellLocation.Y + j * CellSize.Y,
-				InitialCellLocation.Z + RandHeight);
+				InitialCellLocation.Z);
+			FVector EvaluatedVector = NoiseShapeComponent->CalculateUnit(CurrentCellLocation);
+			CurrentCellLocation.Z = EvaluatedVector.Z;
 			Cells[Index]->SetActorLocation(CurrentCellLocation);
 			Index++;
 		}
@@ -150,7 +153,8 @@ void AIsometricGrid::ClearGrid()
 	
 	for (int i = 0; i < Cells.Num(); i++)
 	{
-		Cells[i]->Destroy();
+		if (Cells[i] && !Cells[i]->IsPendingKillPending())
+			Cells[i]->Destroy();
 	}
 
 	Cells.Empty();

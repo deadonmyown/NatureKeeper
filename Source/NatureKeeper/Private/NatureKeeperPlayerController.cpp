@@ -10,6 +10,8 @@
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
 #include "EnhancedInputSubsystems.h"
+#include "IsometricCell.h"
+#include "NatureKeeperUtils.h"
 #include "Engine/LocalPlayer.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
@@ -71,7 +73,7 @@ void ANatureKeeperPlayerController::OnSetDestinationTriggered()
 	// We flag that the input is being pressed
 	FollowTime += GetWorld()->GetDeltaSeconds();
 	
-	// We look for the location in the world where the player has pressed the input
+	/*// We look for the location in the world where the player has pressed the input
 	FHitResult Hit;
 	bool bHitSuccessful = false;
 	if (bIsTouch)
@@ -95,11 +97,54 @@ void ANatureKeeperPlayerController::OnSetDestinationTriggered()
 	{
 		FVector WorldDirection = (CachedDestination - ControlledPawn->GetActorLocation()).GetSafeNormal();
 		ControlledPawn->AddMovementInput(WorldDirection, 1.0, false);
-	}
+	}*/
 }
 
 void ANatureKeeperPlayerController::OnSetDestinationReleased()
 {
+	FHitResult Hit;
+	bool bHitSuccessful = false;
+	if (bIsTouch)
+	{
+		bHitSuccessful = GetHitResultUnderFinger(ETouchIndex::Touch1, ECollisionChannel::ECC_Visibility, true, Hit);
+	}
+	else
+	{
+		bHitSuccessful = GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit);
+	}
+
+	// If we hit a surface, cache the location
+	if (bHitSuccessful)
+	{
+		CachedDestination = Hit.Location;
+		
+		if (AIsometricCell* Cell = Cast<AIsometricCell>(Hit.GetActor()))
+		{
+			if (StartCell == nullptr)
+			{
+				StartCell = Cell;
+				UE_LOG(LogTemp, Display, TEXT("%s"), *StartCell->GetName());
+			}
+			else if (TargetCell == nullptr)
+			{
+				TargetCell = Cell;
+				UE_LOG(LogTemp, Display, TEXT("%s"), *TargetCell->GetName());
+			}
+
+			if (StartCell && TargetCell)
+			{
+				TArray<AIsometricCell*> Test = UNatureKeeperUtils::FindPath(StartCell, TargetCell);
+
+				for (int i = 0; i < Test.Num(); i++)
+				{
+					UE_LOG(LogTemp, Display, TEXT("%s"), *Test[i]->GetName());
+				}
+
+				StartCell = nullptr;
+				TargetCell = nullptr;
+			}
+		}
+	}
 	// If it was a short press
 	if (FollowTime <= ShortPressThreshold)
 	{
