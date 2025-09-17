@@ -62,6 +62,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Pathfinding")
 	virtual FIntVector2D GetPathNodeCoord() const {return PathNodeCoord;}
 
-	virtual void StartInteract_Implementation(ACharacter* InteractionInvoker) override;
-	virtual void StopInteract_Implementation(ACharacter* InteractionInvoker) override;
+	UFUNCTION(BlueprintNativeEvent, Category = "Pathfinding")
+	USceneComponent* GetNavigationRoot();
+
+	virtual bool StartInteract_Implementation(ACharacter* InteractionInvoker) override;
+	virtual bool StopInteract_Implementation(ACharacter* InteractionInvoker) override;
 };

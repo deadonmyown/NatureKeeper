@@ -7,6 +7,10 @@
 #include "Interfaces/CellMovable.h"
 #include "NatureKeeperCharacter.generated.h"
 
+class UCellMovementComponent;
+class USpringArmComponent;
+class UCameraComponent;
+
 UCLASS(Blueprintable)
 class ANatureKeeperCharacter : public ACharacter, public ICellMovable
 {
@@ -15,24 +19,27 @@ class ANatureKeeperCharacter : public ACharacter, public ICellMovable
 public:
 	ANatureKeeperCharacter();
 
-	// Called every frame.
+	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 
-	/** Returns TopDownCameraComponent subobject **/
-	FORCEINLINE class UCameraComponent* GetTopDownCameraComponent() const { return TopDownCameraComponent; }
-	/** Returns CameraBoom subobject **/
-	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+	FORCEINLINE UCameraComponent* GetTopDownCameraComponent() const { return TopDownCameraComponent; }
+	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+	FORCEINLINE UCellMovementComponent* GetCellMovementComponent() const {return CellMovementComponent;}
 
 private:
+	UPROPERTY(Category = Components, EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true, NoEditInline))
+	UCellMovementComponent* CellMovementComponent;
+	
 	/** Top down camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class UCameraComponent* TopDownCameraComponent;
+	UCameraComponent* TopDownCameraComponent;
 
 	/** Camera boom positioning the camera above the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class USpringArmComponent* CameraBoom;
-
-	virtual ACell* GetCurrentCell_Implementation() override;
-	virtual void MoveByPath_Implementation(TArray<ACell*> NewPath) override;
+	USpringArmComponent* CameraBoom;
+	
+	virtual TScriptInterface<UCellMovementInterface> GetCellMovementInterface_Implementation() override;
+	virtual USceneComponent* GetNavigationRoot_Implementation() override;
+	virtual bool TryMoveByCells_Implementation(ACell* TargetCell) override;
 };
 

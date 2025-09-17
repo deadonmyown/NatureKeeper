@@ -28,34 +28,6 @@ void ANatureKeeperPlayerController::BeginPlay()
 	Super::BeginPlay();
 }
 
-void ANatureKeeperPlayerController::Tick(float DeltaSeconds)
-{
-	Super::Tick(DeltaSeconds);
-	
-	if (CurrentMovingToCell)
-	{
-		APawn* ControlledPawn = GetPawn();
-		
-		FVector Direction = CurrentMovingToCell->GetActorLocation() - ControlledPawn->GetActorLocation();
-		if (Direction.Length() < 0.001f)
-		{
-			//ControlledPawn->SetActorLocation(CurrentMovingToCell->GetActorLocation());
-			
-			if (CurrentMovingToCell == CurrentTargetCell)
-			{
-				StopActiveMoveByPath();
-			}
-			else
-			{
-				CurrentMovingToCellIndex++;
-				CurrentMovingToCell = CurrentPath[CurrentMovingToCellIndex];
-			}
-		}
-		FVector WorldDirection = Direction.GetSafeNormal();
-		ControlledPawn->AddMovementInput(WorldDirection, 1.0, false);
-	}
-}
-
 void ANatureKeeperPlayerController::SetupInputComponent()
 {
 	// set up gameplay key bindings
@@ -103,7 +75,6 @@ void ANatureKeeperPlayerController::OnInputStarted()
 		bHitSuccessful = GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit);
 	}
 
-	// If we hit a surface, cache the location
 	if (bHitSuccessful)
 	{
 		if (Hit.GetActor()->Implements<UInteractiveActor>())
@@ -118,32 +89,6 @@ void ANatureKeeperPlayerController::OnSetDestinationTriggered()
 {
 	// We flag that the input is being pressed
 	FollowTime += GetWorld()->GetDeltaSeconds();
-	
-	/*// We look for the location in the world where the player has pressed the input
-	FHitResult Hit;
-	bool bHitSuccessful = false;
-	if (bIsTouch)
-	{
-		bHitSuccessful = GetHitResultUnderFinger(ETouchIndex::Touch1, ECollisionChannel::ECC_Visibility, true, Hit);
-	}
-	else
-	{
-		bHitSuccessful = GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit);
-	}
-
-	// If we hit a surface, cache the location
-	if (bHitSuccessful)
-	{
-		CachedDestination = Hit.Location;
-	}
-	
-	// Move towards mouse pointer or touch
-	APawn* ControlledPawn = GetPawn();
-	if (ControlledPawn != nullptr)
-	{
-		FVector WorldDirection = (CachedDestination - ControlledPawn->GetActorLocation()).GetSafeNormal();
-		ControlledPawn->AddMovementInput(WorldDirection, 1.0, false);
-	}*/
 }
 
 void ANatureKeeperPlayerController::OnSetDestinationReleased()
@@ -159,22 +104,17 @@ void ANatureKeeperPlayerController::OnSetDestinationReleased()
 		bHitSuccessful = GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit);
 	}
 
-	// If we hit a surface, cache the location
 	if (bHitSuccessful)
 	{
 		if (Hit.GetActor()->Implements<UInteractiveActor>())
 		{
-			IInteractiveActor::Execute_StopInteract(Hit.GetActor(), GetCharacter());
+			if (IInteractiveActor::Execute_StopInteract(Hit.GetActor(), GetCharacter()))
+			{
+				UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FXCursor, Hit.GetActor()->GetActorLocation(),
+					FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f), true, true, ENCPoolMethod::None, true);
+			}
 		}
 	}
-
-	/*// If it was a short press
-	if (FollowTime <= ShortPressThreshold)
-	{
-		// We move there and spawn some particles
-		UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, CachedDestination);
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FXCursor, CachedDestination, FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f), true, true, ENCPoolMethod::None, true);
-	}*/
 
 	FollowTime = 0.f;
 }
@@ -190,42 +130,4 @@ void ANatureKeeperPlayerController::OnTouchReleased()
 {
 	bIsTouch = false;
 	OnSetDestinationReleased();
-}
-
-ACell* ANatureKeeperPlayerController::GetCellMovingTo_Implementation()
-{
-	return CurrentMovingToCell;
-}
-
-int32 ANatureKeeperPlayerController::GetCellMovingToIndex_Implementation()
-{
-	return CurrentMovingToCell ? CurrentMovingToCellIndex : INDEX_NONE;
-}
-
-ACell* ANatureKeeperPlayerController::GetTargetCell_Implementation()
-{
-	return CurrentTargetCell;
-}
-
-TArray<ACell*> ANatureKeeperPlayerController::GetPath_Implementation()
-{
-	return CurrentPath;
-}
-
-void ANatureKeeperPlayerController::StartActiveMoveByPath_Implementation(TArray<ACell*> NewPath)
-{
-	if (NewPath.IsEmpty())
-		return;
-	
-	CurrentPath = NewPath;
-	CurrentTargetCell = NewPath[NewPath.Num() - 1];
-	CurrentMovingToCellIndex = 0;
-	CurrentMovingToCell = NewPath[CurrentMovingToCellIndex];
-}
-
-void ANatureKeeperPlayerController::StopActiveMoveByPath_Implementation()
-{
-	CurrentPath.Empty();
-	CurrentTargetCell = nullptr;
-	CurrentMovingToCell = nullptr;
 }

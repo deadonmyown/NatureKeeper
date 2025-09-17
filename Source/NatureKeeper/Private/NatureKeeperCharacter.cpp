@@ -3,6 +3,7 @@
 #include "NatureKeeper/Public/NatureKeeperCharacter.h"
 
 #include "Cell.h"
+#include "CellMovementComponent.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Camera/CameraComponent.h"
 #include "Components/DecalComponent.h"
@@ -12,10 +13,12 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Materials/Material.h"
 #include "Engine/World.h"
-#include "Interfaces/CellMovableController.h"
+#include "Interfaces/CellMovementInterface.h"
 
 ANatureKeeperCharacter::ANatureKeeperCharacter()
 {
+	CellMovementComponent = CreateDefaultSubobject<UCellMovementComponent>(FName("CellMovementComponent"));
+	
 	// Set size for player capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
@@ -48,56 +51,32 @@ ANatureKeeperCharacter::ANatureKeeperCharacter()
 	PrimaryActorTick.bStartWithTickEnabled = true;
 }
 
+void ANatureKeeperCharacter::BeginPlay()
+{
+	if (CellMovementComponent)
+	{
+		CellMovementComponent->InitCellComponent(this);
+	}
+	
+	Super::BeginPlay();
+}
+
 void ANatureKeeperCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
 }
 
-ACell* ANatureKeeperCharacter::GetCurrentCell_Implementation()
+TScriptInterface<UCellMovementInterface> ANatureKeeperCharacter::GetCellMovementInterface_Implementation()
 {
-	FVector StartLocation = GetActorLocation(); 
-	StartLocation.Z += 10.0f; 
-
-	FVector EndLocation = StartLocation - FVector(0.0f, 0.0f, 100.0f);
-
-	FHitResult HitResult;
-	FCollisionQueryParams QueryParams;
-	QueryParams.AddIgnoredActor(this);
-
-	bool bHit = GetWorld()->LineTraceSingleByChannel(
-		HitResult,
-		StartLocation,
-		EndLocation,
-		ECC_Visibility,
-		QueryParams
-	);
-
-	DrawDebugLine(
-		GetWorld(),
-		StartLocation,
-		EndLocation,
-		bHit ? FColor::Green : FColor::Red,
-		false,
-		0.1f,
-		0,
-		1.0f
-	);
-
-	if (bHit)
-	{
-		if (ACell* CellUnderPlayer = Cast<ACell>(HitResult.GetActor()))
-		{
-			return CellUnderPlayer;
-		}
-	}
-
-	return nullptr;
+	return CellMovementComponent;
 }
 
-void ANatureKeeperCharacter::MoveByPath_Implementation(TArray<ACell*> NewPath)
+USceneComponent* ANatureKeeperCharacter::GetNavigationRoot_Implementation()
 {
-	if (GetController()->Implements<UCellMovableController>())
-	{
-		ICellMovableController::Execute_StartActiveMoveByPath(GetController(), NewPath);
-	}
+	return RootComponent;
+}
+
+bool ANatureKeeperCharacter::TryMoveByCells_Implementation(ACell* TargetCell)
+{
+	return ICellMovementInterface::Execute_TryStartActiveMoveByPath(CellMovementComponent, TargetCell);
 }

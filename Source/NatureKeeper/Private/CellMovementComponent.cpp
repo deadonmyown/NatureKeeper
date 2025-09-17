@@ -1,0 +1,177 @@
+#include "CellMovementComponent.h"
+
+#include "Cell.h"
+#include "NatureKeeperUtils.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Interfaces/CellMovable.h"
+#include "Kismet/KismetMathLibrary.h"
+
+
+UCellMovementComponent::UCellMovementComponent()
+{
+	PrimaryComponentTick.bCanEverTick = true;
+
+}
+
+void UCellMovementComponent::BeginPlay()
+{
+	Super::BeginPlay();
+}
+
+void UCellMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType,
+                                           FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	if (CurrentMovingToCell)
+	{
+		constexpr float Epsilon = 0.05f;
+
+		FVector ActorLocation = ICellMovable::Execute_GetNavigationRoot(CharacterOwner)->GetComponentLocation();
+		FVector NextCellLocation = CurrentMovingToCell->GetNavigationRoot()->GetComponentLocation();
+		FVector CurrentCellLocation = CurrentCellStandOn->GetNavigationRoot()->GetComponentLocation();
+		
+		FVector CurrToNextVector = NextCellLocation - CurrentCellLocation;
+		FVector CurrToActorVector = ActorLocation - CurrentCellLocation;
+		FVector NormalizedDirection = CurrToNextVector.GetSafeNormal();
+
+		float ProjectionValue = FVector::DotProduct(CurrToActorVector, NormalizedDirection);
+		
+		float LocationDiff = CurrToNextVector.Size() - ProjectionValue;
+		
+		if (LocationDiff <= Epsilon)
+		{
+			CurrentCellStandOn = CurrentMovingToCell;
+			
+			if (CurrentMovingToCell == CurrentTargetCell)
+			{
+				ICellMovementInterface::Execute_TryStopActiveMoveByPath(this);
+			}
+			else
+			{
+				CurrentMovingToCellIndex++;
+				CurrentMovingToCell = CurrentPath[CurrentMovingToCellIndex];
+				UE_LOG(LogTemp, Display, TEXT("change cell %s"), *CurrentMovingToCell->GetName());
+			}
+		}
+		else
+		{
+			float Step = FMath::Min(MaxCellMovementSpeed * DeltaTime, LocationDiff);
+			CurrentCellMovementSpeed = Step / DeltaTime;
+			FVector Delta = NormalizedDirection * Step;
+			CharacterOwner->GetCharacterMovement()->MoveUpdatedComponent(Delta, UKismetMathLibrary::MakeRotFromX(NormalizedDirection), true);
+		}
+	}
+}
+
+void UCellMovementComponent::InitCellComponent(ACharacter* NewCharacterOwner)
+{
+	CharacterOwner = NewCharacterOwner;
+	ICellMovementInterface::Execute_CellIdle(this);
+}
+
+ACell* UCellMovementComponent::GetCellStandOn_Implementation()
+{
+	return CurrentCellStandOn;
+}
+
+ACell* UCellMovementComponent::GetCellMovingTo_Implementation()
+{
+	return CurrentMovingToCell;
+}
+
+int32 UCellMovementComponent::GetCellMovingToIndex_Implementation()
+{
+	return CurrentMovingToCell ? CurrentMovingToCellIndex : INDEX_NONE;
+}
+
+ACell* UCellMovementComponent::GetTargetCell_Implementation()
+{
+	return CurrentTargetCell;
+}
+
+TArray<ACell*> UCellMovementComponent::GetPath_Implementation()
+{
+	return CurrentPath;
+}
+
+float UCellMovementComponent::GetCellMovementCurrentSpeed_Implementation()
+{
+	return CurrentCellMovementSpeed;
+}
+
+float UCellMovementComponent::GetCellMovementMaxSpeed_Implementation()
+{
+	return MaxCellMovementSpeed;
+}
+
+void UCellMovementComponent::CellIdle_Implementation()
+{
+	FVector StartLocation = CharacterOwner->GetActorLocation(); 
+	StartLocation.Z += 10.0f; 
+
+	FVector EndLocation = StartLocation - FVector(0.0f, 0.0f, 1000.0f);
+
+	FHitResult HitResult;
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(CharacterOwner);
+
+	bool bHit = GetWorld()->LineTraceSingleByChannel(
+		HitResult,
+		StartLocation,
+		EndLocation,
+		ECC_Visibility,
+		QueryParams
+	);
+
+	DrawDebugLine(
+		GetWorld(),
+		StartLocation,
+		EndLocation,
+		bHit ? FColor::Green : FColor::Red,
+		false,
+		0.1f,
+		0,
+		1.0f
+	);
+
+	if (bHit)
+	{
+		if (ACell* CellUnderPlayer = Cast<ACell>(HitResult.GetActor()))
+		{
+			CurrentCellStandOn = CellUnderPlayer;
+		}
+	}
+}
+
+bool UCellMovementComponent::TryStartActiveMoveByPath_Implementation(ACell* TargetCell)
+{
+	ICellMovementInterface::Execute_CellIdle(this);
+
+	if (!CurrentCellStandOn || !TargetCell)
+		return false;
+	
+	TArray<ACell*> NewPath = UNatureKeeperUtils::FindPath(CurrentCellStandOn, TargetCell);
+
+	if (NewPath.IsEmpty())
+		return false;
+
+	CurrentPath = NewPath;
+	CurrentTargetCell = NewPath[NewPath.Num() - 1];
+	CurrentMovingToCellIndex = 0;
+	CurrentMovingToCell = NewPath[CurrentMovingToCellIndex];
+
+	return true;
+}
+
+bool UCellMovementComponent::TryStopActiveMoveByPath_Implementation()
+{
+	CurrentPath.Empty();
+	CurrentTargetCell = nullptr;
+	CurrentMovingToCell = nullptr;
+	CurrentMovingToCellIndex = INDEX_NONE;
+	CurrentCellMovementSpeed = 0.0f;
+
+	return true;
+}

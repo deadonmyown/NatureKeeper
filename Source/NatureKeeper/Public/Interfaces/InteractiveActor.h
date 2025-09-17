@@ -19,7 +19,7 @@ class NATUREKEEPER_API IInteractiveActor
 
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "InteractiveActor")
-	void StartInteract(ACharacter* InteractionInvoker);
+	bool StartInteract(ACharacter* InteractionInvoker);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "InteractiveActor")
-	void StopInteract(ACharacter* InteractionInvoker);
+	bool StopInteract(ACharacter* InteractionInvoker);
 };

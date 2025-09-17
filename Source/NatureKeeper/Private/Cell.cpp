@@ -40,21 +40,22 @@ int32 ACell::GetDistanceToOtherCell(ACell* OtherPath)
 	return FMath::Abs(PathNodeCoord.X - OtherPath->GetPathNodeCoord().X) + FMath::Abs(PathNodeCoord.Y - OtherPath->GetPathNodeCoord().Y);
 }
 
-void ACell::StartInteract_Implementation(ACharacter* InteractionInvoker)
+USceneComponent* ACell::GetNavigationRoot_Implementation()
 {
-	
+	return RootComponent;
 }
 
-void ACell::StopInteract_Implementation(ACharacter* InteractionInvoker)
+bool ACell::StartInteract_Implementation(ACharacter* InteractionInvoker)
+{
+	return false;
+}
+
+bool ACell::StopInteract_Implementation(ACharacter* InteractionInvoker)
 {
 	if (InteractionInvoker->Implements<UCellMovable>())
 	{
-		if (ACell* StartCell = ICellMovable::Execute_GetCurrentCell(InteractionInvoker))
-		{
-			TArray<ACell*> Path = UNatureKeeperUtils::FindPath(StartCell, this);
-			if (Path.Num() > 0)
-				ICellMovable::Execute_MoveByPath(InteractionInvoker, Path);
-		}
+		return ICellMovable::Execute_TryMoveByCells(InteractionInvoker, this);
 	}
+	return false;
 }
 
