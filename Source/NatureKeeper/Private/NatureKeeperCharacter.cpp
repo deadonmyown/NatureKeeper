@@ -1,6 +1,8 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "NatureKeeper/Public/NatureKeeperCharacter.h"
+
+#include "Cell.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Camera/CameraComponent.h"
 #include "Components/DecalComponent.h"
@@ -10,6 +12,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Materials/Material.h"
 #include "Engine/World.h"
+#include "Interfaces/CellMovableController.h"
 
 ANatureKeeperCharacter::ANatureKeeperCharacter()
 {
@@ -48,4 +51,53 @@ ANatureKeeperCharacter::ANatureKeeperCharacter()
 void ANatureKeeperCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+}
+
+ACell* ANatureKeeperCharacter::GetCurrentCell_Implementation()
+{
+	FVector StartLocation = GetActorLocation(); 
+	StartLocation.Z += 10.0f; 
+
+	FVector EndLocation = StartLocation - FVector(0.0f, 0.0f, 100.0f);
+
+	FHitResult HitResult;
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this);
+
+	bool bHit = GetWorld()->LineTraceSingleByChannel(
+		HitResult,
+		StartLocation,
+		EndLocation,
+		ECC_Visibility,
+		QueryParams
+	);
+
+	DrawDebugLine(
+		GetWorld(),
+		StartLocation,
+		EndLocation,
+		bHit ? FColor::Green : FColor::Red,
+		false,
+		0.1f,
+		0,
+		1.0f
+	);
+
+	if (bHit)
+	{
+		if (ACell* CellUnderPlayer = Cast<ACell>(HitResult.GetActor()))
+		{
+			return CellUnderPlayer;
+		}
+	}
+
+	return nullptr;
+}
+
+void ANatureKeeperCharacter::MoveByPath_Implementation(TArray<ACell*> NewPath)
+{
+	if (GetController()->Implements<UCellMovableController>())
+	{
+		ICellMovableController::Execute_StartActiveMoveByPath(GetController(), NewPath);
+	}
 }

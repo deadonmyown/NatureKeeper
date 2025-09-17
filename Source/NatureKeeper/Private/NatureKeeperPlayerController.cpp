@@ -20,14 +20,40 @@ ANatureKeeperPlayerController::ANatureKeeperPlayerController()
 {
 	bShowMouseCursor = true;
 	DefaultMouseCursor = EMouseCursor::Default;
-	CachedDestination = FVector::ZeroVector;
 	FollowTime = 0.f;
 }
 
 void ANatureKeeperPlayerController::BeginPlay()
 {
-	// Call the base class  
 	Super::BeginPlay();
+}
+
+void ANatureKeeperPlayerController::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	
+	if (CurrentMovingToCell)
+	{
+		APawn* ControlledPawn = GetPawn();
+		
+		FVector Direction = CurrentMovingToCell->GetActorLocation() - ControlledPawn->GetActorLocation();
+		if (Direction.Length() < 0.001f)
+		{
+			//ControlledPawn->SetActorLocation(CurrentMovingToCell->GetActorLocation());
+			
+			if (CurrentMovingToCell == CurrentTargetCell)
+			{
+				StopActiveMoveByPath();
+			}
+			else
+			{
+				CurrentMovingToCellIndex++;
+				CurrentMovingToCell = CurrentPath[CurrentMovingToCellIndex];
+			}
+		}
+		FVector WorldDirection = Direction.GetSafeNormal();
+		ControlledPawn->AddMovementInput(WorldDirection, 1.0, false);
+	}
 }
 
 void ANatureKeeperPlayerController::SetupInputComponent()
@@ -65,6 +91,26 @@ void ANatureKeeperPlayerController::SetupInputComponent()
 void ANatureKeeperPlayerController::OnInputStarted()
 {
 	StopMovement();
+
+	FHitResult Hit;
+	bool bHitSuccessful = false;
+	if (bIsTouch)
+	{
+		bHitSuccessful = GetHitResultUnderFinger(ETouchIndex::Touch1, ECollisionChannel::ECC_Visibility, true, Hit);
+	}
+	else
+	{
+		bHitSuccessful = GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit);
+	}
+
+	// If we hit a surface, cache the location
+	if (bHitSuccessful)
+	{
+		if (Hit.GetActor()->Implements<UInteractiveActor>())
+		{
+			IInteractiveActor::Execute_StartInteract(Hit.GetActor(), GetCharacter());
+		}
+	}
 }
 
 // Triggered every frame when the input is held down
@@ -116,42 +162,19 @@ void ANatureKeeperPlayerController::OnSetDestinationReleased()
 	// If we hit a surface, cache the location
 	if (bHitSuccessful)
 	{
-		CachedDestination = Hit.Location;
-		
-		if (AIsometricCell* Cell = Cast<AIsometricCell>(Hit.GetActor()))
+		if (Hit.GetActor()->Implements<UInteractiveActor>())
 		{
-			if (StartCell == nullptr)
-			{
-				StartCell = Cell;
-				UE_LOG(LogTemp, Display, TEXT("%s"), *StartCell->GetName());
-			}
-			else if (TargetCell == nullptr)
-			{
-				TargetCell = Cell;
-				UE_LOG(LogTemp, Display, TEXT("%s"), *TargetCell->GetName());
-			}
-
-			if (StartCell && TargetCell)
-			{
-				TArray<AIsometricCell*> Test = UNatureKeeperUtils::FindPath(StartCell, TargetCell);
-
-				for (int i = 0; i < Test.Num(); i++)
-				{
-					UE_LOG(LogTemp, Display, TEXT("%s"), *Test[i]->GetName());
-				}
-
-				StartCell = nullptr;
-				TargetCell = nullptr;
-			}
+			IInteractiveActor::Execute_StopInteract(Hit.GetActor(), GetCharacter());
 		}
 	}
-	// If it was a short press
+
+	/*// If it was a short press
 	if (FollowTime <= ShortPressThreshold)
 	{
 		// We move there and spawn some particles
 		UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, CachedDestination);
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FXCursor, CachedDestination, FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f), true, true, ENCPoolMethod::None, true);
-	}
+	}*/
 
 	FollowTime = 0.f;
 }
@@ -167,4 +190,42 @@ void ANatureKeeperPlayerController::OnTouchReleased()
 {
 	bIsTouch = false;
 	OnSetDestinationReleased();
+}
+
+ACell* ANatureKeeperPlayerController::GetCellMovingTo_Implementation()
+{
+	return CurrentMovingToCell;
+}
+
+int32 ANatureKeeperPlayerController::GetCellMovingToIndex_Implementation()
+{
+	return CurrentMovingToCell ? CurrentMovingToCellIndex : INDEX_NONE;
+}
+
+ACell* ANatureKeeperPlayerController::GetTargetCell_Implementation()
+{
+	return CurrentTargetCell;
+}
+
+TArray<ACell*> ANatureKeeperPlayerController::GetPath_Implementation()
+{
+	return CurrentPath;
+}
+
+void ANatureKeeperPlayerController::StartActiveMoveByPath_Implementation(TArray<ACell*> NewPath)
+{
+	if (NewPath.IsEmpty())
+		return;
+	
+	CurrentPath = NewPath;
+	CurrentTargetCell = NewPath[NewPath.Num() - 1];
+	CurrentMovingToCellIndex = 0;
+	CurrentMovingToCell = NewPath[CurrentMovingToCellIndex];
+}
+
+void ANatureKeeperPlayerController::StopActiveMoveByPath_Implementation()
+{
+	CurrentPath.Empty();
+	CurrentTargetCell = nullptr;
+	CurrentMovingToCell = nullptr;
 }

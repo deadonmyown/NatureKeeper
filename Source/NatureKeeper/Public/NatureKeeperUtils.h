@@ -6,7 +6,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "NatureKeeperUtils.generated.h"
 
-class AIsometricCell;
+class ACell;
 /**
  * 
  */
@@ -17,9 +17,9 @@ class NATUREKEEPER_API UNatureKeeperUtils : public UBlueprintFunctionLibrary
 
 	public:
 	UFUNCTION(BlueprintCallable, Category="Nature Keeper Util")
-	static TArray<AIsometricCell*> FindPath(AIsometricCell* StartCell, AIsometricCell* TargetCell);
+	static TArray<ACell*> FindPath(ACell* StartCell, ACell* TargetCell);
 	UFUNCTION(BlueprintCallable, Category="Nature Keeper Util")
-	static TArray<AIsometricCell*> FilterNeighbours(TArray<AIsometricCell*> Neighbours, TArray<AIsometricCell*> ProcessedCells);
+	static TArray<ACell*> FilterNeighbours(TArray<ACell*> Neighbours, TArray<ACell*> ProcessedCells);
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Nature Keeper Util")
 	static float CalculatePerlinNoise2D(int XVertexIndex, int YVertexIndex, float InNoiseScale, float InNoiseSeed);
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Nature Keeper Util")

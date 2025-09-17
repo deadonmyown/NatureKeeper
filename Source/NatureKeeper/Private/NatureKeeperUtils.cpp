@@ -2,13 +2,13 @@
 
 #include "IsometricCell.h"
 
-TArray<AIsometricCell*> UNatureKeeperUtils::FindPath(AIsometricCell* StartCell, AIsometricCell* TargetCell)
+TArray<ACell*> UNatureKeeperUtils::FindPath(ACell* StartCell, ACell* TargetCell)
 {
-	TArray<AIsometricCell*> ToSearchCells = { StartCell };
-	TArray<AIsometricCell*> ProcessedCells;
+	TArray<ACell*> ToSearchCells = { StartCell };
+	TArray<ACell*> ProcessedCells;
 
 	while (!ToSearchCells.IsEmpty()) {
-		AIsometricCell* Current = ToSearchCells[0];
+		ACell* Current = ToSearchCells[0];
 		for (auto Cell : ToSearchCells) 
 			if (Cell->GetTotalCost() < Current->GetTotalCost()
 				|| Cell->GetTotalCost() == Current->GetTotalCost()
@@ -19,21 +19,21 @@ TArray<AIsometricCell*> UNatureKeeperUtils::FindPath(AIsometricCell* StartCell, 
                 
 
 		if (Current == TargetCell) {
-			AIsometricCell* CurrentPathCell = TargetCell;
-			TArray<AIsometricCell*> ReversePath;
+			ACell* CurrentPathCell = TargetCell;
+			TArray<ACell*> ReversePath;
 			while (CurrentPathCell != StartCell) {
 				ReversePath.Add(CurrentPathCell);
 				CurrentPathCell = CurrentPathCell->GetPathConnection();
 			}
 
-			TArray<AIsometricCell*> Path;
+			TArray<ACell*> Path;
 			for (int i = ReversePath.Num() - 1; i >= 0; i--)
 				Path.Add(ReversePath[i]);
 			
 			return Path;
 		}
 
-		TArray<AIsometricCell*> FilteredNeighbours = FilterNeighbours(Current->Neighbours, ProcessedCells);
+		TArray<ACell*> FilteredNeighbours = FilterNeighbours(Current->Neighbours, ProcessedCells);
 		
 		for (auto Neighbour : FilteredNeighbours) {
 			bool InSearch = ToSearchCells.Contains(Neighbour);
@@ -52,17 +52,17 @@ TArray<AIsometricCell*> UNatureKeeperUtils::FindPath(AIsometricCell* StartCell, 
 		}
 	}
 	
-	return TArray<AIsometricCell*>();
+	return TArray<ACell*>();
 }
 
-TArray<AIsometricCell*> UNatureKeeperUtils::FilterNeighbours(TArray<AIsometricCell*> Neighbours,
-	TArray<AIsometricCell*> ProcessedCells)
+TArray<ACell*> UNatureKeeperUtils::FilterNeighbours(TArray<ACell*> Neighbours,
+	TArray<ACell*> ProcessedCells)
 {
-	TArray<AIsometricCell*> FilteredNeighbours;
+	TArray<ACell*> FilteredNeighbours;
 
 	for (int i = 0; i < Neighbours.Num(); i++)
 	{
-		if (Neighbours[i]->CellType == EIsometricCellType::ICT_Default && !ProcessedCells.Contains(Neighbours[i]))
+		if (Neighbours[i]->CellType == ECellType::ICT_Default && !ProcessedCells.Contains(Neighbours[i]))
 			FilteredNeighbours.Add(Neighbours[i]);
 	}
 
