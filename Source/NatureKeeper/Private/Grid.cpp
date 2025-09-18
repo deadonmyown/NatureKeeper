@@ -99,7 +99,8 @@ void AGrid::CreateGrid()
 		{
 			FActorSpawnParameters SpawnParams;
 			SpawnParams.Owner = this;
-			SpawnParams.Name = MakeUniqueObjectName(GetWorld(), ACell::StaticClass(), FName(*FString::Printf(TEXT("IsometricCell_%i"), i)));
+			//SpawnParams.Name = MakeUniqueObjectName(GetWorld(), CellClass, FName(*FString::Printf(TEXT("IsometricCell_%i"), i)));
+			SpawnParams.Name = MakeUniqueObjectName(GetWorld(), CellClass);
 			ACell* CreatedCell = GetWorld()->SpawnActor<ACell>(CellClass, FVector::ZeroVector,
 				FRotator::ZeroRotator, SpawnParams);
 			Cells.Add(CreatedCell);
@@ -124,7 +125,8 @@ void AGrid::CreateGrid()
 			{
 				FActorSpawnParameters SpawnParams;
 				SpawnParams.Owner = this;
-				SpawnParams.Name = MakeUniqueObjectName(GetWorld(), ACell::StaticClass(), FName(*FString::Printf(TEXT("IsometricCell_%i"), i)));
+				//SpawnParams.Name = MakeUniqueObjectName(GetWorld(), CellClass, FName(*FString::Printf(TEXT("IsometricCell_%i"), i)));
+				SpawnParams.Name = MakeUniqueObjectName(GetWorld(), CellClass);
 				ACell* CreatedCell = GetWorld()->SpawnActor<ACell>(CellClass, FVector::ZeroVector,
 					FRotator::ZeroRotator, SpawnParams);
 				Cells.Add(CreatedCell);
