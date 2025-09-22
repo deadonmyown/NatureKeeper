@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/CellMovable.h"
+#include "Interfaces/Visitor.h"
 #include "NatureKeeperCharacter.generated.h"
 
 class UCellMovementComponent;
@@ -12,7 +13,7 @@ class USpringArmComponent;
 class UCameraComponent;
 
 UCLASS(Blueprintable)
-class ANatureKeeperCharacter : public ACharacter, public ICellMovable
+class ANatureKeeperCharacter : public ACharacter, public ICellMovable, public IVisitor
 {
 	GENERATED_BODY()
 

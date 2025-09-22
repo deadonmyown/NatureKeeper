@@ -4,7 +4,10 @@
 #include "IntVector2D.h"
 #include "GameFramework/Actor.h"
 #include "Interfaces/InteractiveActor.h"
+#include "Interfaces/Visitable.h"
 #include "Cell.generated.h"
+
+class UAuraComponent;
 
 UENUM(BlueprintType)
 enum class ECellType : uint8
@@ -14,12 +17,15 @@ enum class ECellType : uint8
 };
 
 UCLASS()
-class NATUREKEEPER_API ACell : public AActor, public IInteractiveActor
+class NATUREKEEPER_API ACell : public AActor, public IInteractiveActor, public IVisitable
 {
 	GENERATED_BODY()
 
 public:
 	ACell();
+
+	UPROPERTY(Category = Components, EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true, NoEditInline))
+	UAuraComponent* AuraComponent;
 
 protected:
 	virtual void BeginPlay() override;
@@ -67,4 +73,7 @@ public:
 
 	virtual bool StartInteract_Implementation(ACharacter* InteractionInvoker) override;
 	virtual bool StopInteract_Implementation(ACharacter* InteractionInvoker) override;
+
+	virtual bool StartVisit_Implementation(TScriptInterface<UVisitor>) override;
+	virtual bool EndVisit_Implementation(TScriptInterface<UVisitor>) override;
 };

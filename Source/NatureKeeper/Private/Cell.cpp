@@ -1,5 +1,6 @@
 ﻿#include "Cell.h"
 
+#include "AuraComponent.h"
 #include "NatureKeeperUtils.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/CellMovable.h"
@@ -7,6 +8,7 @@
 
 ACell::ACell()
 {
+	AuraComponent = CreateDefaultSubobject<UAuraComponent>("AuraComponent");
 }
 
 void ACell::BeginPlay()
@@ -57,5 +59,13 @@ bool ACell::StopInteract_Implementation(ACharacter* InteractionInvoker)
 		return ICellMovable::Execute_TryMoveByCells(InteractionInvoker, this);
 	}
 	return false;
+}
+
+bool ACell::StartVisit_Implementation(TScriptInterface<UVisitor> Visitor)
+{
+}
+
+bool ACell::EndVisit_Implementation(TScriptInterface<UVisitor> Visitor)
+{
 }
 
