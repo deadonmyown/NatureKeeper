@@ -1,26 +1,48 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿#include "AuraManager.h"
 
-
-#include "AuraManager.h"
-
-
-// Sets default values
 AAuraManager::AAuraManager()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
 }
 
-// Called when the game starts or when spawned
 void AAuraManager::BeginPlay()
 {
 	Super::BeginPlay();
 	
 }
 
-// Called every frame
-void AAuraManager::Tick(float DeltaTime)
+bool AAuraManager::RegisterAura(UAuraComponent* NewAura)
 {
-	Super::Tick(DeltaTime);
+	if (Auras.Contains(NewAura))
+		return false;
+
+	Auras.Add(NewAura);
+	return true;
+}
+
+bool AAuraManager::UnregisterAura(UAuraComponent* NewAura)
+{
+	if (!Auras.Contains(NewAura))
+		return false;
+
+	Auras.Remove(NewAura);
+	return true;
+}
+
+bool AAuraManager::RegisterAffectedActor(AActor* NewActor)
+{
+	if (AffectedActors.Contains(NewActor))
+		return false;
+
+	AffectedActors.Add(NewActor);
+	return true;
+}
+
+bool AAuraManager::UnregisterAffectedActor(AActor* NewActor)
+{
+	if (!AffectedActors.Contains(NewActor))
+		return false;
+
+	AffectedActors.Remove(NewActor);
+	return true;
 }
 

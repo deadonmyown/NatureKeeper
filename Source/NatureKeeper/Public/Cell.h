@@ -74,6 +74,6 @@ public:
 	virtual bool StartInteract_Implementation(ACharacter* InteractionInvoker) override;
 	virtual bool StopInteract_Implementation(ACharacter* InteractionInvoker) override;
 
-	virtual bool StartVisit_Implementation(TScriptInterface<UVisitor>) override;
-	virtual bool EndVisit_Implementation(TScriptInterface<UVisitor>) override;
+	virtual bool StartVisit_Implementation(TScriptInterface<UVisitor> Visitor) override;
+	virtual bool EndVisit_Implementation(TScriptInterface<UVisitor> Visitor) override;
 };

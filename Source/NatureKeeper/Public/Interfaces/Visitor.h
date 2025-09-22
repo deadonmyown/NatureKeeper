@@ -23,7 +23,7 @@ class NATUREKEEPER_API IVisitor
 
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Visitable")
-	bool OnStartVisit(TScriptInterface<UVisitable>);
+	bool OnStartVisit(TScriptInterface<UVisitable> Visitable);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Visitable")
-	bool OnEndVisit(TScriptInterface<UVisitable>);
+	bool OnEndVisit(TScriptInterface<UVisitable> Visitable);
 };

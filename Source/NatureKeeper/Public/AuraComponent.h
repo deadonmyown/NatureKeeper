@@ -7,6 +7,8 @@
 #include "AuraComponent.generated.h"
 
 
+class UEffectBase;
+
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class NATUREKEEPER_API UAuraComponent : public UActorComponent
 {
@@ -17,7 +19,9 @@ public:
 	UAuraComponent();
 
 protected:
-	// Called when the game starts
+	UPROPERTY(Instanced, EditAnywhere, BlueprintReadWrite, Category = "Aura")
+	TArray<UEffectBase*> Effects;
+
 	virtual void BeginPlay() override;
 
 public:

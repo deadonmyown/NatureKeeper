@@ -14,10 +14,13 @@
 #include "Materials/Material.h"
 #include "Engine/World.h"
 #include "Interfaces/CellMovementInterface.h"
+#include "ResourceSystem/HealthComponent.h"
 
 ANatureKeeperCharacter::ANatureKeeperCharacter()
 {
 	CellMovementComponent = CreateDefaultSubobject<UCellMovementComponent>(FName("CellMovementComponent"));
+
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>("HealthComponent");
 	
 	// Set size for player capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
@@ -80,3 +83,15 @@ bool ANatureKeeperCharacter::TryMoveByCells_Implementation(ACell* TargetCell)
 {
 	return ICellMovementInterface::Execute_TryStartActiveMoveByPath(CellMovementComponent, TargetCell);
 }
+
+bool ANatureKeeperCharacter::OnStartVisit_Implementation(TScriptInterface<UVisitable> Visitable)
+{
+	return true;
+}
+
+bool ANatureKeeperCharacter::OnEndVisit_Implementation(TScriptInterface<UVisitable> Visitable)
+{
+	return true;
+}
+
+

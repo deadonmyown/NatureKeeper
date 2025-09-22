@@ -5,15 +5,18 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/CellMovable.h"
+#include "Interfaces/Damageable.h"
 #include "Interfaces/Visitor.h"
 #include "NatureKeeperCharacter.generated.h"
 
+class UEffectBase;
+class UHealthComponent;
 class UCellMovementComponent;
 class USpringArmComponent;
 class UCameraComponent;
 
 UCLASS(Blueprintable)
-class ANatureKeeperCharacter : public ACharacter, public ICellMovable, public IVisitor
+class ANatureKeeperCharacter : public ACharacter, public ICellMovable, public IVisitor, public IDamageable
 {
 	GENERATED_BODY()
 
@@ -30,6 +33,8 @@ public:
 private:
 	UPROPERTY(Category = Components, EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true, NoEditInline))
 	UCellMovementComponent* CellMovementComponent;
+	UPROPERTY(Category = Components, EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true, NoEditInline))
+	UHealthComponent* HealthComponent;
 	
 	/** Top down camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -38,9 +43,16 @@ private:
 	/** Camera boom positioning the camera above the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;
+
+	/** Aura from player that affecting cells on visit to transform from fel aura (negative black aura) to light (positive aura)*/
+	UPROPERTY(Instanced, EditAnywhere, BlueprintReadWrite, Category = "Effect")
+	TArray<UEffectBase*> PlayerAuraEffects;
 	
 	virtual TScriptInterface<UCellMovementInterface> GetCellMovementInterface_Implementation() override;
 	virtual USceneComponent* GetNavigationRoot_Implementation() override;
 	virtual bool TryMoveByCells_Implementation(ACell* TargetCell) override;
+
+	virtual bool OnStartVisit_Implementation(TScriptInterface<UVisitable> Visitable) override;
+	virtual bool OnEndVisit_Implementation(TScriptInterface<UVisitable> Visitable) override;
 };
 

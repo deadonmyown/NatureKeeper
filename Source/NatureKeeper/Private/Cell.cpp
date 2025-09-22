@@ -63,9 +63,11 @@ bool ACell::StopInteract_Implementation(ACharacter* InteractionInvoker)
 
 bool ACell::StartVisit_Implementation(TScriptInterface<UVisitor> Visitor)
 {
+	return true;
 }
 
 bool ACell::EndVisit_Implementation(TScriptInterface<UVisitor> Visitor)
 {
+	return true;
 }
 
