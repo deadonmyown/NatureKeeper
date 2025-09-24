@@ -4,6 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "AuraManager.generated.h"
 
+class UAffectable;
 class UAuraComponent;
 
 UCLASS()
@@ -20,17 +21,17 @@ protected:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Aura")
 	TArray<UAuraComponent*> Auras;
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Aura")
-	TArray<AActor*> AffectedActors;
+	TArray<TScriptInterface<UAffectable>> AffectedObjects;
 public:
 	UFUNCTION(BlueprintCallable, Category = "Aura")
 	bool RegisterAura(UAuraComponent* NewAura);
 	UFUNCTION(BlueprintCallable, Category = "Aura")
-	bool UnregisterAura(UAuraComponent* NewAura);
+	bool UnregisterAura(UAuraComponent* AuraToRemove);
 	UFUNCTION(BlueprintCallable, Category = "Aura")
-	bool RegisterAffectedActor(AActor* NewActor);
+	bool RegisterAffectedObject(TScriptInterface<UAffectable> NewObject);
 	UFUNCTION(BlueprintCallable, Category = "Aura")
-	bool UnregisterAffectedActor(AActor* NewActor);
+	bool UnregisterAffectedObject(TScriptInterface<UAffectable> NewObject);
 
 	UFUNCTION(BlueprintCallable, Category = "Aura")
-	TArray<AActor*> GetAffectedActors() const {return AffectedActors;}
+	TArray<TScriptInterface<UAffectable>> GetAffectedObjects() const {return AffectedObjects;}
 };

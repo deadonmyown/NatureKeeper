@@ -5,6 +5,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Interfaces/CellMovable.h"
+#include "Interfaces/Visitor.h"
 #include "Kismet/KismetMathLibrary.h"
 
 
@@ -42,7 +43,10 @@ void UCellMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 		
 		if (LocationDiff <= Epsilon)
 		{
+			//On Update we visit cells that we are moving on (for example to change aura type)
+			IVisitor::Execute_OnEndVisit(CharacterOwner, CurrentCellStandOn);
 			CurrentCellStandOn = CurrentMovingToCell;
+			IVisitor::Execute_OnStartVisit(CharacterOwner, CurrentCellStandOn);
 			
 			if (CurrentMovingToCell == CurrentTargetCell)
 			{
@@ -69,6 +73,10 @@ void UCellMovementComponent::InitCellComponent(ACharacter* NewCharacterOwner)
 {
 	CharacterOwner = NewCharacterOwner;
 	ICellMovementInterface::Execute_CellIdle(this);
+
+	//On Init we visit by our character cell that we on right now (for example to change aura type)
+	if (CurrentCellStandOn)
+		IVisitor::Execute_OnStartVisit(CharacterOwner, CurrentCellStandOn);
 }
 
 ACell* UCellMovementComponent::GetCellStandOn_Implementation()

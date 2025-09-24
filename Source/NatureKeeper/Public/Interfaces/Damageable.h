@@ -30,6 +30,8 @@ class NATUREKEEPER_API IDamageable
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Damageable")
+	void Heal(int HealAmount);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Damageable")
 	void TakeDamage(int Damage);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Damageable")
 	EDamageableType GetDamageableType();

@@ -26,7 +26,9 @@ public:
 
 protected:
 	UPROPERTY(Instanced, EditAnywhere, BlueprintReadWrite, Category = "Aura")
-	TArray<UEffectBase*> Effects;
+	TArray<UEffectBase*> EvilEffects;
+	UPROPERTY(Instanced, EditAnywhere, BlueprintReadWrite, Category = "Aura")
+	TArray<UEffectBase*> GoodEffects;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Aura")
 	EAuraType AuraType;
@@ -38,5 +40,11 @@ protected:
 
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Aura")
-	virtual void ChangeAuraEffects(const EAuraType NewAuraType, const TArray<UEffectBase*> NewEffects);
+	void ChangeAuraEffects(const EAuraType NewAuraType);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Aura")
+	void ApplyAuraEffect();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Aura")
+	void UpdateAuraEffect();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Aura")
+	void CancelAuraEffect();
 };

@@ -1,5 +1,7 @@
 ﻿#include "AuraManager.h"
 
+#include "AuraComponent.h"
+
 AAuraManager::AAuraManager()
 {
 }
@@ -16,33 +18,45 @@ bool AAuraManager::RegisterAura(UAuraComponent* NewAura)
 		return false;
 
 	Auras.Add(NewAura);
+
+	NewAura->ApplyAuraEffect();
+	
 	return true;
 }
 
-bool AAuraManager::UnregisterAura(UAuraComponent* NewAura)
+bool AAuraManager::UnregisterAura(UAuraComponent* AuraToRemove)
 {
-	if (!Auras.Contains(NewAura))
+	if (!Auras.Contains(AuraToRemove))
 		return false;
 
-	Auras.Remove(NewAura);
+	Auras.Remove(AuraToRemove);
+
+	AuraToRemove->CancelAuraEffect();
+	
 	return true;
 }
 
-bool AAuraManager::RegisterAffectedActor(AActor* NewActor)
+bool AAuraManager::RegisterAffectedObject(TScriptInterface<UAffectable> NewObject)
 {
-	if (AffectedActors.Contains(NewActor))
+	if (AffectedObjects.Contains(NewObject))
 		return false;
 
-	AffectedActors.Add(NewActor);
+	AffectedObjects.Add(NewObject);
+
+	for (int i = 0; i < Auras.Num(); i++)
+	{
+		Auras[i]->UpdateAuraEffect();
+	}
+	
 	return true;
 }
 
-bool AAuraManager::UnregisterAffectedActor(AActor* NewActor)
+bool AAuraManager::UnregisterAffectedObject(TScriptInterface<UAffectable> NewObject)
 {
-	if (!AffectedActors.Contains(NewActor))
+	if (!AffectedObjects.Contains(NewObject))
 		return false;
 
-	AffectedActors.Remove(NewActor);
+	AffectedObjects.Remove(NewObject);
 	return true;
 }
 

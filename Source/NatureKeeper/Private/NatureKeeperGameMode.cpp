@@ -29,11 +29,6 @@ ANatureKeeperGameMode::ANatureKeeperGameMode()
 
 void ANatureKeeperGameMode::StartPlay()
 {
-	Super::StartPlay();
-
-	if (!GetWorld())
-		return;
-
 	if (!AuraManager)
 	{
 		AuraManager = Cast<AAuraManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AuraManagerClass));
@@ -43,4 +38,6 @@ void ANatureKeeperGameMode::StartPlay()
 	{
 		AuraManager = GetWorld()->SpawnActor<AAuraManager>(AuraManagerClass);
 	}
+	
+	Super::StartPlay();
 }

@@ -3,22 +3,64 @@
 
 #include "Effects/EffectBase.h"
 
-bool UEffectBase::ApplyEffect_Implementation(AActor* InAffectedActor)
+#include "Interfaces/Affectable.h"
+
+bool UEffectBase::ApplyEffect(TArray<TScriptInterface<UAffectable>> InAffectedObjects)
 {
-	if (!InAffectedActor)
+	if (InAffectedObjects.IsEmpty())
+		return false;
+	
+	for (int i = 0; i < InAffectedObjects.Num(); i++)
+	{
+		if (InAffectedObjects[i].GetObject() && !AffectedObjects.Contains(InAffectedObjects[i]))
+		{
+			AffectedObjects.Add(InAffectedObjects[i]);
+			IAffectable::Execute_RegisterEffect(InAffectedObjects[i].GetObject(), this);
+
+			UE_LOG(LogTemp, Display, TEXT("AffectedObject: %s"), *InAffectedObjects[i].GetObject()->GetName());
+		}
+	}
+
+	if (AffectedObjects.IsEmpty())
 		return false;
 
-	AffectedActor = InAffectedActor;
+	//Immediately cancel because this is base effect
+	CancelEffect();
+
+	UE_LOG(LogTemp, Display, TEXT("Effect: %s"), *GetName());
+	
 	return true;
 }
 
-bool UEffectBase::CancelEffect_Implementation()
+bool UEffectBase::CancelEffectSingle(TScriptInterface<UAffectable> InAffectedObject)
 {
-	AffectedActor = nullptr;
+	if (!AffectedObjects.Contains(InAffectedObject))
+		return false;
+	
+	IAffectable::Execute_UnregisterEffect(InAffectedObject.GetObject(), this);
+	AffectedObjects.Remove(InAffectedObject);
+	
+	OnComplete.Broadcast(InAffectedObject);
 	return true;
 }
 
-AActor* UEffectBase::GetAffectedActor_Implementation()
+bool UEffectBase::CancelEffect()
 {
-	return AffectedActor;
+	if (AffectedObjects.IsEmpty())
+		return false;
+	
+	for (int i = 0; i < AffectedObjects.Num(); i++)
+	{
+		IAffectable::Execute_UnregisterEffect(AffectedObjects[i].GetObject(), this);
+		OnComplete.Broadcast(AffectedObjects[i]);
+	}
+	
+	AffectedObjects.Empty();
+	
+	return true;
+}
+
+TArray<TScriptInterface<UAffectable>> UEffectBase::GetAffectedObjects()
+{
+	return AffectedObjects;
 }

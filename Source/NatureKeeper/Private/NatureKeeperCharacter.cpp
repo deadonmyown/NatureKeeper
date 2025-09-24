@@ -67,7 +67,7 @@ void ANatureKeeperCharacter::BeginPlay()
 	}
 
 	AuraManager = GetWorld()->GetAuthGameMode<ANatureKeeperGameMode>()->GetAuraManager();
-	AuraManager->RegisterAffectedActor(this);
+	AuraManager->RegisterAffectedObject(this);
 	
 	Super::BeginPlay();
 }
@@ -92,21 +92,59 @@ bool ANatureKeeperCharacter::TryMoveByCells_Implementation(ACell* TargetCell)
 	return ICellMovementInterface::Execute_TryStartActiveMoveByPath(CellMovementComponent, TargetCell);
 }
 
-bool ANatureKeeperCharacter::OnStartVisit_Implementation(TScriptInterface<UVisitable> Visitable)
+bool ANatureKeeperCharacter::OnStartVisit_Implementation(const TScriptInterface<UVisitable>& Visitable)
 {
 	if (Visitable.GetObject())
 	{
 		if (ACell* Cell = Cast<ACell>(Visitable.GetObject()))
 		{
-			Cell->AuraComponent->ChangeAuraEffects(EAuraType::AT_Good, PlayerAuraEffects);
+			IVisitable::Execute_StartVisit(Cell, this);
+			Cell->AuraComponent->ChangeAuraEffects(EAuraType::AT_Good);
+			return true;
 		}
+
+		return IVisitable::Execute_StartVisit(Visitable.GetObject(), this);
 	}
 
 	return false;
 }
 
-bool ANatureKeeperCharacter::OnEndVisit_Implementation(TScriptInterface<UVisitable> Visitable)
+bool ANatureKeeperCharacter::OnEndVisit_Implementation(const TScriptInterface<UVisitable>& Visitable)
 {
+	if (Visitable.GetObject())
+	{
+		return IVisitable::Execute_EndVisit(Visitable.GetObject(), this);
+	}
+
+	return false;
+}
+
+void ANatureKeeperCharacter::Heal_Implementation(int HealAmount)
+{
+	HealthComponent->IncreaseResourceValue(HealAmount);
+}
+
+
+void ANatureKeeperCharacter::TakeDamage_Implementation(int Damage)
+{
+	HealthComponent->DecreaseResourceValue(Damage);
+}
+
+bool ANatureKeeperCharacter::RegisterEffect_Implementation(UEffectBase* EffectToAdd)
+{
+	if (Effects.Contains(EffectToAdd))
+		return false;
+
+	Effects.Add(EffectToAdd);
+	return true;
+}
+
+bool ANatureKeeperCharacter::UnregisterEffect_Implementation(UEffectBase* EffectToRemove)
+{
+	if (!Effects.Contains(EffectToRemove))
+		return false;
+
+	Effects.Remove(EffectToRemove);
 	return true;
 }
 

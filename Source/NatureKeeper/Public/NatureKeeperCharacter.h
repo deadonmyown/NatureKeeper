@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Interfaces/Affectable.h"
 #include "Interfaces/CellMovable.h"
 #include "Interfaces/Damageable.h"
 #include "Interfaces/Visitor.h"
@@ -17,7 +18,7 @@ class USpringArmComponent;
 class UCameraComponent;
 
 UCLASS(Blueprintable)
-class ANatureKeeperCharacter : public ACharacter, public ICellMovable, public IVisitor, public IDamageable
+class ANatureKeeperCharacter : public ACharacter, public ICellMovable, public IVisitor, public IDamageable, public IAffectable
 {
 	GENERATED_BODY()
 
@@ -31,7 +32,7 @@ public:
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE UCellMovementComponent* GetCellMovementComponent() const {return CellMovementComponent;}
 
-private:
+protected:
 	UPROPERTY(Category = Components, EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true, NoEditInline))
 	UCellMovementComponent* CellMovementComponent;
 	UPROPERTY(Category = Components, EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true, NoEditInline))
@@ -45,18 +46,25 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;
 
-	/** Aura from player that affecting cells on visit to transform from fel aura (negative black aura) to light (positive aura)*/
-	UPROPERTY(Instanced, EditAnywhere, BlueprintReadWrite, Category = "Effect")
-	TArray<UEffectBase*> PlayerAuraEffects;
-
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Aura")
 	AAuraManager* AuraManager;
-	
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Aura")
+	TArray<UEffectBase*> Effects;
+
+public:
 	virtual TScriptInterface<UCellMovementInterface> GetCellMovementInterface_Implementation() override;
 	virtual USceneComponent* GetNavigationRoot_Implementation() override;
 	virtual bool TryMoveByCells_Implementation(ACell* TargetCell) override;
 
-	virtual bool OnStartVisit_Implementation(TScriptInterface<UVisitable> Visitable) override;
-	virtual bool OnEndVisit_Implementation(TScriptInterface<UVisitable> Visitable) override;
+	virtual bool OnStartVisit_Implementation(const TScriptInterface<UVisitable>& Visitable) override;
+	virtual bool OnEndVisit_Implementation(const TScriptInterface<UVisitable>& Visitable) override;
+
+	virtual void Heal_Implementation(int HealAmount) override;
+	virtual void TakeDamage_Implementation(int Damage) override;
+	virtual EDamageableType GetDamageableType_Implementation() override {return EDamageableType::DT_Player; }
+
+	virtual bool RegisterEffect_Implementation(UEffectBase* EffectToAdd) override;
+	virtual bool UnregisterEffect_Implementation(UEffectBase* EffectToRemove) override;
 };
 
