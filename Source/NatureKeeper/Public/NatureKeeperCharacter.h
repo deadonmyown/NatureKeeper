@@ -9,6 +9,7 @@
 #include "Interfaces/Visitor.h"
 #include "NatureKeeperCharacter.generated.h"
 
+class AAuraManager;
 class UEffectBase;
 class UHealthComponent;
 class UCellMovementComponent;
@@ -47,6 +48,9 @@ private:
 	/** Aura from player that affecting cells on visit to transform from fel aura (negative black aura) to light (positive aura)*/
 	UPROPERTY(Instanced, EditAnywhere, BlueprintReadWrite, Category = "Effect")
 	TArray<UEffectBase*> PlayerAuraEffects;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Aura")
+	AAuraManager* AuraManager;
 	
 	virtual TScriptInterface<UCellMovementInterface> GetCellMovementInterface_Implementation() override;
 	virtual USceneComponent* GetNavigationRoot_Implementation() override;

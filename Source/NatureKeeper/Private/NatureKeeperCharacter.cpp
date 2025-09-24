@@ -2,8 +2,11 @@
 
 #include "NatureKeeper/Public/NatureKeeperCharacter.h"
 
+#include "AuraComponent.h"
+#include "AuraManager.h"
 #include "Cell.h"
 #include "CellMovementComponent.h"
+#include "NatureKeeperGameMode.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Camera/CameraComponent.h"
 #include "Components/DecalComponent.h"
@@ -15,6 +18,8 @@
 #include "Engine/World.h"
 #include "Interfaces/CellMovementInterface.h"
 #include "ResourceSystem/HealthComponent.h"
+
+class ANatureKeeperGameMode;
 
 ANatureKeeperCharacter::ANatureKeeperCharacter()
 {
@@ -60,6 +65,9 @@ void ANatureKeeperCharacter::BeginPlay()
 	{
 		CellMovementComponent->InitCellComponent(this);
 	}
+
+	AuraManager = GetWorld()->GetAuthGameMode<ANatureKeeperGameMode>()->GetAuraManager();
+	AuraManager->RegisterAffectedActor(this);
 	
 	Super::BeginPlay();
 }
@@ -86,7 +94,15 @@ bool ANatureKeeperCharacter::TryMoveByCells_Implementation(ACell* TargetCell)
 
 bool ANatureKeeperCharacter::OnStartVisit_Implementation(TScriptInterface<UVisitable> Visitable)
 {
-	return true;
+	if (Visitable.GetObject())
+	{
+		if (ACell* Cell = Cast<ACell>(Visitable.GetObject()))
+		{
+			Cell->AuraComponent->ChangeAuraEffects(EAuraType::AT_Good, PlayerAuraEffects);
+		}
+	}
+
+	return false;
 }
 
 bool ANatureKeeperCharacter::OnEndVisit_Implementation(TScriptInterface<UVisitable> Visitable)

@@ -6,7 +6,14 @@
 #include "Components/ActorComponent.h"
 #include "AuraComponent.generated.h"
 
+UENUM(BlueprintType)
+enum class EAuraType : uint8
+{
+	AT_Good,
+	AT_Evil
+};
 
+class AAuraManager;
 class UEffectBase;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -15,15 +22,21 @@ class NATUREKEEPER_API UAuraComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this component's properties
 	UAuraComponent();
 
 protected:
 	UPROPERTY(Instanced, EditAnywhere, BlueprintReadWrite, Category = "Aura")
 	TArray<UEffectBase*> Effects;
 
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Aura")
+	EAuraType AuraType;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Aura")
+	AAuraManager* AuraManager;
+
 	virtual void BeginPlay() override;
 
 public:
-	
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Aura")
+	virtual void ChangeAuraEffects(const EAuraType NewAuraType, const TArray<UEffectBase*> NewEffects);
 };

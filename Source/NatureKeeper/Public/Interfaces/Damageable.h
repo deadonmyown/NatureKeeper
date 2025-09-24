@@ -6,6 +6,13 @@
 #include "UObject/Interface.h"
 #include "Damageable.generated.h"
 
+UENUM(BlueprintType)
+enum class EDamageableType : uint8
+{
+	DT_Player,
+	DT_Enemy
+};
+
 // This class does not need to be modified.
 UINTERFACE()
 class UDamageable : public UInterface
@@ -24,4 +31,6 @@ class NATUREKEEPER_API IDamageable
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Damageable")
 	void TakeDamage(int Damage);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Damageable")
+	EDamageableType GetDamageableType();
 };

@@ -3,12 +3,22 @@
 
 #include "Effects/EffectBase.h"
 
-bool UEffectBase::ApplyEffect_Implementation(AActor* AffectedActor)
+bool UEffectBase::ApplyEffect_Implementation(AActor* InAffectedActor)
 {
+	if (!InAffectedActor)
+		return false;
+
+	AffectedActor = InAffectedActor;
 	return true;
 }
 
-bool UEffectBase::CancelEffect_Implementation(AActor* AffectedActor)
+bool UEffectBase::CancelEffect_Implementation()
 {
+	AffectedActor = nullptr;
 	return true;
+}
+
+AActor* UEffectBase::GetAffectedActor_Implementation()
+{
+	return AffectedActor;
 }

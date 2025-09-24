@@ -19,7 +19,9 @@ class NATUREKEEPER_API IEffectInterface
 
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Effect")
-	bool ApplyEffect(AActor* AffectedActor);
+	bool ApplyEffect(AActor* InAffectedActor);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Effect")
-	bool CancelEffect(AActor* AffectedActor);
+	bool CancelEffect();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Effect")
+	AActor* GetAffectedActor();
 };

@@ -30,4 +30,7 @@ public:
 	bool RegisterAffectedActor(AActor* NewActor);
 	UFUNCTION(BlueprintCallable, Category = "Aura")
 	bool UnregisterAffectedActor(AActor* NewActor);
+
+	UFUNCTION(BlueprintCallable, Category = "Aura")
+	TArray<AActor*> GetAffectedActors() const {return AffectedActors;}
 };

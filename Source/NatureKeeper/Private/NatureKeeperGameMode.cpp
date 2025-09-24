@@ -1,8 +1,10 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "NatureKeeper/Public/NatureKeeperGameMode.h"
+
+#include "AuraManager.h"
+#include "Kismet/GameplayStatics.h"
 #include "NatureKeeper/Public/NatureKeeperPlayerController.h"
-#include "NatureKeeper/Public/NatureKeeperCharacter.h"
 #include "UObject/ConstructorHelpers.h"
 
 ANatureKeeperGameMode::ANatureKeeperGameMode()
@@ -22,5 +24,23 @@ ANatureKeeperGameMode::ANatureKeeperGameMode()
 	if(PlayerControllerBPClass.Class != NULL)
 	{
 		PlayerControllerClass = PlayerControllerBPClass.Class;
+	}
+}
+
+void ANatureKeeperGameMode::StartPlay()
+{
+	Super::StartPlay();
+
+	if (!GetWorld())
+		return;
+
+	if (!AuraManager)
+	{
+		AuraManager = Cast<AAuraManager>(UGameplayStatics::GetActorOfClass(GetWorld(), AuraManagerClass));
+	}
+
+	if (!AuraManager)
+	{
+		AuraManager = GetWorld()->SpawnActor<AAuraManager>(AuraManagerClass);
 	}
 }
