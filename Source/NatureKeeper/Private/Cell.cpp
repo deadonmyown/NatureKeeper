@@ -1,14 +1,14 @@
 ﻿#include "Cell.h"
 
-#include "AuraComponent.h"
-#include "NatureKeeperUtils.h"
+#include "Effects/AbilityComponent.h"
 #include "GameFramework/Character.h"
+#include "Interfaces/Affectable.h"
 #include "Interfaces/CellMovable.h"
 
 
 ACell::ACell()
 {
-	AuraComponent = CreateDefaultSubobject<UAuraComponent>("AuraComponent");
+	AbilityComponent = CreateDefaultSubobject<UAbilityComponent>("AbilityComponent");
 }
 
 void ACell::BeginPlay()
@@ -63,7 +63,12 @@ bool ACell::StopInteract_Implementation(ACharacter* InteractionInvoker)
 
 bool ACell::StartVisit_Implementation(const TScriptInterface<UVisitor>& Visitor)
 {
-	return true;
+	if (Visitor.GetObject() && Visitor.GetObject()->Implements<UAffectable>())
+	{
+		AbilityComponent->ApplyAbilityEffect(Visitor.GetObject());
+		return true;
+	}
+	return false;
 }
 
 bool ACell::EndVisit_Implementation(const TScriptInterface<UVisitor>& Visitor)

@@ -9,8 +9,10 @@
 UENUM(BlueprintType)
 enum class EDamageableType : uint8
 {
-	DT_Player,
-	DT_Enemy
+	DT_GoodPlayer,
+	DT_GoodNPC,
+	DT_EvilNPC,
+	DT_EvilPlayer
 };
 
 // This class does not need to be modified.

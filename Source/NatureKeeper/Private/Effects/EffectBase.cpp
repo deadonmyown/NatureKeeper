@@ -3,64 +3,39 @@
 
 #include "Effects/EffectBase.h"
 
+#include "Effects/EffectFactory.h"
 #include "Interfaces/Affectable.h"
 
-bool UEffectBase::ApplyEffect(TArray<TScriptInterface<UAffectable>> InAffectedObjects)
+bool UEffectBase::ApplyEffect(TScriptInterface<UAffectable> InAffectedObject)
 {
-	if (InAffectedObjects.IsEmpty())
+	if (!InAffectedObject.GetObject() || !EffectFactory)
 		return false;
 	
-	for (int i = 0; i < InAffectedObjects.Num(); i++)
-	{
-		if (InAffectedObjects[i].GetObject() && !AffectedObjects.Contains(InAffectedObjects[i]))
-		{
-			AffectedObjects.Add(InAffectedObjects[i]);
-			IAffectable::Execute_RegisterEffect(InAffectedObjects[i].GetObject(), this);
+	
+	AffectedObject = InAffectedObject;
+	EffectFactory->AddEffect(this);
+	IAffectable::Execute_RegisterEffect(InAffectedObject.GetObject(), this);
 
-			UE_LOG(LogTemp, Display, TEXT("AffectedObject: %s"), *InAffectedObjects[i].GetObject()->GetName());
-		}
-	}
-
-	if (AffectedObjects.IsEmpty())
-		return false;
+	UE_LOG(LogTemp, Display, TEXT("AffectedObject: %s"), *InAffectedObject.GetObject()->GetName());
+	UE_LOG(LogTemp, Display, TEXT("Effect factory: %s"), *EffectFactory->GetName());
 
 	//Immediately cancel because this is base effect
 	CancelEffect();
 
-	UE_LOG(LogTemp, Display, TEXT("Effect: %s"), *GetName());
 	
-	return true;
-}
-
-bool UEffectBase::CancelEffectSingle(TScriptInterface<UAffectable> InAffectedObject)
-{
-	if (!AffectedObjects.Contains(InAffectedObject))
-		return false;
-	
-	IAffectable::Execute_UnregisterEffect(InAffectedObject.GetObject(), this);
-	AffectedObjects.Remove(InAffectedObject);
-	
-	OnComplete.Broadcast(InAffectedObject);
 	return true;
 }
 
 bool UEffectBase::CancelEffect()
 {
-	if (AffectedObjects.IsEmpty())
+	if (!AffectedObject.GetObject() || !EffectFactory)
 		return false;
-	
-	for (int i = 0; i < AffectedObjects.Num(); i++)
-	{
-		IAffectable::Execute_UnregisterEffect(AffectedObjects[i].GetObject(), this);
-		OnComplete.Broadcast(AffectedObjects[i]);
-	}
-	
-	AffectedObjects.Empty();
+
+	EffectFactory->RemoveEffect(this);
+	IAffectable::Execute_UnregisterEffect(AffectedObject.GetObject(), this);
+		
+	AffectedObject = nullptr;
+	EffectFactory = nullptr;
 	
 	return true;
-}
-
-TArray<TScriptInterface<UAffectable>> UEffectBase::GetAffectedObjects()
-{
-	return AffectedObjects;
 }

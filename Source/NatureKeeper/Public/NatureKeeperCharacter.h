@@ -10,6 +10,8 @@
 #include "Interfaces/Visitor.h"
 #include "NatureKeeperCharacter.generated.h"
 
+class UEvilComponent;
+class UManaComponent;
 class AAuraManager;
 class UEffectBase;
 class UHealthComponent;
@@ -37,6 +39,10 @@ protected:
 	UCellMovementComponent* CellMovementComponent;
 	UPROPERTY(Category = Components, EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true, NoEditInline))
 	UHealthComponent* HealthComponent;
+	UPROPERTY(Category = Components, EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true, NoEditInline))
+	UManaComponent* ManaComponent;
+	UPROPERTY(Category = Components, EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true, NoEditInline))
+	UEvilComponent* EvilComponent;
 	
 	/** Top down camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -46,11 +52,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;
 
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Aura")
-	AAuraManager* AuraManager;
-
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Aura")
-	TArray<UEffectBase*> Effects;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damageable")
+	EDamageableType DamageableType = EDamageableType::DT_GoodPlayer;
 
 public:
 	virtual TScriptInterface<UCellMovementInterface> GetCellMovementInterface_Implementation() override;
@@ -62,9 +65,8 @@ public:
 
 	virtual void Heal_Implementation(int HealAmount) override;
 	virtual void TakeDamage_Implementation(int Damage) override;
-	virtual EDamageableType GetDamageableType_Implementation() override {return EDamageableType::DT_Player; }
+	virtual EDamageableType GetDamageableType_Implementation() override {return DamageableType; }
 
-	virtual bool RegisterEffect_Implementation(UEffectBase* EffectToAdd) override;
-	virtual bool UnregisterEffect_Implementation(UEffectBase* EffectToRemove) override;
+	
 };
 

@@ -2,8 +2,6 @@
 
 #include "NatureKeeper/Public/NatureKeeperCharacter.h"
 
-#include "AuraComponent.h"
-#include "AuraManager.h"
 #include "Cell.h"
 #include "CellMovementComponent.h"
 #include "NatureKeeperGameMode.h"
@@ -11,13 +9,16 @@
 #include "Camera/CameraComponent.h"
 #include "Components/DecalComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Effects/AbilityComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Materials/Material.h"
 #include "Engine/World.h"
 #include "Interfaces/CellMovementInterface.h"
+#include "ResourceSystem/EvilComponent.h"
 #include "ResourceSystem/HealthComponent.h"
+#include "ResourceSystem/ManaComponent.h"
 
 class ANatureKeeperGameMode;
 
@@ -26,6 +27,8 @@ ANatureKeeperCharacter::ANatureKeeperCharacter()
 	CellMovementComponent = CreateDefaultSubobject<UCellMovementComponent>(FName("CellMovementComponent"));
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>("HealthComponent");
+	ManaComponent = CreateDefaultSubobject<UManaComponent>("ManaComponent");
+	EvilComponent = CreateDefaultSubobject<UEvilComponent>("EvilComponent");
 	
 	// Set size for player capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
@@ -65,9 +68,6 @@ void ANatureKeeperCharacter::BeginPlay()
 	{
 		CellMovementComponent->InitCellComponent(this);
 	}
-
-	AuraManager = GetWorld()->GetAuthGameMode<ANatureKeeperGameMode>()->GetAuraManager();
-	AuraManager->RegisterAffectedObject(this);
 	
 	Super::BeginPlay();
 }
@@ -99,7 +99,7 @@ bool ANatureKeeperCharacter::OnStartVisit_Implementation(const TScriptInterface<
 		if (ACell* Cell = Cast<ACell>(Visitable.GetObject()))
 		{
 			IVisitable::Execute_StartVisit(Cell, this);
-			Cell->AuraComponent->ChangeAuraEffects(EAuraType::AT_Good);
+			Cell->AbilityComponent->ChangeAbilityEffectsFactory(DamageableType == EDamageableType::DT_GoodPlayer ? EAbilityType::AT_Good : EAbilityType::AT_Evil);
 			return true;
 		}
 
@@ -129,23 +129,3 @@ void ANatureKeeperCharacter::TakeDamage_Implementation(int Damage)
 {
 	HealthComponent->DecreaseResourceValue(Damage);
 }
-
-bool ANatureKeeperCharacter::RegisterEffect_Implementation(UEffectBase* EffectToAdd)
-{
-	if (Effects.Contains(EffectToAdd))
-		return false;
-
-	Effects.Add(EffectToAdd);
-	return true;
-}
-
-bool ANatureKeeperCharacter::UnregisterEffect_Implementation(UEffectBase* EffectToRemove)
-{
-	if (!Effects.Contains(EffectToRemove))
-		return false;
-
-	Effects.Remove(EffectToRemove);
-	return true;
-}
-
-

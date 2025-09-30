@@ -7,7 +7,8 @@
 #include "Interfaces/Visitable.h"
 #include "Cell.generated.h"
 
-class UAuraComponent;
+
+class UAbilityComponent;
 
 UENUM(BlueprintType)
 enum class ECellType : uint8
@@ -25,7 +26,7 @@ public:
 	ACell();
 
 	UPROPERTY(Category = Components, EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true, NoEditInline))
-	UAuraComponent* AuraComponent;
+	UAbilityComponent* AbilityComponent;
 
 protected:
 	virtual void BeginPlay() override;
