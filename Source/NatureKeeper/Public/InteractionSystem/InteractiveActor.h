@@ -13,6 +13,6 @@ class NATUREKEEPER_API AInteractiveActor : public AActor, public IInteractiveAct
 public:
 	AInteractiveActor();
 
-	virtual bool StartInteract_Implementation(ACharacter* InteractionInvoker) override;
-	virtual bool StopInteract_Implementation(ACharacter* InteractionInvoker) override;
+	virtual bool StartInteract_Implementation(AActor* InteractionInvoker) override;
+	virtual bool StopInteract_Implementation(AActor* InteractionInvoker) override;
 };

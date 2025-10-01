@@ -75,8 +75,8 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Cell")
 	void OnMinEvilEnergyValueReach(int MinValue);
 
-	virtual bool StartInteract_Implementation(ACharacter* InteractionInvoker) override;
-	virtual bool StopInteract_Implementation(ACharacter* InteractionInvoker) override;
+	virtual bool StartInteract_Implementation(AActor* InteractionInvoker) override;
+	virtual bool StopInteract_Implementation(AActor* InteractionInvoker) override;
 
 	virtual bool StartVisit_Implementation(const TScriptInterface<UVisitor>& Visitor) override;
 	virtual bool EndVisit_Implementation(const TScriptInterface<UVisitor>& Visitor) override;

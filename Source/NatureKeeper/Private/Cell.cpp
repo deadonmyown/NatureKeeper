@@ -2,7 +2,6 @@
 
 #include "ResourceSystem/EvilComponent.h"
 #include "GameFramework/Character.h"
-#include "Interfaces/Affectable.h"
 #include "Interfaces/CellMovable.h"
 
 
@@ -54,12 +53,12 @@ void ACell::OnMinEvilEnergyValueReach_Implementation(int MinValue)
 	
 }
 
-bool ACell::StartInteract_Implementation(ACharacter* InteractionInvoker)
+bool ACell::StartInteract_Implementation(AActor* InteractionInvoker)
 {
 	return false;
 }
 
-bool ACell::StopInteract_Implementation(ACharacter* InteractionInvoker)
+bool ACell::StopInteract_Implementation(AActor* InteractionInvoker)
 {
 	if (InteractionInvoker->Implements<UCellMovable>())
 	{

@@ -16,7 +16,7 @@ void UTargetComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, 
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (TargetStrategy)
+	if (TargetStrategy && TargetStrategy->GetIsTargeting())
 	{
 		TargetStrategy->UpdateStrategy();
 	}

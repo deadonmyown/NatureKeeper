@@ -55,7 +55,7 @@ void UCellMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 			else
 			{
 				CurrentMovingToCellIndex++;
-				CurrentMovingToCell = CurrentPath[CurrentMovingToCellIndex];
+				CurrentMovingToCell = CurrentMovingPath[CurrentMovingToCellIndex];
 				UE_LOG(LogTemp, Display, TEXT("change cell %s"), *CurrentMovingToCell->GetName());
 			}
 		}
@@ -101,7 +101,7 @@ ACell* UCellMovementComponent::GetTargetCell_Implementation()
 
 TArray<ACell*> UCellMovementComponent::GetPath_Implementation()
 {
-	return CurrentPath;
+	return CurrentMovingPath;
 }
 
 float UCellMovementComponent::GetCellMovementCurrentSpeed_Implementation()
@@ -155,27 +155,45 @@ void UCellMovementComponent::CellIdle_Implementation()
 
 bool UCellMovementComponent::TryStartActiveMoveByPath_Implementation(ACell* TargetCell)
 {
-	ICellMovementInterface::Execute_CellIdle(this);
+	if (CurrentMovingPath.IsEmpty())
+	{
+		ICellMovementInterface::Execute_CellIdle(this);
 
-	if (!CurrentCellStandOn || !TargetCell)
-		return false;
+		if (!CurrentCellStandOn || !TargetCell)
+			return false;
 	
-	TArray<ACell*> NewPath = UNatureKeeperUtils::FindPath(CurrentCellStandOn, TargetCell);
+		TArray<ACell*> NewPath = UNatureKeeperUtils::FindPath(CurrentCellStandOn, TargetCell);
+
+		if (NewPath.IsEmpty())
+			return false;
+
+		CurrentMovingPath = NewPath;
+		CurrentTargetCell = NewPath[NewPath.Num() - 1];
+		CurrentMovingToCellIndex = 0;
+		CurrentMovingToCell = NewPath[CurrentMovingToCellIndex];
+
+		return true;
+	}
+	
+	if (!CurrentMovingToCell || !TargetCell || CurrentMovingToCellIndex == INDEX_NONE)
+		return false;
+
+	TArray<ACell*> NewPath = UNatureKeeperUtils::FindPath(CurrentMovingToCell, TargetCell);
 
 	if (NewPath.IsEmpty())
 		return false;
 
-	CurrentPath = NewPath;
-	CurrentTargetCell = NewPath[NewPath.Num() - 1];
+	CurrentMovingPath.Empty();
+	CurrentMovingPath.Add(CurrentMovingToCell);
+	CurrentMovingPath.Append(NewPath);
 	CurrentMovingToCellIndex = 0;
-	CurrentMovingToCell = NewPath[CurrentMovingToCellIndex];
-
+		
 	return true;
 }
 
 bool UCellMovementComponent::TryStopActiveMoveByPath_Implementation()
 {
-	CurrentPath.Empty();
+	CurrentMovingPath.Empty();
 	CurrentTargetCell = nullptr;
 	CurrentMovingToCell = nullptr;
 	CurrentMovingToCellIndex = INDEX_NONE;

@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerController.h"
 #include "NatureKeeperPlayerController.generated.h"
 
+class ANatureKeeperCharacter;
 /** Forward declaration to improve compiling times */
 class UNiagaraSystem;
 class UInputMappingContext;
@@ -38,13 +39,25 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* SetDestinationClickAction;
 
-	/** Jump Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	UInputAction* SetDestinationTouchAction;
 
 protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player)
+	ANatureKeeperCharacter* NatureKeeperCharacter;
+	
 	/** True if the controlled character should navigate to the mouse cursor. */
 	uint32 bMoveToMouseCursor : 1;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Player)
+	float TraceUpdateTime = 0.5f;
+
+	FTimerHandle TraceUpdateTimerHandle;
+	
+	/** For how long it has been pressed */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player)
+	float FollowTime;
+	
+	UFUNCTION()
+	void UpdateTrace();
 
 	virtual void SetupInputComponent() override;
 	
@@ -55,11 +68,8 @@ protected:
 	void OnInputStarted();
 	void OnSetDestinationTriggered();
 	void OnSetDestinationReleased();
-	void OnTouchTriggered();
-	void OnTouchReleased();
-
-	bool bIsTouch; // Is it a touch device
-	float FollowTime; // For how long it has been pressed
+	
+	 
 };
 
 

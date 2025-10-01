@@ -4,6 +4,7 @@
 
 #include "Cell.h"
 #include "CellMovementComponent.h"
+#include "FocusComponent.h"
 #include "NatureKeeperGameMode.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Camera/CameraComponent.h"
@@ -19,16 +20,21 @@
 #include "ResourceSystem/EvilComponent.h"
 #include "ResourceSystem/HealthComponent.h"
 #include "ResourceSystem/ManaComponent.h"
+#include "TargetSystem/TargetComponent.h"
 
 class ANatureKeeperGameMode;
 
 ANatureKeeperCharacter::ANatureKeeperCharacter()
 {
 	CellMovementComponent = CreateDefaultSubobject<UCellMovementComponent>(FName("CellMovementComponent"));
+	AbilityComponent = CreateDefaultSubobject<UAbilityComponent>("AbilityComponent");
+	TargetComponent = CreateDefaultSubobject<UTargetComponent>("TargetComponent");
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>("HealthComponent");
 	ManaComponent = CreateDefaultSubobject<UManaComponent>("ManaComponent");
 	EvilComponent = CreateDefaultSubobject<UEvilComponent>("EvilComponent");
+
+	FocusComponent = CreateDefaultSubobject<UFocusComponent>("FocusComponent");
 	
 	// Set size for player capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);

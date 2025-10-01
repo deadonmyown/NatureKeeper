@@ -6,8 +6,8 @@
 #include "UObject/Object.h"
 #include "TargetStrategy.generated.h"
 
+class UAbility;
 class UTargetComponent;
-class UAbilityComponent;
 /**
  * 
  */
@@ -17,7 +17,7 @@ class NATUREKEEPER_API UTargetStrategy : public UObject
 	GENERATED_BODY()
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Target")
-	UAbilityComponent* AbilityComponent;
+	UAbility* Ability;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Target")
 	UTargetComponent* TargetComponent;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Target")
@@ -25,9 +25,12 @@ protected:
 	
 public:
 	UFUNCTION(BlueprintCallable, Category = "Target")
-	virtual void StartStrategy(UAbilityComponent* InAbility, UTargetComponent* InTargetComponent);
+	virtual void StartStrategy(UAbility* InAbility, UTargetComponent* InTargetComponent);
 	UFUNCTION(BlueprintCallable, Category = "Target")
 	virtual void UpdateStrategy();
 	UFUNCTION(BlueprintCallable, Category = "Target")
 	virtual void CancelStrategy();
+
+	UFUNCTION(BlueprintCallable, Category = "Target")
+	bool GetIsTargeting() const {return bIsTargeting;}
 };

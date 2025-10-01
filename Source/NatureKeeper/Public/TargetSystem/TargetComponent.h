@@ -30,5 +30,6 @@ public:
 	void SetTargetStrategy(UTargetStrategy* NewTargetStrategy);
 	UFUNCTION(BlueprintCallable, Category = "Target")
 	void ClearTargetStrategy();
-
+	UFUNCTION(BlueprintCallable, Category = "Target")
+	UTargetStrategy* GetTargetStrategy() const {return TargetStrategy;}
 };

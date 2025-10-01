@@ -10,9 +10,13 @@
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
 #include "EnhancedInputSubsystems.h"
+#include "FocusComponent.h"
 #include "IsometricCell.h"
 #include "NatureKeeperUtils.h"
 #include "Engine/LocalPlayer.h"
+#include "Interfaces/InteractiveActorInterface.h"
+#include "TargetSystem/TargetComponent.h"
+#include "TargetSystem/TargetStrategy.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -26,6 +30,29 @@ ANatureKeeperPlayerController::ANatureKeeperPlayerController()
 void ANatureKeeperPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+
+	NatureKeeperCharacter = Cast<ANatureKeeperCharacter>(GetCharacter());
+
+	GetWorld()->GetTimerManager().SetTimer(TraceUpdateTimerHandle, this, &ANatureKeeperPlayerController::UpdateTrace, TraceUpdateTime);
+}
+
+void ANatureKeeperPlayerController::UpdateTrace()
+{
+	FHitResult Hit;
+	
+	bool bIsFocus = GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit);
+
+	if (bIsFocus)
+	{
+		float FocusDistanceToPlayer = FVector::Distance(Hit.Location, NatureKeeperCharacter->GetActorLocation());
+		UPrimitiveComponent* FocusedComponent = Hit.GetComponent();
+		AActor* FocusedActor = Hit.GetActor();
+		NatureKeeperCharacter->GetFocusComponent()->UpdateFocus(bIsFocus, FocusDistanceToPlayer, FocusedComponent, FocusedActor);
+	}
+	else
+	{
+		NatureKeeperCharacter->GetFocusComponent()->ClearFocus();
+	}
 }
 
 void ANatureKeeperPlayerController::SetupInputComponent()
@@ -47,12 +74,6 @@ void ANatureKeeperPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Triggered, this, &ANatureKeeperPlayerController::OnSetDestinationTriggered);
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Completed, this, &ANatureKeeperPlayerController::OnSetDestinationReleased);
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Canceled, this, &ANatureKeeperPlayerController::OnSetDestinationReleased);
-
-		// Setup touch input events
-		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Started, this, &ANatureKeeperPlayerController::OnInputStarted);
-		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Triggered, this, &ANatureKeeperPlayerController::OnTouchTriggered);
-		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Completed, this, &ANatureKeeperPlayerController::OnTouchReleased);
-		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Canceled, this, &ANatureKeeperPlayerController::OnTouchReleased);
 	}
 	else
 	{
@@ -62,24 +83,17 @@ void ANatureKeeperPlayerController::SetupInputComponent()
 
 void ANatureKeeperPlayerController::OnInputStarted()
 {
-	StopMovement();
 
-	FHitResult Hit;
-	bool bHitSuccessful = false;
-	if (bIsTouch)
-	{
-		bHitSuccessful = GetHitResultUnderFinger(ETouchIndex::Touch1, ECollisionChannel::ECC_Visibility, true, Hit);
-	}
-	else
-	{
-		bHitSuccessful = GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit);
-	}
+	if (NatureKeeperCharacter->GetTargetComponent()->GetTargetStrategy() && NatureKeeperCharacter->GetTargetComponent()->GetTargetStrategy()->GetIsTargeting())
+		return;
 
-	if (bHitSuccessful)
+	UpdateTrace();
+
+	if (NatureKeeperCharacter->GetFocusComponent()->bIsFocus)
 	{
-		if (Hit.GetActor()->Implements<UInteractiveActorInterface>())
+		if (NatureKeeperCharacter->GetFocusComponent()->FocusedActor->Implements<UInteractiveActorInterface>())
 		{
-			IInteractiveActorInterface::Execute_StartInteract(Hit.GetActor(), GetCharacter());
+			IInteractiveActorInterface::Execute_StartInteract(NatureKeeperCharacter->GetFocusComponent()->FocusedActor, GetCharacter());
 		}
 	}
 }
@@ -93,41 +107,21 @@ void ANatureKeeperPlayerController::OnSetDestinationTriggered()
 
 void ANatureKeeperPlayerController::OnSetDestinationReleased()
 {
-	FHitResult Hit;
-	bool bHitSuccessful = false;
-	if (bIsTouch)
+	UpdateTrace();
+	
+	if (NatureKeeperCharacter->GetFocusComponent()->bIsFocus)
 	{
-		bHitSuccessful = GetHitResultUnderFinger(ETouchIndex::Touch1, ECollisionChannel::ECC_Visibility, true, Hit);
-	}
-	else
-	{
-		bHitSuccessful = GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit);
-	}
-
-	if (bHitSuccessful)
-	{
-		if (Hit.GetActor()->Implements<UInteractiveActorInterface>())
+		if (NatureKeeperCharacter->GetFocusComponent()->FocusedActor->Implements<UInteractiveActorInterface>())
 		{
-			if (IInteractiveActorInterface::Execute_StopInteract(Hit.GetActor(), GetCharacter()))
+			if (IInteractiveActorInterface::Execute_StopInteract(NatureKeeperCharacter->GetFocusComponent()->FocusedActor, GetCharacter()))
 			{
-				UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FXCursor, Hit.GetActor()->GetActorLocation(),
-					FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f), true, true, ENCPoolMethod::None, true);
+				UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FXCursor,
+					NatureKeeperCharacter->GetFocusComponent()->FocusedActor->GetActorLocation(),
+					FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f),
+					true, true, ENCPoolMethod::None, true);
 			}
 		}
 	}
 
 	FollowTime = 0.f;
-}
-
-// Triggered every frame when the input is held down
-void ANatureKeeperPlayerController::OnTouchTriggered()
-{
-	bIsTouch = true;
-	OnSetDestinationTriggered();
-}
-
-void ANatureKeeperPlayerController::OnTouchReleased()
-{
-	bIsTouch = false;
-	OnSetDestinationReleased();
 }

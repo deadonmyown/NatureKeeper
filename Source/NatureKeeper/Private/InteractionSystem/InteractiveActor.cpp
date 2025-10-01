@@ -4,12 +4,12 @@ AInteractiveActor::AInteractiveActor()
 {
 }
 
-bool AInteractiveActor::StartInteract_Implementation(ACharacter* InteractionInvoker)
+bool AInteractiveActor::StartInteract_Implementation(AActor* InteractionInvoker)
 {
 	return true;
 }
 
-bool AInteractiveActor::StopInteract_Implementation(ACharacter* InteractionInvoker)
+bool AInteractiveActor::StopInteract_Implementation(AActor* InteractionInvoker)
 {
 	return true;
 }

@@ -32,7 +32,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Cell Movement")
 	int32 CurrentMovingToCellIndex;
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Cell Movement")
-	TArray<ACell*> CurrentPath;
+	TArray<ACell*> CurrentMovingPath;
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Cell Movement")
 	float CurrentCellMovementSpeed;
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Cell Movement")
