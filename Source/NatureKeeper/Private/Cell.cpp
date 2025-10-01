@@ -1,6 +1,6 @@
 ﻿#include "Cell.h"
 
-#include "Effects/AbilityComponent.h"
+#include "ResourceSystem/EvilComponent.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/Affectable.h"
 #include "Interfaces/CellMovable.h"
@@ -8,13 +8,14 @@
 
 ACell::ACell()
 {
-	AbilityComponent = CreateDefaultSubobject<UAbilityComponent>("AbilityComponent");
+	EvilComponent = CreateDefaultSubobject<UEvilComponent>("EvilComponent");
 }
 
 void ACell::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	EvilComponent->OnResourceValueReachMin.AddDynamic(this, &ACell::OnMinEvilEnergyValueReach);
 }
 
 void ACell::SetCostToStart(int32 NewCost)
@@ -47,6 +48,12 @@ USceneComponent* ACell::GetNavigationRoot_Implementation()
 	return RootComponent;
 }
 
+//Change material cell color
+void ACell::OnMinEvilEnergyValueReach_Implementation(int MinValue)
+{
+	
+}
+
 bool ACell::StartInteract_Implementation(ACharacter* InteractionInvoker)
 {
 	return false;
@@ -63,12 +70,7 @@ bool ACell::StopInteract_Implementation(ACharacter* InteractionInvoker)
 
 bool ACell::StartVisit_Implementation(const TScriptInterface<UVisitor>& Visitor)
 {
-	if (Visitor.GetObject() && Visitor.GetObject()->Implements<UAffectable>())
-	{
-		AbilityComponent->ApplyAbilityEffect(Visitor.GetObject());
-		return true;
-	}
-	return false;
+	return true;
 }
 
 bool ACell::EndVisit_Implementation(const TScriptInterface<UVisitor>& Visitor)

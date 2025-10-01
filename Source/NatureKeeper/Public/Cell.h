@@ -3,12 +3,12 @@
 #include "CoreMinimal.h"
 #include "IntVector2D.h"
 #include "GameFramework/Actor.h"
-#include "Interfaces/InteractiveActor.h"
+#include "InteractionSystem/InteractiveActor.h"
 #include "Interfaces/Visitable.h"
 #include "Cell.generated.h"
 
 
-class UAbilityComponent;
+class UEvilComponent;
 
 UENUM(BlueprintType)
 enum class ECellType : uint8
@@ -18,7 +18,7 @@ enum class ECellType : uint8
 };
 
 UCLASS()
-class NATUREKEEPER_API ACell : public AActor, public IInteractiveActor, public IVisitable
+class NATUREKEEPER_API ACell : public AInteractiveActor, public IVisitable
 {
 	GENERATED_BODY()
 
@@ -26,7 +26,7 @@ public:
 	ACell();
 
 	UPROPERTY(Category = Components, EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true, NoEditInline))
-	UAbilityComponent* AbilityComponent;
+	UEvilComponent* EvilComponent;
 
 protected:
 	virtual void BeginPlay() override;
@@ -71,6 +71,9 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Pathfinding")
 	USceneComponent* GetNavigationRoot();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Cell")
+	void OnMinEvilEnergyValueReach(int MinValue);
 
 	virtual bool StartInteract_Implementation(ACharacter* InteractionInvoker) override;
 	virtual bool StopInteract_Implementation(ACharacter* InteractionInvoker) override;

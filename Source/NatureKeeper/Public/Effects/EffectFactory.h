@@ -20,7 +20,7 @@ protected:
 	TArray<UEffectBase*> Effects;
 public:
 	UFUNCTION(BlueprintCallable, Category = "Effects")
-	UEffectBase* CreateEffect();
+	virtual UEffectBase* CreateEffect();
 	UFUNCTION(BlueprintCallable, Category = "Effects")
 	bool AddEffect(UEffectBase* EffectToAdd);
 	UFUNCTION(BlueprintCallable, Category = "Effects")

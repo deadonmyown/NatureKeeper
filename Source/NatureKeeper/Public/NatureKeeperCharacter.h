@@ -10,6 +10,7 @@
 #include "Interfaces/Visitor.h"
 #include "NatureKeeperCharacter.generated.h"
 
+class UAbilityComponent;
 class UEvilComponent;
 class UManaComponent;
 class AAuraManager;

@@ -21,7 +21,6 @@ bool UEffectBase::ApplyEffect(TScriptInterface<UAffectable> InAffectedObject)
 
 	//Immediately cancel because this is base effect
 	CancelEffect();
-
 	
 	return true;
 }

@@ -98,8 +98,12 @@ bool ANatureKeeperCharacter::OnStartVisit_Implementation(const TScriptInterface<
 	{
 		if (ACell* Cell = Cast<ACell>(Visitable.GetObject()))
 		{
+			//Absorb evil energy from cell, idk should i put this logic in effect and ability system, but effect doesn't have ref to owner,
+			//so we can't increase player evil energy
 			IVisitable::Execute_StartVisit(Cell, this);
-			Cell->AbilityComponent->ChangeAbilityEffectsFactory(DamageableType == EDamageableType::DT_GoodPlayer ? EAbilityType::AT_Good : EAbilityType::AT_Evil);
+			int MaxEvilValue = Cell->EvilComponent->GetMaxResourceValue();
+			Cell->EvilComponent->DecreaseResourceValue(MaxEvilValue);
+			EvilComponent->IncreaseResourceValue(MaxEvilValue);
 			return true;
 		}
 

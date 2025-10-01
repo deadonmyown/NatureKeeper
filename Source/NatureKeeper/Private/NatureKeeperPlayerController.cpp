@@ -77,9 +77,9 @@ void ANatureKeeperPlayerController::OnInputStarted()
 
 	if (bHitSuccessful)
 	{
-		if (Hit.GetActor()->Implements<UInteractiveActor>())
+		if (Hit.GetActor()->Implements<UInteractiveActorInterface>())
 		{
-			IInteractiveActor::Execute_StartInteract(Hit.GetActor(), GetCharacter());
+			IInteractiveActorInterface::Execute_StartInteract(Hit.GetActor(), GetCharacter());
 		}
 	}
 }
@@ -106,9 +106,9 @@ void ANatureKeeperPlayerController::OnSetDestinationReleased()
 
 	if (bHitSuccessful)
 	{
-		if (Hit.GetActor()->Implements<UInteractiveActor>())
+		if (Hit.GetActor()->Implements<UInteractiveActorInterface>())
 		{
-			if (IInteractiveActor::Execute_StopInteract(Hit.GetActor(), GetCharacter()))
+			if (IInteractiveActorInterface::Execute_StopInteract(Hit.GetActor(), GetCharacter()))
 			{
 				UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FXCursor, Hit.GetActor()->GetActorLocation(),
 					FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f), true, true, ENCPoolMethod::None, true);

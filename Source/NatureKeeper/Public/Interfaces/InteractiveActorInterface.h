@@ -2,10 +2,10 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "InteractiveActor.generated.h"
+#include "InteractiveActorInterface.generated.h"
 
 UINTERFACE()
-class UInteractiveActor : public UInterface
+class UInteractiveActorInterface : public UInterface
 {
 	GENERATED_BODY()
 };
@@ -13,7 +13,7 @@ class UInteractiveActor : public UInterface
 /**
  * 
  */
-class NATUREKEEPER_API IInteractiveActor
+class NATUREKEEPER_API IInteractiveActorInterface
 {
 	GENERATED_BODY()
 
