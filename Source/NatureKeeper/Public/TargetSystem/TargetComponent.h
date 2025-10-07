@@ -20,7 +20,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	UPROPERTY(Instanced, EditAnywhere, BlueprintReadWrite, Category = "Aura")
+	UPROPERTY(BlueprintReadOnly, Category = "Aura")
 	UTargetStrategy* TargetStrategy;
 
 public:
@@ -30,6 +30,9 @@ public:
 	void SetTargetStrategy(UTargetStrategy* NewTargetStrategy);
 	UFUNCTION(BlueprintCallable, Category = "Target")
 	void ClearTargetStrategy();
+	/** Cancel and clear target strategy, can be invoked by other systems to stop active target strategy */
+	UFUNCTION(BlueprintCallable, Category = "Target")
+	void CancelTargetStrategy();
 	UFUNCTION(BlueprintCallable, Category = "Target")
 	UTargetStrategy* GetTargetStrategy() const {return TargetStrategy;}
 };

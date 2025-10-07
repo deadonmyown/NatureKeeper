@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "NatureKeeperPlayerController.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/Affectable.h"
 #include "Interfaces/CellMovable.h"
@@ -10,6 +11,7 @@
 #include "Interfaces/Visitor.h"
 #include "NatureKeeperCharacter.generated.h"
 
+class ANatureKeeperPlayerController;
 class UFocusComponent;
 class UTargetComponent;
 class UAbilityComponent;
@@ -69,6 +71,8 @@ public:
 	UTargetComponent* GetTargetComponent() const {return TargetComponent;}
 	UFUNCTION(BlueprintCallable, Category = "Player")
 	UFocusComponent* GetFocusComponent() const {return FocusComponent;}
+	UFUNCTION(BlueprintCallable, Category = "Player")
+	ANatureKeeperPlayerController* GetNatureKeeperController() const {return Cast<ANatureKeeperPlayerController>(GetController());}
 	
 	virtual TScriptInterface<UCellMovementInterface> GetCellMovementInterface_Implementation() override;
 	virtual USceneComponent* GetNavigationRoot_Implementation() override;

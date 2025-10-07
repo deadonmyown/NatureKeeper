@@ -32,26 +32,10 @@ void ANatureKeeperPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	NatureKeeperCharacter = Cast<ANatureKeeperCharacter>(GetCharacter());
-
-	GetWorld()->GetTimerManager().SetTimer(TraceUpdateTimerHandle, this, &ANatureKeeperPlayerController::UpdateTrace, TraceUpdateTime);
-}
-
-void ANatureKeeperPlayerController::UpdateTrace()
-{
-	FHitResult Hit;
-	
-	bool bIsFocus = GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit);
-
-	if (bIsFocus)
+	if (NatureKeeperCharacter)
 	{
-		float FocusDistanceToPlayer = FVector::Distance(Hit.Location, NatureKeeperCharacter->GetActorLocation());
-		UPrimitiveComponent* FocusedComponent = Hit.GetComponent();
-		AActor* FocusedActor = Hit.GetActor();
-		NatureKeeperCharacter->GetFocusComponent()->UpdateFocus(bIsFocus, FocusDistanceToPlayer, FocusedComponent, FocusedActor);
-	}
-	else
-	{
-		NatureKeeperCharacter->GetFocusComponent()->ClearFocus();
+		PlayerFocusComponent = NatureKeeperCharacter->GetFocusComponent();
+		PlayerTargetComponent = NatureKeeperCharacter->GetTargetComponent();
 	}
 }
 
@@ -84,18 +68,23 @@ void ANatureKeeperPlayerController::SetupInputComponent()
 void ANatureKeeperPlayerController::OnInputStarted()
 {
 
-	if (NatureKeeperCharacter->GetTargetComponent()->GetTargetStrategy() && NatureKeeperCharacter->GetTargetComponent()->GetTargetStrategy()->GetIsTargeting())
-		return;
-
-	UpdateTrace();
-
-	if (NatureKeeperCharacter->GetFocusComponent()->bIsFocus)
+	if (PlayerTargetComponent->GetTargetStrategy() && PlayerTargetComponent->GetTargetStrategy()->GetIsTargeting())
 	{
-		if (NatureKeeperCharacter->GetFocusComponent()->FocusedActor->Implements<UInteractiveActorInterface>())
+		OnPlayerClickStarted.Broadcast();
+		return;
+	}
+
+	PlayerFocusComponent->UpdateTrace();
+
+	if (PlayerFocusComponent->bIsFocus)
+	{
+		if (PlayerFocusComponent->FocusedActor->Implements<UInteractiveActorInterface>())
 		{
-			IInteractiveActorInterface::Execute_StartInteract(NatureKeeperCharacter->GetFocusComponent()->FocusedActor, GetCharacter());
+			IInteractiveActorInterface::Execute_StartInteract(PlayerFocusComponent->FocusedActor, GetCharacter());
 		}
 	}
+
+	OnPlayerClickStarted.Broadcast();
 }
 
 // Triggered every frame when the input is held down
@@ -103,25 +92,35 @@ void ANatureKeeperPlayerController::OnSetDestinationTriggered()
 {
 	// We flag that the input is being pressed
 	FollowTime += GetWorld()->GetDeltaSeconds();
+
+	OnPlayerClickTriggered.Broadcast();
 }
 
 void ANatureKeeperPlayerController::OnSetDestinationReleased()
 {
-	UpdateTrace();
+	FollowTime = 0.f;
 	
-	if (NatureKeeperCharacter->GetFocusComponent()->bIsFocus)
+	if (PlayerTargetComponent->GetTargetStrategy() && PlayerTargetComponent->GetTargetStrategy()->GetIsTargeting())
 	{
-		if (NatureKeeperCharacter->GetFocusComponent()->FocusedActor->Implements<UInteractiveActorInterface>())
+		OnPlayerClickStopped.Broadcast();
+		return;
+	}
+	
+	PlayerFocusComponent->UpdateTrace();
+	
+	if (PlayerFocusComponent->bIsFocus)
+	{
+		if (PlayerFocusComponent->FocusedActor->Implements<UInteractiveActorInterface>())
 		{
-			if (IInteractiveActorInterface::Execute_StopInteract(NatureKeeperCharacter->GetFocusComponent()->FocusedActor, GetCharacter()))
+			if (IInteractiveActorInterface::Execute_StopInteract(PlayerFocusComponent->FocusedActor, GetCharacter()))
 			{
 				UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FXCursor,
-					NatureKeeperCharacter->GetFocusComponent()->FocusedActor->GetActorLocation(),
+					PlayerFocusComponent->FocusedActor->GetActorLocation(),
 					FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f),
 					true, true, ENCPoolMethod::None, true);
 			}
 		}
 	}
 
-	FollowTime = 0.f;
+	OnPlayerClickStopped.Broadcast();
 }

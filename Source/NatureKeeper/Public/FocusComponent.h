@@ -18,18 +18,29 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UPROPERTY(BlueprintReadOnly, Category="Focus")
+	APlayerController* PlayerController;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Player)
+	float TraceUpdateTime = 0.5f;
+
+	FTimerHandle TraceUpdateTimerHandle;
+
 public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Focus")
 	bool bIsFocus = false;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player)
-	float FocusDistanceToPlayer;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Focus")
+	float FocusDistanceToActor;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Focus")
 	UPrimitiveComponent* FocusedComponent;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Focus")
 	AActor* FocusedActor;
+
+	UFUNCTION(BlueprintCallable, Category = "Focus")
+	void UpdateTrace();
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Focus")
-	void UpdateFocus(bool bInIsFocus, float InDistanceToPlayer, UPrimitiveComponent* InFocusComponent, AActor* InFocusActor);
+	void UpdateFocus(bool bInIsFocus, float InDistanceToActor, UPrimitiveComponent* InFocusComponent, AActor* InFocusActor);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Focus")
 	void ClearFocus();
 };

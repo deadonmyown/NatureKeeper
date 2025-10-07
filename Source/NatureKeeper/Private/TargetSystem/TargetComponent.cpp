@@ -4,6 +4,7 @@
 
 UTargetComponent::UTargetComponent()
 {
+	TargetStrategy = nullptr;
 }
 
 void UTargetComponent::BeginPlay()
@@ -24,12 +25,24 @@ void UTargetComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, 
 
 void UTargetComponent::SetTargetStrategy(UTargetStrategy* NewTargetStrategy)
 {
+	if (TargetStrategy)
+		CancelTargetStrategy();
+	
 	TargetStrategy = NewTargetStrategy;
 }
 
 void UTargetComponent::ClearTargetStrategy()
 {
 	TargetStrategy = nullptr;
+}
+
+void UTargetComponent::CancelTargetStrategy()
+{
+	if (TargetStrategy)
+	{
+		TargetStrategy->CancelStrategy();
+		TargetStrategy = nullptr;
+	}
 }
 
 

@@ -1,15 +1,43 @@
 #include "FocusComponent.h"
 
+#include "NatureKeeperCharacter.h"
 #include "Interfaces/InteractiveActorInterface.h"
 
 UFocusComponent::UFocusComponent()
 {
+	PlayerController = nullptr;
+	FocusDistanceToActor = 0.0f;
+	FocusedComponent = nullptr;
+	FocusedActor = nullptr;
 }
 
 void UFocusComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	PlayerController = Cast<APlayerController>(Cast<ACharacter>(GetOwner())->GetController());
+	
+	if (PlayerController)
+		GetWorld()->GetTimerManager().SetTimer(TraceUpdateTimerHandle, this, &UFocusComponent::UpdateTrace, TraceUpdateTime);
+}
+
+void UFocusComponent::UpdateTrace()
+{
+	FHitResult Hit;
+	
+	bool bIsHit = PlayerController->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit);
+
+	if (bIsHit)
+	{
+		float Distance = FVector::Distance(Hit.Location, GetOwner()->GetActorLocation());
+		UPrimitiveComponent* HitComponent = Hit.GetComponent();
+		AActor* HitActor = Hit.GetActor();
+		UpdateFocus(bIsHit, Distance, HitComponent, HitActor);
+	}
+	else
+	{
+		ClearFocus();
+	}
 }
 
 void UFocusComponent::UpdateFocus_Implementation(bool bInIsFocus, float InDistanceToPlayer,
@@ -31,7 +59,7 @@ void UFocusComponent::UpdateFocus_Implementation(bool bInIsFocus, float InDistan
 		}
 	}
 	
-	FocusDistanceToPlayer = InDistanceToPlayer;
+	FocusDistanceToActor = InDistanceToPlayer;
 	FocusedComponent = InFocusComponent;
 	FocusedActor = InFocusActor;
 
@@ -44,7 +72,7 @@ void UFocusComponent::UpdateFocus_Implementation(bool bInIsFocus, float InDistan
 void UFocusComponent::ClearFocus_Implementation()
 {
 	bIsFocus = false;
-	FocusDistanceToPlayer = 0.f;
+	FocusDistanceToActor = 0.f;
 	FocusedComponent = nullptr;
 	FocusedActor = nullptr;
 }
