@@ -11,16 +11,16 @@ class UTargetComponent;
 /**
  * 
  */
-UCLASS()
+UCLASS(DefaultToInstanced, Blueprintable, EditInlineNew)
 class NATUREKEEPER_API UTargetStrategy : public UObject
 {
 	GENERATED_BODY()
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Target")
+	UPROPERTY(BlueprintReadOnly, Category = "Target")
 	UAbility* Ability;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Target")
+	UPROPERTY(BlueprintReadOnly, Category = "Target")
 	UTargetComponent* TargetComponent;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Target")
+	UPROPERTY(BlueprintReadOnly, Category = "Target")
 	bool bIsTargeting = false;
 	
 public:

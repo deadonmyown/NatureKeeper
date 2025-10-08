@@ -153,16 +153,26 @@ void UCellMovementComponent::CellIdle_Implementation()
 	}
 }
 
-bool UCellMovementComponent::TryStartActiveMoveByPath_Implementation(ACell* TargetCell)
+bool UCellMovementComponent::TryStartActiveMoveByPath_Implementation(const TArray<ACell*>& TargetCells)
 {
 	if (CurrentMovingPath.IsEmpty())
 	{
 		ICellMovementInterface::Execute_CellIdle(this);
 
-		if (!CurrentCellStandOn || !TargetCell)
+		if (!CurrentCellStandOn || TargetCells.IsEmpty())
 			return false;
-	
-		TArray<ACell*> NewPath = UNatureKeeperUtils::FindPath(CurrentCellStandOn, TargetCell);
+		
+		TArray<ACell*> NewPath = UNatureKeeperUtils::FindPath(CurrentCellStandOn, TargetCells[0]);
+		
+		for (int i = 1; i < TargetCells.Num(); i++)
+		{
+			TArray<ACell*> PotentialNewPath = UNatureKeeperUtils::FindPath(CurrentCellStandOn, TargetCells[i]);
+			if (PotentialNewPath.IsEmpty())
+				continue;
+			
+			if (PotentialNewPath.Num() < NewPath.Num() || NewPath.IsEmpty())
+				NewPath = PotentialNewPath;
+		}
 
 		if (NewPath.IsEmpty())
 			return false;
@@ -175,10 +185,20 @@ bool UCellMovementComponent::TryStartActiveMoveByPath_Implementation(ACell* Targ
 		return true;
 	}
 	
-	if (!CurrentMovingToCell || !TargetCell || CurrentMovingToCellIndex == INDEX_NONE)
+	if (!CurrentMovingToCell || TargetCells.IsEmpty() || CurrentMovingToCellIndex == INDEX_NONE)
 		return false;
 
-	TArray<ACell*> NewPath = UNatureKeeperUtils::FindPath(CurrentMovingToCell, TargetCell);
+	TArray<ACell*> NewPath = UNatureKeeperUtils::FindPath(CurrentCellStandOn, TargetCells[0]);
+		
+	for (int i = 1; i < TargetCells.Num(); i++)
+	{
+		TArray<ACell*> PotentialNewPath = UNatureKeeperUtils::FindPath(CurrentCellStandOn, TargetCells[i]);
+		if (PotentialNewPath.IsEmpty())
+			continue;
+			
+		if (PotentialNewPath.Num() < NewPath.Num() || NewPath.IsEmpty())
+			NewPath = PotentialNewPath;
+	}
 
 	if (NewPath.IsEmpty())
 		return false;

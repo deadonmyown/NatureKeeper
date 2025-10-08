@@ -4,6 +4,7 @@
 #include "IntVector2D.h"
 #include "GameFramework/Actor.h"
 #include "InteractionSystem/InteractiveActor.h"
+#include "Interfaces/Affectable.h"
 #include "Interfaces/Visitable.h"
 #include "Cell.generated.h"
 
@@ -18,7 +19,7 @@ enum class ECellType : uint8
 };
 
 UCLASS()
-class NATUREKEEPER_API ACell : public AInteractiveActor, public IVisitable
+class NATUREKEEPER_API ACell : public AInteractiveActor, public IVisitable, public IAffectable
 {
 	GENERATED_BODY()
 
@@ -41,6 +42,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pathfinding")
 	FIntVector2D PathNodeCoord;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Affectable")
+	TArray<UEffectBase*> Effects;
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cell")
 	ECellType CellType;
@@ -57,6 +61,8 @@ public:
 	virtual void SetPathNodeCoord(FIntVector2D NewCoord);
 	UFUNCTION(BlueprintCallable, Category = "Pathfinding")
 	virtual int32 GetDistanceToOtherCell(ACell* OtherPath);
+	UFUNCTION(BlueprintCallable, Category = "Pathfinding")
+	virtual void ClearPathfinding();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Pathfinding")
 	virtual int32 GetTotalCost() const {return CostToStart + CostToTarget;}
@@ -80,4 +86,8 @@ public:
 
 	virtual bool StartVisit_Implementation(const TScriptInterface<UVisitor>& Visitor) override;
 	virtual bool EndVisit_Implementation(const TScriptInterface<UVisitor>& Visitor) override;
+
+	virtual bool RegisterEffect_Implementation(UEffectBase* EffectToAdd) override;
+	virtual bool UnregisterEffect_Implementation(UEffectBase* EffectToRemove) override;
+	virtual FVector GetEffectLocation_Implementation() override;
 };

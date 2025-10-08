@@ -5,10 +5,16 @@
 #include "Interfaces/InteractiveActorInterface.h"
 #include "InteractiveActor.generated.h"
 
+class UCellPlacementComponent;
+
 UCLASS()
 class NATUREKEEPER_API AInteractiveActor : public AActor, public IInteractiveActorInterface
 {
 	GENERATED_BODY()
+
+protected:
+	UPROPERTY(Category = Components, EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true, NoEditInline))
+	UCellPlacementComponent* CellPlacement;
 
 public:
 	AInteractiveActor();

@@ -39,7 +39,7 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Cell Movable")
 	void CellIdle();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Cell Movable")
-	bool TryStartActiveMoveByPath(ACell* TargetCell);
+	bool TryStartActiveMoveByPath(const TArray<ACell*>& TargetCells);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Cell Movable")
 	bool TryStopActiveMoveByPath();
 };

@@ -16,7 +16,7 @@ class NATUREKEEPER_API UEffectFactory : public UObject
 	GENERATED_BODY()
 
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Effects")
+	UPROPERTY(BlueprintReadOnly, Category = "Effects")
 	TArray<UEffectBase*> Effects;
 public:
 	UFUNCTION(BlueprintCallable, Category = "Effects")

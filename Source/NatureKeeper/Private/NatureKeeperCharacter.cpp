@@ -93,9 +93,12 @@ USceneComponent* ANatureKeeperCharacter::GetNavigationRoot_Implementation()
 	return RootComponent;
 }
 
-bool ANatureKeeperCharacter::TryMoveByCells_Implementation(ACell* TargetCell)
+bool ANatureKeeperCharacter::TryMoveByCells_Implementation(const TArray<ACell*>& TargetCells)
 {
-	return ICellMovementInterface::Execute_TryStartActiveMoveByPath(CellMovementComponent, TargetCell);
+	if (TargetCells.IsEmpty())
+		return false;
+	
+	return ICellMovementInterface::Execute_TryStartActiveMoveByPath(CellMovementComponent, TargetCells);
 }
 
 bool ANatureKeeperCharacter::OnStartVisit_Implementation(const TScriptInterface<UVisitable>& Visitable)
@@ -138,4 +141,27 @@ void ANatureKeeperCharacter::Heal_Implementation(int HealAmount)
 void ANatureKeeperCharacter::TakeDamage_Implementation(int Damage)
 {
 	HealthComponent->DecreaseResourceValue(Damage);
+}
+
+bool ANatureKeeperCharacter::RegisterEffect_Implementation(UEffectBase* EffectToAdd)
+{
+	if (Effects.Contains(EffectToAdd))
+		return false;
+
+	Effects.Add(EffectToAdd);
+	return true;
+}
+
+bool ANatureKeeperCharacter::UnregisterEffect_Implementation(UEffectBase* EffectToRemove)
+{
+	if (!Effects.Contains(EffectToRemove))
+		return false;
+
+	Effects.Remove(EffectToRemove);
+	return true;
+}
+
+FVector ANatureKeeperCharacter::GetEffectLocation_Implementation()
+{
+	return GetActorLocation();
 }

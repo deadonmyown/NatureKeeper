@@ -29,5 +29,5 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Cell Movable")
 	USceneComponent* GetNavigationRoot();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Cell Movable")
-	bool TryMoveByCells(ACell* TargetCell);
+	bool TryMoveByCells(const TArray<ACell*>& TargetCells);
 };

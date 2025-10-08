@@ -66,7 +66,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damageable")
 	EDamageableType DamageableType = EDamageableType::DT_GoodPlayer;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Affectable")
+	TArray<UEffectBase*> Effects;
+
 public:
+	UFUNCTION(BlueprintCallable, Category = "Player")
+	UAbilityComponent* GetAbilityComponent() const { return AbilityComponent; }
 	UFUNCTION(BlueprintCallable, Category = "Player")
 	UTargetComponent* GetTargetComponent() const {return TargetComponent;}
 	UFUNCTION(BlueprintCallable, Category = "Player")
@@ -76,7 +81,7 @@ public:
 	
 	virtual TScriptInterface<UCellMovementInterface> GetCellMovementInterface_Implementation() override;
 	virtual USceneComponent* GetNavigationRoot_Implementation() override;
-	virtual bool TryMoveByCells_Implementation(ACell* TargetCell) override;
+	virtual bool TryMoveByCells_Implementation(const TArray<ACell*>& TargetCells) override;
 
 	virtual bool OnStartVisit_Implementation(const TScriptInterface<UVisitable>& Visitable) override;
 	virtual bool OnEndVisit_Implementation(const TScriptInterface<UVisitable>& Visitable) override;
@@ -84,5 +89,9 @@ public:
 	virtual void Heal_Implementation(int HealAmount) override;
 	virtual void TakeDamage_Implementation(int Damage) override;
 	virtual EDamageableType GetDamageableType_Implementation() override {return DamageableType; }
+
+	virtual bool RegisterEffect_Implementation(UEffectBase* EffectToAdd) override;
+	virtual bool UnregisterEffect_Implementation(UEffectBase* EffectToRemove) override;
+	virtual FVector GetEffectLocation_Implementation() override;
 };
 

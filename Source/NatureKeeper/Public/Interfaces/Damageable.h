@@ -12,7 +12,8 @@ enum class EDamageableType : uint8
 	DT_GoodPlayer,
 	DT_GoodNPC,
 	DT_EvilNPC,
-	DT_EvilPlayer
+	DT_EvilPlayer,
+	DT_Object
 };
 
 // This class does not need to be modified.

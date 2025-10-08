@@ -6,7 +6,7 @@ TArray<ACell*> UNatureKeeperUtils::FindPath(ACell* StartCell, ACell* TargetCell)
 {
 	TArray<ACell*> ToSearchCells = { StartCell };
 	TArray<ACell*> ProcessedCells;
-
+	
 	while (!ToSearchCells.IsEmpty()) {
 		ACell* Current = ToSearchCells[0];
 		for (auto Cell : ToSearchCells) 
@@ -29,6 +29,16 @@ TArray<ACell*> UNatureKeeperUtils::FindPath(ACell* StartCell, ACell* TargetCell)
 			TArray<ACell*> Path;
 			for (int i = ReversePath.Num() - 1; i >= 0; i--)
 				Path.Add(ReversePath[i]);
+
+			for (int i = 0; i < ProcessedCells.Num(); i++)
+			{
+				ProcessedCells[i]->ClearPathfinding();
+			}
+
+			for (int i = 0; i < ToSearchCells.Num(); i++)
+			{
+				ToSearchCells[i]->ClearPathfinding();
+			}
 			
 			return Path;
 		}

@@ -10,16 +10,25 @@ void UCellPlacementComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (MainCell)
+	{
+		GetOwner()->SetActorLocation(MainCell->GetNavigationRoot()->GetComponentLocation());
+	}
+
+	for (int i = 0; i < CellBlocked.Num(); i++)
+	{
+		CellBlocked[i]->CellType = ECellType::ICT_Block;
+	}
 }
 
 void UCellPlacementComponent::OnRegister()
 {
 	Super::OnRegister();
 
-	if (CellRef)
+	/*if (MainCell)
 	{
-		GetOwner()->SetActorLocation(CellRef->GetNavigationRoot()->GetComponentLocation());
-	}
+		GetOwner()->SetActorLocation(MainCell->GetNavigationRoot()->GetComponentLocation());
+	}*/
 }
 
 #if WITH_EDITOR
@@ -27,10 +36,10 @@ void UCellPlacementComponent::PostEditChangeProperty(struct FPropertyChangedEven
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 
-	if (CellRef)
+	/*if (MainCell)
 	{
-		GetOwner()->SetActorLocation(CellRef->GetNavigationRoot()->GetComponentLocation());
-	}
+		GetOwner()->SetActorLocation(MainCell->GetNavigationRoot()->GetComponentLocation());
+	}*/
 }
 #endif
 

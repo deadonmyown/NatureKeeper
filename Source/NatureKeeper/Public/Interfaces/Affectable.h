@@ -27,4 +27,6 @@ public:
 	bool RegisterEffect(UEffectBase* EffectToAdd);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="Effects")
 	bool UnregisterEffect(UEffectBase* EffectToRemove);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="Effects")
+	FVector GetEffectLocation();
 };

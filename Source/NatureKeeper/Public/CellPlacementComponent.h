@@ -19,8 +19,6 @@ public:
 	UCellPlacementComponent();
 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Cell")
-	ACell* CellRef;
 	
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -28,6 +26,13 @@ protected:
 	virtual void OnRegister() override;
 
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Cell")
+	ACell* MainCell;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Cell")
+	TArray<ACell*> CellBlocked;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Cell")
+	TArray<ACell*> CellNeighbours;
+	
 #if WITH_EDITOR
 	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif

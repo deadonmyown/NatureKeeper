@@ -53,6 +53,6 @@ public:
 	virtual float GetCellMovementCurrentSpeed_Implementation() override;
 	virtual float GetCellMovementMaxSpeed_Implementation() override;
 	virtual void CellIdle_Implementation() override;
-	virtual bool TryStartActiveMoveByPath_Implementation(ACell* TargetCell) override;
+	virtual bool TryStartActiveMoveByPath_Implementation(const TArray<ACell*>& TargetCells) override;
 	virtual bool TryStopActiveMoveByPath_Implementation() override;
 };
