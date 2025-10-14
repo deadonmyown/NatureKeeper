@@ -3,15 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "EffectFactory.h"
-#include "DamageableEffectFactory.generated.h"
+#include "TickableDamageableEffectFactory.h"
+#include "FireEffectFactory.generated.h"
 
-class UDamageableEffectDataAsset;
+class UFireEffectDataAsset;
 /**
  * 
  */
 UCLASS()
-class NATUREKEEPER_API UDamageableEffectFactory : public UEffectFactory
+class NATUREKEEPER_API UFireEffectFactory : public UTickableDamageableEffectFactory
 {
 	GENERATED_BODY()
 

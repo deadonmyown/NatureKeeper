@@ -5,9 +5,9 @@
 #include "WinEntityComponent.generated.h"
 
 //Delegate to remove entity from win manager, when all entities removed from win manager level complete
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnClearEntity, UWinEntityComponent*, WinEntityComponent)
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnClearEntity, UWinEntityComponent*, WinEntityComponent);
 //Delegate to return entity in win manager, for any reason
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnReturnEntity, UWinEntityComponent*, WinEntityComponent)
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnReturnEntity, UWinEntityComponent*, WinEntityComponent);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class NATUREKEEPER_API UWinEntityComponent : public UActorComponent
@@ -21,6 +21,14 @@ public:
 	FOnClearEntity OnClearEntity;
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category="Win Entity")
 	FOnReturnEntity OnReturnEntity;
+
+	UPROPERTY(BlueprintReadOnly, Category="Win Entity")
+	bool bIsClear = false;
+
+	UFUNCTION(BlueprintCallable, Category="Win Entity")
+	void ClearEntity();
+	UFUNCTION(BlueprintCallable, Category="Win Entity")
+	void ReturnEntity();
 
 protected:
 	virtual void BeginPlay() override;

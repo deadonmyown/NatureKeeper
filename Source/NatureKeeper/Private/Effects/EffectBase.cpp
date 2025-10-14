@@ -10,7 +10,9 @@ bool UEffectBase::ApplyEffect(TScriptInterface<UAffectable> InAffectedObject)
 {
 	if (!InAffectedObject.GetObject() || !EffectFactory)
 		return false;
-	
+
+	if (IAffectable::Execute_GetResistEffectElements(InAffectedObject.GetObject()).Contains(EffectElementType))
+		return false;
 	
 	AffectedObject = InAffectedObject;
 	EffectFactory->AddEffect(this);

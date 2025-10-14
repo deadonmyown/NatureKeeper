@@ -3,23 +3,22 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "EffectBase.h"
-#include "DamageableEffect.generated.h"
+#include "TickableDamageableEffect.h"
+#include "FireEffect.generated.h"
 
-class UDamageableEffectDataAsset;
 /**
  * 
  */
 UCLASS()
-class NATUREKEEPER_API UDamageableEffect : public UEffectBase
+class NATUREKEEPER_API UFireEffect : public UTickableDamageableEffect
 {
 	GENERATED_BODY()
 
 public:
 	UPROPERTY(BlueprintReadWrite, Category = "Effects")
-	int DamageAmount = 0;
+	int SteamInitialDamageAmount = 0;
+	UPROPERTY(BlueprintReadWrite, Category = "Effects")
+	UNiagaraSystem* SteamEffectVFX;
 
 	virtual bool ApplyEffect(TScriptInterface<UAffectable> InAffectedObject) override;
-	virtual bool CancelEffect() override;
-	
 };

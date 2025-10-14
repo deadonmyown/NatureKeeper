@@ -6,6 +6,16 @@
 #include "UObject/Interface.h"
 #include "Affectable.generated.h"
 
+UENUM(BlueprintType)
+enum class EEffectElement : uint8
+{
+	EE_Physical,
+	EE_Earth,
+	EE_Fire,
+	EE_Water,
+	EE_Wind
+};
+
 class UEffectBase;
 // This class does not need to be modified.
 UINTERFACE()
@@ -29,4 +39,10 @@ public:
 	bool UnregisterEffect(UEffectBase* EffectToRemove);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="Effects")
 	FVector GetEffectLocation();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="Effects")
+	TArray<EEffectElement> GetWeaknessEffectElements();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="Effects")
+	TArray<EEffectElement> GetResistEffectElements();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="Effects")
+	TArray<UEffectBase*> GetEffects();
 };

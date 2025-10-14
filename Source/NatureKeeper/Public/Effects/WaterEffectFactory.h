@@ -3,15 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "EffectFactory.h"
-#include "DamageableEffectFactory.generated.h"
+#include "TickableDamageableEffectFactory.h"
+#include "WaterEffectFactory.generated.h"
 
-class UDamageableEffectDataAsset;
+class UWaterEffectDataAsset;
 /**
  * 
  */
 UCLASS()
-class NATUREKEEPER_API UDamageableEffectFactory : public UEffectFactory
+class NATUREKEEPER_API UWaterEffectFactory : public UTickableDamageableEffectFactory
 {
 	GENERATED_BODY()
 

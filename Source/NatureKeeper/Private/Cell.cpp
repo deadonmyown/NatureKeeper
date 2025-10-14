@@ -18,6 +18,8 @@ void ACell::BeginPlay()
 	Super::BeginPlay();
 
 	EvilComponent->OnResourceValueReachMin.AddDynamic(this, &ACell::OnMinEvilEnergyValueReach);
+	if (EvilComponent->GetResourceValue() == EvilComponent->GetMinResourceValue())
+		OnMinEvilEnergyValueReach(EvilComponent->GetMinResourceValue());
 }
 
 void ACell::SetCostToStart(int32 NewCost)
@@ -60,7 +62,7 @@ USceneComponent* ACell::GetNavigationRoot_Implementation()
 //Change material cell color
 void ACell::OnMinEvilEnergyValueReach_Implementation(int MinValue)
 {
-	WinEntityComponent->OnClearEntity.Broadcast(WinEntityComponent);
+	WinEntityComponent->ClearEntity();
 }
 
 bool ACell::StartInteract_Implementation(AActor* InteractionInvoker)

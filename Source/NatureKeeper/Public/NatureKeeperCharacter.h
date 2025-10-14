@@ -99,5 +99,8 @@ public:
 	virtual bool RegisterEffect_Implementation(UEffectBase* EffectToAdd) override;
 	virtual bool UnregisterEffect_Implementation(UEffectBase* EffectToRemove) override;
 	virtual FVector GetEffectLocation_Implementation() override;
+	virtual TArray<EEffectElement> GetWeaknessEffectElements_Implementation() override {return {};}
+	virtual TArray<EEffectElement> GetResistEffectElements_Implementation() override {return {};}
+	virtual TArray<UEffectBase*> GetEffects_Implementation() override {return Effects; }
 };
 

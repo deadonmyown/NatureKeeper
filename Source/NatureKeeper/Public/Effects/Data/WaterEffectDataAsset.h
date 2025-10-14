@@ -3,22 +3,20 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Engine/DataAsset.h"
-#include "EffectDataAsset.generated.h"
+#include "TickableDamageableEffectDataAsset.h"
+#include "WaterEffectDataAsset.generated.h"
 
-enum class EEffectElement : uint8;
-class UNiagaraSystem;
 /**
  * 
  */
 UCLASS()
-class NATUREKEEPER_API UEffectDataAsset : public UDataAsset
+class NATUREKEEPER_API UWaterEffectDataAsset : public UTickableDamageableEffectDataAsset
 {
 	GENERATED_BODY()
-
+	
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
-	UNiagaraSystem* EffectVFX;
+	int SteamInitialDamageAmount = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
-	EEffectElement EffectElementType;
+	UNiagaraSystem* SteamEffectVFX;
 };

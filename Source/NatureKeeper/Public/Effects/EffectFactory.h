@@ -6,6 +6,7 @@
 #include "UObject/Object.h"
 #include "EffectFactory.generated.h"
 
+class UEffectDataAsset;
 class UEffectBase;
 /**
  * 
@@ -18,6 +19,9 @@ class NATUREKEEPER_API UEffectFactory : public UObject
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Effects")
 	TArray<UEffectBase*> Effects;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	UEffectDataAsset* EffectDataAsset;
 public:
 	UFUNCTION(BlueprintCallable, Category = "Effects")
 	virtual UEffectBase* CreateEffect();

@@ -14,9 +14,9 @@ class ANatureKeeperGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 
-	UPROPERTY(BlueprintReadOnly, Category = "WinManager")
+	UPROPERTY()
 	AWinManager* WinManager;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "WinManager")
+	UPROPERTY(EditAnywhere, Category = "WinManager")
 	TSubclassOf<AWinManager> WinManagerClass;
 
 public:

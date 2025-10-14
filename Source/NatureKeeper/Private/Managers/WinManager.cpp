@@ -24,6 +24,9 @@ void AWinManager::OnWinLevel()
 
 bool AWinManager::AddEntity(UWinEntityComponent* NewWinEntityComponent)
 {
+	if (NewWinEntityComponent->bIsClear)
+		return false;
+	
 	if (WinEntityComponents.Contains(NewWinEntityComponent))
 		return false;
 

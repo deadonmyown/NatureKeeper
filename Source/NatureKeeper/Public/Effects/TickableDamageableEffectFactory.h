@@ -4,14 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "EffectFactory.h"
-#include "DamageableEffectFactory.generated.h"
+#include "TickableDamageableEffectFactory.generated.h"
 
-class UDamageableEffectDataAsset;
+class UTickableDamageableEffectDataAsset;
 /**
  * 
  */
 UCLASS()
-class NATUREKEEPER_API UDamageableEffectFactory : public UEffectFactory
+class NATUREKEEPER_API UTickableDamageableEffectFactory : public UEffectFactory
 {
 	GENERATED_BODY()
 

@@ -7,6 +7,8 @@
 #include "EffectBase.generated.h"
 
 
+enum class EEffectElement : uint8;
+class UNiagaraSystem;
 class UEffectFactory;
 class UAffectable;
 
@@ -20,6 +22,11 @@ public:
 	UEffectFactory* EffectFactory = nullptr;
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Effects")
 	TScriptInterface<UAffectable> AffectedObject;
+	
+	UPROPERTY(BlueprintReadWrite, Category = "Effects")
+	UNiagaraSystem* EffectVFX;
+	UPROPERTY(BlueprintReadWrite, Category = "Effects")
+	EEffectElement EffectElementType;
 
 	UFUNCTION(BlueprintCallable, Category = "Effects")
 	virtual bool ApplyEffect(TScriptInterface<UAffectable> InAffectedObject);

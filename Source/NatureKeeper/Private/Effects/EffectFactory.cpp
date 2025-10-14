@@ -1,10 +1,13 @@
 #include "Effects/EffectFactory.h"
 
 #include "Effects/EffectBase.h"
+#include "Effects/Data/EffectDataAsset.h"
 
 UEffectBase* UEffectFactory::CreateEffect()
 {
 	UEffectBase* NewEffect = NewObject<UEffectBase>(this);
+	NewEffect->EffectVFX = EffectDataAsset->EffectVFX;
+	NewEffect->EffectElementType = EffectDataAsset->EffectElementType;
 	NewEffect->EffectFactory = this;
 	return NewEffect;
 }
