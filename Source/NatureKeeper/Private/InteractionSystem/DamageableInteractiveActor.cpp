@@ -2,6 +2,7 @@
 
 #include "InteractionSystem/DamageableInteractiveActor.h"
 
+#include "CellPlacementComponent.h"
 #include "ResourceSystem/HealthComponent.h"
 
 ADamageableInteractiveActor::ADamageableInteractiveActor()
@@ -19,6 +20,8 @@ void ADamageableInteractiveActor::BeginPlay()
 
 void ADamageableInteractiveActor::OnDeath(int MinValue)
 {
+	CellPlacement->FreeCells();
+	
 	GetWorld()->DestroyActor(this);
 }
 

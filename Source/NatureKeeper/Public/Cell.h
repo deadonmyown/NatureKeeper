@@ -9,6 +9,7 @@
 #include "Cell.generated.h"
 
 
+class UWinEntityComponent;
 class UEvilComponent;
 
 UENUM(BlueprintType)
@@ -28,6 +29,8 @@ public:
 
 	UPROPERTY(Category = Components, EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true, NoEditInline))
 	UEvilComponent* EvilComponent;
+	UPROPERTY(Category = Components, EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true, NoEditInline))
+	UWinEntityComponent* WinEntityComponent;
 
 protected:
 	virtual void BeginPlay() override;

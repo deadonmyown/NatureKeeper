@@ -3,11 +3,14 @@
 #include "ResourceSystem/EvilComponent.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/CellMovable.h"
+#include "Managers/WinEntityComponent.h"
 
 
 ACell::ACell()
 {
 	EvilComponent = CreateDefaultSubobject<UEvilComponent>("EvilComponent");
+
+	WinEntityComponent = CreateDefaultSubobject<UWinEntityComponent>("WinEntityComponent");
 }
 
 void ACell::BeginPlay()
@@ -57,7 +60,7 @@ USceneComponent* ACell::GetNavigationRoot_Implementation()
 //Change material cell color
 void ACell::OnMinEvilEnergyValueReach_Implementation(int MinValue)
 {
-	
+	WinEntityComponent->OnClearEntity.Broadcast(WinEntityComponent);
 }
 
 bool ACell::StartInteract_Implementation(AActor* InteractionInvoker)

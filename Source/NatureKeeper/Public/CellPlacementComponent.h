@@ -32,6 +32,11 @@ public:
 	TArray<ACell*> CellBlocked;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Cell")
 	TArray<ACell*> CellNeighbours;
+
+	UFUNCTION(BlueprintCallable, Category="Cell")
+	void FreeCells();
+	UFUNCTION(BlueprintCallable, Category="Cell")
+	void BlockCells();
 	
 #if WITH_EDITOR
 	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;

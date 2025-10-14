@@ -7,15 +7,25 @@
 #include "NatureKeeperGameMode.generated.h"
 
 
+class AWinManager;
+
 UCLASS(minimalapi)
 class ANatureKeeperGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 
+	UPROPERTY(BlueprintReadOnly, Category = "WinManager")
+	AWinManager* WinManager;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "WinManager")
+	TSubclassOf<AWinManager> WinManagerClass;
+
 public:
 	ANatureKeeperGameMode();
 
 	virtual void StartPlay() override;
+
+	UFUNCTION(BlueprintCallable, category = "WinManager")
+	AWinManager* GetWinManager() const {return WinManager;}
 };
 
 

@@ -17,6 +17,7 @@
 #include "Materials/Material.h"
 #include "Engine/World.h"
 #include "Interfaces/CellMovementInterface.h"
+#include "Managers/WinManager.h"
 #include "ResourceSystem/EvilComponent.h"
 #include "ResourceSystem/HealthComponent.h"
 #include "ResourceSystem/ManaComponent.h"
@@ -74,13 +75,60 @@ void ANatureKeeperCharacter::BeginPlay()
 	{
 		CellMovementComponent->InitCellComponent(this);
 	}
+
+	if (HealthComponent)
+	{
+		HealthComponent->OnResourceValueReachMin.AddDynamic(this, &ANatureKeeperCharacter::OnMinHP);
+	}
+
+	if (ManaComponent)
+	{
+		ManaComponent->OnResourceValueReachMin.AddDynamic(this, &ANatureKeeperCharacter::OnMinMana);
+	}
 	
 	Super::BeginPlay();
+}
+
+void ANatureKeeperCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (HealthComponent)
+	{
+		HealthComponent->OnResourceValueReachMin.RemoveDynamic(this, &ANatureKeeperCharacter::OnMinHP);
+	}
+
+	if (ManaComponent)
+	{
+		ManaComponent->OnResourceValueReachMin.RemoveDynamic(this, &ANatureKeeperCharacter::OnMinMana);
+	}
+	
+	Super::EndPlay(EndPlayReason);
 }
 
 void ANatureKeeperCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+}
+
+void ANatureKeeperCharacter::OnMinMana(int MinMana)
+{
+	if (ANatureKeeperGameMode* GameMode = GetWorld()->GetAuthGameMode<ANatureKeeperGameMode>())
+	{
+		if (AWinManager* WinManager = GameMode->GetWinManager())
+		{
+			WinManager->OnLooseLevel();
+		}
+	}
+}
+
+void ANatureKeeperCharacter::OnMinHP(int MinHP)
+{
+	if (ANatureKeeperGameMode* GameMode = GetWorld()->GetAuthGameMode<ANatureKeeperGameMode>())
+	{
+		if (AWinManager* WinManager = GameMode->GetWinManager())
+		{
+			WinManager->OnLooseLevel();
+		}
+	}
 }
 
 TScriptInterface<UCellMovementInterface> ANatureKeeperCharacter::GetCellMovementInterface_Implementation()

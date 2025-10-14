@@ -33,6 +33,7 @@ public:
 	ANatureKeeperCharacter();
 
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void Tick(float DeltaSeconds) override;
 
 	FORCEINLINE UCameraComponent* GetTopDownCameraComponent() const { return TopDownCameraComponent; }
@@ -70,6 +71,11 @@ protected:
 	TArray<UEffectBase*> Effects;
 
 public:
+	UFUNCTION()
+	void OnMinMana(int MinMana);
+	UFUNCTION()
+	void OnMinHP(int MinHP);
+	
 	UFUNCTION(BlueprintCallable, Category = "Player")
 	UAbilityComponent* GetAbilityComponent() const { return AbilityComponent; }
 	UFUNCTION(BlueprintCallable, Category = "Player")

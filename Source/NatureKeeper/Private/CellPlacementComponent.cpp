@@ -15,10 +15,7 @@ void UCellPlacementComponent::BeginPlay()
 		GetOwner()->SetActorLocation(MainCell->GetNavigationRoot()->GetComponentLocation());
 	}
 
-	for (int i = 0; i < CellBlocked.Num(); i++)
-	{
-		CellBlocked[i]->CellType = ECellType::ICT_Block;
-	}
+	BlockCells();
 }
 
 void UCellPlacementComponent::OnRegister()
@@ -31,7 +28,24 @@ void UCellPlacementComponent::OnRegister()
 	}*/
 }
 
+void UCellPlacementComponent::FreeCells()
+{
+	for (int i = 0; i < CellBlocked.Num(); i++)
+	{
+		CellBlocked[i]->CellType = ECellType::ICT_Default;
+	}
+}
+
+void UCellPlacementComponent::BlockCells()
+{
+	for (int i = 0; i < CellBlocked.Num(); i++)
+	{
+		CellBlocked[i]->CellType = ECellType::ICT_Block;
+	}
+}
+
 #if WITH_EDITOR
+
 void UCellPlacementComponent::PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
