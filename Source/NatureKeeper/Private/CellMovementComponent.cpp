@@ -188,11 +188,11 @@ bool UCellMovementComponent::TryStartActiveMoveByPath_Implementation(const TArra
 	if (!CurrentMovingToCell || TargetCells.IsEmpty() || CurrentMovingToCellIndex == INDEX_NONE)
 		return false;
 
-	TArray<ACell*> NewPath = UNatureKeeperUtils::FindPath(CurrentCellStandOn, TargetCells[0]);
+	TArray<ACell*> NewPath = UNatureKeeperUtils::FindPath(CurrentMovingToCell, TargetCells[0]);
 		
 	for (int i = 1; i < TargetCells.Num(); i++)
 	{
-		TArray<ACell*> PotentialNewPath = UNatureKeeperUtils::FindPath(CurrentCellStandOn, TargetCells[i]);
+		TArray<ACell*> PotentialNewPath = UNatureKeeperUtils::FindPath(CurrentMovingToCell, TargetCells[i]);
 		if (PotentialNewPath.IsEmpty())
 			continue;
 			
@@ -207,6 +207,7 @@ bool UCellMovementComponent::TryStartActiveMoveByPath_Implementation(const TArra
 	CurrentMovingPath.Add(CurrentMovingToCell);
 	CurrentMovingPath.Append(NewPath);
 	CurrentMovingToCellIndex = 0;
+	CurrentTargetCell = NewPath[NewPath.Num() - 1];
 		
 	return true;
 }
