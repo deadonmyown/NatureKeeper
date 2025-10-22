@@ -6,6 +6,7 @@
 #include "UObject/Object.h"
 #include "Ability.generated.h"
 
+class UManaComponent;
 class UAffectable;
 class UTargetComponent;
 class UEffectFactory;
@@ -38,8 +39,18 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Ability")
 	EAbilityType AbilityType = EAbilityType::AT_Good;
 
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Ability")
+	int ManaCost = 0;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Ability")
+	UManaComponent* ManaComponent;
 public:
+	UFUNCTION(BlueprintCallable, Category = "Ability")
+	void InitAbility(UManaComponent* InManaComponent);
+
+	UFUNCTION(BlueprintCallable, Category = "Ability")
+	bool CanCastAbility();
+	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Ability")
 	void Target(UTargetComponent* InTargetComponent);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Ability")

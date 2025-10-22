@@ -83,6 +83,11 @@ void ANatureKeeperCharacter::BeginPlay()
 
 	if (ManaComponent)
 	{
+		if (AbilityComponent)
+		{
+			AbilityComponent->InitComponent(ManaComponent);
+		}
+		
 		ManaComponent->OnResourceValueReachMin.AddDynamic(this, &ANatureKeeperCharacter::OnMinMana);
 	}
 	

@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "AbilityComponent.generated.h"
 
+class UManaComponent;
 class UAbility;
 class UTargetComponent;
 class UTargetStrategy;
@@ -19,12 +20,16 @@ class NATUREKEEPER_API UAbilityComponent : public UActorComponent
 	GENERATED_BODY()
 
 protected:
-	virtual void BeginPlay() override;
-
 	UPROPERTY(Instanced, EditAnywhere, BlueprintReadWrite, Category = "Ability")
 	TArray<UAbility*> Abilities;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Ability")
+	UManaComponent* ManaComponent;
+	
+	virtual void BeginPlay() override;
+
 public:
-	// Sets default values for this component's properties
 	UAbilityComponent();
+
+	void InitComponent(UManaComponent* InManaComponent);
 };
