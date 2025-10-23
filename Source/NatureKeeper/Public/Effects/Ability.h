@@ -6,6 +6,7 @@
 #include "UObject/Object.h"
 #include "Ability.generated.h"
 
+class UAbilityDataAsset;
 class UManaComponent;
 class UAffectable;
 class UTargetComponent;
@@ -36,11 +37,11 @@ protected:
 	UPROPERTY(Instanced, EditAnywhere, BlueprintReadWrite, Category = "Ability")
 	UTargetStrategy* TargetStrategy = nullptr;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Ability")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Ability")
 	EAbilityType AbilityType = EAbilityType::AT_Good;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Ability")
-	int ManaCost = 0;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Ability")
+	UAbilityDataAsset* AbilityDataAsset;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Ability")
 	UManaComponent* ManaComponent;

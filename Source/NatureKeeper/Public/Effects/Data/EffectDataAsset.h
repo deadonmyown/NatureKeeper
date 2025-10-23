@@ -18,7 +18,15 @@ class NATUREKEEPER_API UEffectDataAsset : public UDataAsset
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
-	UNiagaraSystem* EffectVFX;
+	FName EffectName;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	FText EffectDisplayName;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	FText EffectDescription;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
 	EEffectElement EffectElementType;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	UTexture2D* EffectIcon;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	UNiagaraSystem* EffectVFX;
 };

@@ -5,6 +5,7 @@
 
 #include "Effects/EffectBase.h"
 #include "Effects/EffectFactory.h"
+#include "Effects/Data/AbilityDataAsset.h"
 #include "ResourceSystem/ManaComponent.h"
 #include "TargetSystem/TargetStrategy.h"
 
@@ -28,8 +29,8 @@ void UAbility::ApplyAbilityEffect_Implementation(const TScriptInterface<UAffecta
 		NewEffect->ApplyEffect(InAffectedObject);
 	}
 
-	if (ManaCost > 0)
-		ManaComponent->DecreaseResourceValue(ManaCost);
+	if (AbilityDataAsset && AbilityDataAsset->AbilityManaCost > 0)
+		ManaComponent->DecreaseResourceValue(AbilityDataAsset->AbilityManaCost);
 }
 
 /*void UAbility::CancelAbilityEffect_Implementation()
@@ -62,8 +63,9 @@ void UAbility::InitAbility(UManaComponent* InManaComponent)
 
 bool UAbility::CanCastAbility()
 {
-	//Can't cast ability if mana cost greater than zero and we didn't have enough mana or mana component is invalid
-	if (ManaCost > 0 && ((ManaComponent && ManaComponent->GetResourceValue() < ManaCost) || !ManaComponent))
+	//Can't cast ability if we have ability data asset, mana cost greater than zero and we didn't have enough mana or mana component is invalid
+	if (AbilityDataAsset && AbilityDataAsset->AbilityManaCost > 0 &&
+		(!ManaComponent || (ManaComponent->GetResourceValue() < AbilityDataAsset->AbilityManaCost)))
 		return false;
 
 	return true;
