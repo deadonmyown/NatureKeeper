@@ -27,7 +27,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Target")
 	virtual void StartStrategy(UAbility* InAbility, UTargetComponent* InTargetComponent);
 	UFUNCTION(BlueprintCallable, Category = "Target")
-	virtual void UpdateStrategy();
+	virtual void UpdateStrategy(float DeltaTime);
 	UFUNCTION(BlueprintCallable, Category = "Target")
 	virtual void CancelStrategy();
 

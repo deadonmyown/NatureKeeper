@@ -20,7 +20,7 @@ enum class ECellType : uint8
 };
 
 UCLASS()
-class NATUREKEEPER_API ACell : public AInteractiveActor, public IVisitable, public IAffectable
+class NATUREKEEPER_API ACell : public AInteractiveActor, public IVisitable, public IAffectable	
 {
 	GENERATED_BODY()
 

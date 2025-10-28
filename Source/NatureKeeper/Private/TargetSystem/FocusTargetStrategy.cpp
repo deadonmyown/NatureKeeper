@@ -24,7 +24,7 @@ void UFocusTargetStrategy::StartStrategy(UAbility* InAbility, UTargetComponent* 
 	}
 }
 
-void UFocusTargetStrategy::UpdateStrategy()
+void UFocusTargetStrategy::UpdateStrategy(float DeltaTime)
 {
 	
 }

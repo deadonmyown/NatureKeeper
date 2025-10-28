@@ -24,7 +24,7 @@ protected:
 	
 public:
 	virtual void StartStrategy(UAbility* InAbility, UTargetComponent* InTargetComponent) override;
-	virtual void UpdateStrategy() override;
+	virtual void UpdateStrategy(float DeltaTime) override;
 	virtual void CancelStrategy() override;
 
 	UFUNCTION()

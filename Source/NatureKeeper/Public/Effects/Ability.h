@@ -65,4 +65,6 @@ public:
 	TArray<UEffectFactory*>& GetActualEffects() { return AbilityType == EAbilityType::AT_Good ? GoodEffects : EvilEffects; }
 	UFUNCTION(BlueprintPure, Category = "Ability")
 	EAbilityType GetActualAbilityType() const { return AbilityType; }
+	UFUNCTION(BlueprintPure, Category = "Ability")
+	UAbilityDataAsset* GetAbilityDataAsset() const { return AbilityDataAsset; }
 };

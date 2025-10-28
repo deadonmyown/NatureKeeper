@@ -25,4 +25,6 @@ public:
 	FText AbilityDescription;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
 	UTexture2D* AbilityIcon;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	class UNiagaraSystem* AbilityVFX;
 };

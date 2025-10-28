@@ -32,15 +32,28 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Focus")
 	float FocusDistanceToActor;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Focus")
+	FVector FocusHitCacheLocation;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Focus")
 	UPrimitiveComponent* FocusedComponent;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Focus")
 	AActor* FocusedActor;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Focus")
+	FVector LookAtNormalized;
 
 	UFUNCTION(BlueprintCallable, Category = "Focus")
 	void UpdateTrace();
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Focus")
-	void UpdateFocus(bool bInIsFocus, float InDistanceToActor, UPrimitiveComponent* InFocusComponent, AActor* InFocusActor);
+	void UpdateFocus(bool bInIsFocus, float InDistanceToActor, FVector InFocusHitLocation, UPrimitiveComponent* InFocusComponent, AActor* InFocusActor);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Focus")
 	void ClearFocus();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Focus")
+	void GetPlayerLookAtNormalizedLocation(FVector& OutputResult);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Focus")
+	void GetPlayerLookAtNormalized(FVector& OutputDirection);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Focus")
+	void GetPlayerCursorLookAtNormalized(FVector& OutputDirectionNormalized, FVector& OutputWorldLocation);
 };

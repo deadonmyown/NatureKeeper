@@ -2,6 +2,7 @@
 
 #include "NatureKeeperCharacter.h"
 #include "Interfaces/InteractiveActorInterface.h"
+#include "Kismet/GameplayStatics.h"
 
 UFocusComponent::UFocusComponent()
 {
@@ -30,9 +31,10 @@ void UFocusComponent::UpdateTrace()
 	if (bIsHit)
 	{
 		float Distance = FVector::Distance(Hit.Location, GetOwner()->GetActorLocation());
+		FVector HitLoc = Hit.Location;
 		UPrimitiveComponent* HitComponent = Hit.GetComponent();
 		AActor* HitActor = Hit.GetActor();
-		UpdateFocus(bIsHit, Distance, HitComponent, HitActor);
+		UpdateFocus(bIsHit, Distance, HitLoc, HitComponent, HitActor);
 	}
 	else
 	{
@@ -40,8 +42,41 @@ void UFocusComponent::UpdateTrace()
 	}
 }
 
-void UFocusComponent::UpdateFocus_Implementation(bool bInIsFocus, float InDistanceToPlayer,
-	UPrimitiveComponent* InFocusComponent, AActor* InFocusActor)
+void UFocusComponent::GetPlayerCursorLookAtNormalized_Implementation(FVector& OutputDirectionNormalized, FVector& OutputWorldLocation)
+{
+	FVector CameraDir;
+	if (PlayerController->DeprojectMousePositionToWorld(OutputWorldLocation, CameraDir))
+	{
+		const FVector ActorLoc = GetOwner()->GetActorLocation();
+		if (FMath::Abs(CameraDir.Z) > KINDA_SMALL_NUMBER)
+		{
+			float T = (ActorLoc.Z - OutputWorldLocation.Z) / CameraDir.Z;
+			FVector HitPoint = OutputWorldLocation + CameraDir * T;
+
+			OutputDirectionNormalized = HitPoint - ActorLoc;
+			OutputDirectionNormalized.Z = 0.0f;
+			OutputDirectionNormalized = OutputDirectionNormalized.GetSafeNormal();
+			
+		}
+		else
+		{
+			OutputDirectionNormalized = CameraDir.GetSafeNormal();
+		}
+	}
+}
+
+void UFocusComponent::GetPlayerLookAtNormalized_Implementation(FVector& OutputDirection)
+{
+	OutputDirection = GetOwner()->GetActorForwardVector();
+}
+
+void UFocusComponent::GetPlayerLookAtNormalizedLocation_Implementation(FVector& OutputResult)
+{
+	OutputResult = GetOwner()->GetActorLocation() + GetOwner()->GetActorForwardVector();
+}
+
+void UFocusComponent::UpdateFocus_Implementation(bool bInIsFocus, float InDistanceToPlayer, FVector InFocusHitLocation,
+                                                 UPrimitiveComponent* InFocusComponent, AActor* InFocusActor)
 {
 	if (!bInIsFocus)
 	{
@@ -60,6 +95,7 @@ void UFocusComponent::UpdateFocus_Implementation(bool bInIsFocus, float InDistan
 	}
 	
 	FocusDistanceToActor = InDistanceToPlayer;
+	FocusHitCacheLocation = InFocusHitLocation;
 	FocusedComponent = InFocusComponent;
 	FocusedActor = InFocusActor;
 
@@ -73,6 +109,7 @@ void UFocusComponent::ClearFocus_Implementation()
 {
 	bIsFocus = false;
 	FocusDistanceToActor = 0.f;
+	FocusHitCacheLocation = FVector::ZeroVector;
 	FocusedComponent = nullptr;
 	FocusedActor = nullptr;
 }

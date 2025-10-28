@@ -4,6 +4,9 @@
 
 UTargetComponent::UTargetComponent()
 {
+	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bStartWithTickEnabled = true;
+	
 	TargetStrategy = nullptr;
 }
 
@@ -19,7 +22,7 @@ void UTargetComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, 
 
 	if (TargetStrategy && TargetStrategy->GetIsTargeting())
 	{
-		TargetStrategy->UpdateStrategy();
+		TargetStrategy->UpdateStrategy(DeltaTime);
 	}
 }
 

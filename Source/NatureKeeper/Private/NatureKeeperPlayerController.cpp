@@ -24,7 +24,18 @@ ANatureKeeperPlayerController::ANatureKeeperPlayerController()
 {
 	bShowMouseCursor = true;
 	DefaultMouseCursor = EMouseCursor::Default;
-	FollowTime = 0.f;
+	TriggerTime = 0.f;
+	bIsInteract = false;
+}
+
+void ANatureKeeperPlayerController::StartLookAtCursor()
+{
+	bLookAtCursor = true;
+}
+
+void ANatureKeeperPlayerController::StopLookAtCursor()
+{
+	bLookAtCursor = false;
 }
 
 void ANatureKeeperPlayerController::BeginPlay()
@@ -36,6 +47,32 @@ void ANatureKeeperPlayerController::BeginPlay()
 	{
 		PlayerFocusComponent = NatureKeeperCharacter->GetFocusComponent();
 		PlayerTargetComponent = NatureKeeperCharacter->GetTargetComponent();
+	}
+}
+
+void ANatureKeeperPlayerController::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	if (bLookAtCursor && !bIsInteract)
+	{
+		APawn* ControlledPawn = GetPawn();
+		if (ControlledPawn != nullptr)
+		{
+			FVector WorldDirectionNormalized;
+			FVector WorldLocation;
+			PlayerFocusComponent->GetPlayerCursorLookAtNormalized(WorldDirectionNormalized, WorldLocation);
+
+			if (WorldDirectionNormalized.IsNearlyZero()) return;
+
+			FRotator TargetRot = WorldDirectionNormalized.Rotation();
+			TargetRot.Pitch = 0.0f;
+			TargetRot.Roll = 0.0f;
+
+			FRotator NewRot = FMath::RInterpTo(ControlledPawn->GetActorRotation(), TargetRot, DeltaSeconds, LookAtCursorRotationSpeed);
+
+			ControlledPawn->SetActorRotation(NewRot);
+		}
 	}
 }
 
@@ -67,13 +104,14 @@ void ANatureKeeperPlayerController::SetupInputComponent()
 
 void ANatureKeeperPlayerController::OnInputStarted()
 {
-
 	if (PlayerTargetComponent->GetTargetStrategy() && PlayerTargetComponent->GetTargetStrategy()->GetIsTargeting())
 	{
 		OnPlayerClickStarted.Broadcast();
 		return;
 	}
 
+	StopMovement();
+	
 	PlayerFocusComponent->UpdateTrace();
 
 	if (PlayerFocusComponent->bIsFocus)
@@ -81,6 +119,7 @@ void ANatureKeeperPlayerController::OnInputStarted()
 		if (PlayerFocusComponent->FocusedActor->Implements<UInteractiveActorInterface>())
 		{
 			IInteractiveActorInterface::Execute_StartInteract(PlayerFocusComponent->FocusedActor, GetCharacter());
+			bIsInteract = true;
 		}
 	}
 
@@ -91,36 +130,72 @@ void ANatureKeeperPlayerController::OnInputStarted()
 void ANatureKeeperPlayerController::OnSetDestinationTriggered()
 {
 	// We flag that the input is being pressed
-	FollowTime += GetWorld()->GetDeltaSeconds();
+	TriggerTime += GetWorld()->GetDeltaSeconds();
+	
+	if (PlayerTargetComponent->GetTargetStrategy() && PlayerTargetComponent->GetTargetStrategy()->GetIsTargeting())
+	{
+		OnPlayerClickTriggered.Broadcast();
+		return;
+	}
 
+	if (!bIsInteract)
+	{
+		// Move towards mouse pointer
+		APawn* ControlledPawn = GetPawn();
+		if (ControlledPawn != nullptr)
+		{
+			FVector WorldDirectionNormalized;
+			FVector WorldLocation;
+			PlayerFocusComponent->GetPlayerCursorLookAtNormalized(WorldDirectionNormalized, WorldLocation);
+			ControlledPawn->AddMovementInput(WorldDirectionNormalized, 1.0, false);
+		}
+	}
+	
 	OnPlayerClickTriggered.Broadcast();
 }
 
 void ANatureKeeperPlayerController::OnSetDestinationReleased()
 {
-	FollowTime = 0.f;
-	
 	if (PlayerTargetComponent->GetTargetStrategy() && PlayerTargetComponent->GetTargetStrategy()->GetIsTargeting())
 	{
+		TriggerTime = 0.f;
+		bIsInteract = false;
 		OnPlayerClickStopped.Broadcast();
 		return;
 	}
 	
 	PlayerFocusComponent->UpdateTrace();
+
 	
 	if (PlayerFocusComponent->bIsFocus)
 	{
-		if (PlayerFocusComponent->FocusedActor->Implements<UInteractiveActorInterface>())
+		if (bIsInteract && PlayerFocusComponent->FocusedActor->Implements<UInteractiveActorInterface>())
 		{
-			if (IInteractiveActorInterface::Execute_StopInteract(PlayerFocusComponent->FocusedActor, GetCharacter()))
+			IInteractiveActorInterface::Execute_StopInteract(PlayerFocusComponent->FocusedActor, GetCharacter());
+				
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FXCursor,
+				PlayerFocusComponent->FocusedActor->GetActorLocation(),
+				FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f),
+				true, true, ENCPoolMethod::None, true);
+		}
+		else
+		{
+			// If it was a short press
+			if (TriggerTime <= ShortPressThreshold)
 			{
+				// We move there and spawn some particles
+				UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, PlayerFocusComponent->FocusHitCacheLocation);
+
 				UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FXCursor,
-					PlayerFocusComponent->FocusedActor->GetActorLocation(),
+					PlayerFocusComponent->FocusHitCacheLocation,
 					FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f),
 					true, true, ENCPoolMethod::None, true);
 			}
 		}
 	}
 
+	bIsInteract = false;
+	TriggerTime = 0.f;
+	
 	OnPlayerClickStopped.Broadcast();
 }

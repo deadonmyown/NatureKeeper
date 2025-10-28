@@ -4,7 +4,7 @@ void UTargetStrategy::StartStrategy(UAbility* InAbility, UTargetComponent* InTar
 {
 }
 
-void UTargetStrategy::UpdateStrategy()
+void UTargetStrategy::UpdateStrategy(float DeltaTime)
 {
 }
 

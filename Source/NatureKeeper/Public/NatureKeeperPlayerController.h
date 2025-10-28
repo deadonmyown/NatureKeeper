@@ -53,7 +53,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* SetDestinationClickAction;
 
-
+	UFUNCTION(BlueprintCallable, Category = Input)
+	void StartLookAtCursor();
+	UFUNCTION(BlueprintCallable, Category = Input)
+	void StopLookAtCursor();
+	
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = Player)
 	ANatureKeeperCharacter* NatureKeeperCharacter;
@@ -67,7 +71,13 @@ protected:
 	
 	/** For how long it has been pressed */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player)
-	float FollowTime;
+	float TriggerTime;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player)
+	bool bIsInteract;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Player)
+	bool bLookAtCursor = true;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Player)
+	float LookAtCursorRotationSpeed = 5.0f;
 	
 	
 
@@ -75,6 +85,7 @@ protected:
 	
 	// To add mapping context
 	virtual void BeginPlay();
+	virtual void Tick(float DeltaSeconds) override;
 
 	/** Input handlers for SetDestination action. */
 	void OnInputStarted();
