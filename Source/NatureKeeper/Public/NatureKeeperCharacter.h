@@ -6,7 +6,6 @@
 #include "NatureKeeperPlayerController.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/Affectable.h"
-#include "Interfaces/CellMovable.h"
 #include "Interfaces/Damageable.h"
 #include "Interfaces/Visitor.h"
 #include "NatureKeeperCharacter.generated.h"
@@ -25,7 +24,7 @@ class USpringArmComponent;
 class UCameraComponent;
 
 UCLASS(Blueprintable)
-class ANatureKeeperCharacter : public ACharacter, public ICellMovable, public IVisitor, public IDamageable, public IAffectable
+class ANatureKeeperCharacter : public ACharacter, public IVisitor, public IDamageable, public IAffectable
 {
 	GENERATED_BODY()
 
@@ -38,11 +37,8 @@ public:
 
 	FORCEINLINE UCameraComponent* GetTopDownCameraComponent() const { return TopDownCameraComponent; }
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-	FORCEINLINE UCellMovementComponent* GetCellMovementComponent() const {return CellMovementComponent;}
 
 protected:
-	UPROPERTY(Category = Components, EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true, NoEditInline))
-	UCellMovementComponent* CellMovementComponent;
 	UPROPERTY(Category = Components, EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true, NoEditInline))
 	UAbilityComponent* AbilityComponent;
 	UPROPERTY(Category = Components, EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true, NoEditInline))
@@ -84,10 +80,6 @@ public:
 	UFocusComponent* GetFocusComponent() const {return FocusComponent;}
 	UFUNCTION(BlueprintCallable, Category = "Player")
 	ANatureKeeperPlayerController* GetNatureKeeperController() const {return Cast<ANatureKeeperPlayerController>(GetController());}
-	
-	virtual TScriptInterface<UCellMovementInterface> GetCellMovementInterface_Implementation() override;
-	virtual USceneComponent* GetNavigationRoot_Implementation() override;
-	virtual bool TryMoveByCells_Implementation(const TArray<ACell*>& TargetCells) override;
 
 	virtual bool OnStartVisit_Implementation(const TScriptInterface<UVisitable>& Visitable) override;
 	virtual bool OnEndVisit_Implementation(const TScriptInterface<UVisitable>& Visitable) override;

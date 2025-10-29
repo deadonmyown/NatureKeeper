@@ -3,7 +3,6 @@
 #include "NatureKeeper/Public/NatureKeeperCharacter.h"
 
 #include "Cell.h"
-#include "CellMovementComponent.h"
 #include "FocusComponent.h"
 #include "NatureKeeperGameMode.h"
 #include "UObject/ConstructorHelpers.h"
@@ -16,7 +15,6 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Materials/Material.h"
 #include "Engine/World.h"
-#include "Interfaces/CellMovementInterface.h"
 #include "Managers/WinManager.h"
 #include "ResourceSystem/EvilComponent.h"
 #include "ResourceSystem/HealthComponent.h"
@@ -27,7 +25,6 @@ class ANatureKeeperGameMode;
 
 ANatureKeeperCharacter::ANatureKeeperCharacter()
 {
-	CellMovementComponent = CreateDefaultSubobject<UCellMovementComponent>(FName("CellMovementComponent"));
 	AbilityComponent = CreateDefaultSubobject<UAbilityComponent>("AbilityComponent");
 	TargetComponent = CreateDefaultSubobject<UTargetComponent>("TargetComponent");
 
@@ -71,11 +68,6 @@ ANatureKeeperCharacter::ANatureKeeperCharacter()
 
 void ANatureKeeperCharacter::BeginPlay()
 {
-	if (CellMovementComponent)
-	{
-		CellMovementComponent->InitCellComponent(this);
-	}
-
 	if (HealthComponent)
 	{
 		HealthComponent->OnResourceValueReachMin.AddDynamic(this, &ANatureKeeperCharacter::OnMinHP);
@@ -134,24 +126,6 @@ void ANatureKeeperCharacter::OnMinHP(int MinHP)
 			WinManager->OnLooseLevel();
 		}
 	}
-}
-
-TScriptInterface<UCellMovementInterface> ANatureKeeperCharacter::GetCellMovementInterface_Implementation()
-{
-	return CellMovementComponent;
-}
-
-USceneComponent* ANatureKeeperCharacter::GetNavigationRoot_Implementation()
-{
-	return RootComponent;
-}
-
-bool ANatureKeeperCharacter::TryMoveByCells_Implementation(const TArray<ACell*>& TargetCells)
-{
-	if (TargetCells.IsEmpty())
-		return false;
-	
-	return ICellMovementInterface::Execute_TryStartActiveMoveByPath(CellMovementComponent, TargetCells);
 }
 
 bool ANatureKeeperCharacter::OnStartVisit_Implementation(const TScriptInterface<UVisitable>& Visitable)

@@ -12,10 +12,6 @@ class NATUREKEEPER_API AInteractiveActor : public AActor, public IInteractiveAct
 {
 	GENERATED_BODY()
 
-protected:
-	UPROPERTY(Category = Components, EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true, NoEditInline))
-	UCellPlacementComponent* CellPlacement;
-
 public:
 	AInteractiveActor();
 

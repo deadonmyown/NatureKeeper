@@ -41,46 +41,6 @@ void AGrid::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
-void AGrid::SetNeighbours()
-{
-	int Index = 0;
-	for (int i = 0; i < GridSize.X; i++)
-	{
-		for (int j = 0; j < GridSize.Y; j++)
-		{
-			Cells[Index]->SetPathNodeCoord(FIntVector2D(i, j));
-			Cells[Index]->Neighbours.Empty();
-
-			const int NeighbourBottom = Index - 1;
-			const int NeighbourTop = Index + 1;
-			const int NeighbourRight = Index + GridSize.Y;
-			const int NeighbourLeft = Index - GridSize.Y;
-
-			if (j > 0)
-			{
-				Cells[Index]->Neighbours.Add(Cells[NeighbourBottom]);
-			}
-
-			if (j < GridSize.Y - 1)
-			{
-				Cells[Index]->Neighbours.Add(Cells[NeighbourTop]);
-			}
-
-			if (i > 0)
-			{
-				Cells[Index]->Neighbours.Add(Cells[NeighbourLeft]);
-			}
-
-			if (i < GridSize.X - 1)
-			{
-				Cells[Index]->Neighbours.Add(Cells[NeighbourRight]);
-			}
-
-			Index++;
-		}
-	}
-}
-
 void AGrid::CreateGrid()
 {
 	if (!CellClass)
@@ -148,8 +108,6 @@ void AGrid::CreateGrid()
 			Index++;
 		}
 	}
-
-	SetNeighbours();
 }
 
 void AGrid::ClearGrid()

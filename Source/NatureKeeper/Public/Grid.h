@@ -36,9 +36,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Grid")
 	TArray<ACell*> Cells;
 
-	UFUNCTION(BlueprintCallable, Category = "Grid")
-	virtual void SetNeighbours();
-
 public:
 	UFUNCTION(BlueprintCallable, CallInEditor, Category = "Grid")
 	virtual void CreateGrid();

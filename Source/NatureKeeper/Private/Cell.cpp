@@ -1,13 +1,13 @@
 ﻿#include "Cell.h"
 
 #include "ResourceSystem/EvilComponent.h"
-#include "GameFramework/Character.h"
-#include "Interfaces/CellMovable.h"
 #include "Managers/WinEntityComponent.h"
 
 
 ACell::ACell()
 {
+	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	
 	EvilComponent = CreateDefaultSubobject<UEvilComponent>("EvilComponent");
 
 	WinEntityComponent = CreateDefaultSubobject<UWinEntityComponent>("WinEntityComponent");
@@ -22,61 +22,15 @@ void ACell::BeginPlay()
 		OnMinEvilEnergyValueReach(EvilComponent->GetMinResourceValue());
 }
 
-void ACell::SetCostToStart(int32 NewCost)
-{
-	CostToStart = NewCost;
-}
-
-void ACell::SetCostToTarget(int32 NewCost)
-{
-	CostToTarget = NewCost;
-}
-
-void ACell::SetPathConnection(ACell* NewConnection)
-{
-	PathConnection = NewConnection;
-}
-
-void ACell::SetPathNodeCoord(FIntVector2D NewCoord)
-{
-	PathNodeCoord = NewCoord;
-}
-
-int32 ACell::GetDistanceToOtherCell(ACell* OtherPath)
-{
-	return FMath::Abs(PathNodeCoord.X - OtherPath->GetPathNodeCoord().X) + FMath::Abs(PathNodeCoord.Y - OtherPath->GetPathNodeCoord().Y);
-}
-
-void ACell::ClearPathfinding()
-{
-	CostToStart = 0;
-	CostToTarget = 0;
-	PathConnection = nullptr;
-}
-
-USceneComponent* ACell::GetNavigationRoot_Implementation()
-{
-	return RootComponent;
-}
-
 //Change material cell color
 void ACell::OnMinEvilEnergyValueReach_Implementation(int MinValue)
 {
 	WinEntityComponent->ClearEntity();
 }
 
-bool ACell::StartInteract_Implementation(AActor* InteractionInvoker)
+USceneComponent* ACell::GetNavigationRoot_Implementation()
 {
-	return false;
-}
-
-bool ACell::StopInteract_Implementation(AActor* InteractionInvoker)
-{
-	if (InteractionInvoker->Implements<UCellMovable>())
-	{
-		return ICellMovable::Execute_TryMoveByCells(InteractionInvoker, {this});
-	}
-	return false;
+	return RootComponent;
 }
 
 bool ACell::StartVisit_Implementation(const TScriptInterface<UVisitor>& Visitor)

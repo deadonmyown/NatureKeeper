@@ -49,9 +49,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputMappingContext* DefaultMappingContext;
 	
-	/** Jump Input Action */
+	/** Main Click Input Action (Usually LMB) */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	UInputAction* SetDestinationClickAction;
+	UInputAction* PrimaryClickAction;
+
+	/** Secondary Click Input Action (Usually RMB) */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* SecondaryClickAction;
 
 	UFUNCTION(BlueprintCallable, Category = Input)
 	void StartLookAtCursor();
@@ -75,7 +79,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player)
 	bool bIsInteract;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Player)
-	bool bLookAtCursor = true;
+	bool bLookAtCursor = false;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Player)
 	float LookAtCursorRotationSpeed = 5.0f;
 	
@@ -92,7 +96,8 @@ protected:
 	void OnSetDestinationTriggered();
 	void OnSetDestinationReleased();
 	
-	 
+	void OnSecondaryInputStarted();
+	void OnSecondaryInputStopped();
 };
 
 

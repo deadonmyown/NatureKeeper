@@ -91,10 +91,13 @@ void ANatureKeeperPlayerController::SetupInputComponent()
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
 	{
 		// Setup mouse input events
-		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Started, this, &ANatureKeeperPlayerController::OnInputStarted);
-		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Triggered, this, &ANatureKeeperPlayerController::OnSetDestinationTriggered);
-		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Completed, this, &ANatureKeeperPlayerController::OnSetDestinationReleased);
-		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Canceled, this, &ANatureKeeperPlayerController::OnSetDestinationReleased);
+		EnhancedInputComponent->BindAction(PrimaryClickAction, ETriggerEvent::Started, this, &ANatureKeeperPlayerController::OnInputStarted);
+		EnhancedInputComponent->BindAction(PrimaryClickAction, ETriggerEvent::Triggered, this, &ANatureKeeperPlayerController::OnSetDestinationTriggered);
+		EnhancedInputComponent->BindAction(PrimaryClickAction, ETriggerEvent::Completed, this, &ANatureKeeperPlayerController::OnSetDestinationReleased);
+		EnhancedInputComponent->BindAction(PrimaryClickAction, ETriggerEvent::Canceled, this, &ANatureKeeperPlayerController::OnSetDestinationReleased);
+		EnhancedInputComponent->BindAction(SecondaryClickAction, ETriggerEvent::Started, this, &ANatureKeeperPlayerController::OnSecondaryInputStarted);
+		EnhancedInputComponent->BindAction(SecondaryClickAction, ETriggerEvent::Completed, this, &ANatureKeeperPlayerController::OnSecondaryInputStopped);
+		EnhancedInputComponent->BindAction(SecondaryClickAction, ETriggerEvent::Canceled, this, &ANatureKeeperPlayerController::OnSecondaryInputStopped);
 	}
 	else
 	{
@@ -198,4 +201,14 @@ void ANatureKeeperPlayerController::OnSetDestinationReleased()
 	TriggerTime = 0.f;
 	
 	OnPlayerClickStopped.Broadcast();
+}
+
+void ANatureKeeperPlayerController::OnSecondaryInputStarted()
+{
+	StartLookAtCursor();
+}
+
+void ANatureKeeperPlayerController::OnSecondaryInputStopped()
+{
+	StopLookAtCursor();
 }
