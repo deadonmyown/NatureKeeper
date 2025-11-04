@@ -23,6 +23,7 @@ void UFlowTargetStrategy::StartStrategy(UAbility* InAbility, UTargetComponent* I
 	{
 		FocusComponent = Player->GetFocusComponent();
 		PlayerController = Player->GetNatureKeeperController();
+		MuzzleComponent = FocusComponent->GetPlayerMuzzleComponent();
 
 		bIsTargeting = true;
 		bFlowStart = false;
@@ -44,14 +45,12 @@ void UFlowTargetStrategy::UpdateStrategy(float DeltaTime)
 	}
 	
 	FVector PlayerDir;
-	FVector PlayerLoc;
 	FocusComponent->GetPlayerLookAtNormalized(PlayerDir);
-	FocusComponent->GetPlayerLookAtNormalizedLocation(PlayerLoc);
 	FRotator PlayerRot = UKismetMathLibrary::MakeRotFromX(PlayerDir);
 
 	if (AbilityVFXComponent)
 	{
-		AbilityVFXComponent->SetWorldLocation(PlayerLoc);
+		AbilityVFXComponent->SetWorldLocation(MuzzleComponent->GetComponentLocation());
 		AbilityVFXComponent->SetWorldRotation(PlayerRot);
 	}
 	
@@ -77,28 +76,24 @@ void UFlowTargetStrategy::UpdateStrategy(float DeltaTime)
 
 		bool bHit = GetWorld()->SweepMultiByChannel(
 			HitResults,
-			PlayerLoc,
-			PlayerLoc + PlayerDir * 100.0f,
+			MuzzleComponent->GetComponentLocation(),
+			MuzzleComponent->GetComponentLocation() + PlayerDir * 100.0f,
 			PlayerRot.Quaternion(),
 			CollisionChannels::ECC_Damageable,
 			BoxShape,
 			Params
 		);
 
-		if (bHit)
+		Ability->TrySpendMana();
+		
+		for (int i = 0; i < HitResults.Num(); i++)
 		{
-			for (int i = 0; i < HitResults.Num(); i++)
+			if (HitResults[i].GetActor()->Implements<UAffectable>())
 			{
-				if (HitResults[i].GetActor()->Implements<UDamageable>())
-				{
-					Ability->ApplyAbilityEffect(HitResults[i].GetActor());
-				}
+				Ability->ApplyAbilityEffect(HitResults[i].GetActor());
 			}
 		}
-		else
-		{
-			Ability->TrySpendMana();
-		}
+		
 		CurrentFlowCooldown = FlowUpdateTimeInSec;
 	}
 }
@@ -120,6 +115,7 @@ void UFlowTargetStrategy::CancelStrategy()
 
 	FocusComponent = nullptr;
 	PlayerController = nullptr;
+	MuzzleComponent = nullptr;
 
 	bIsTargeting = false;
 	Ability = nullptr;

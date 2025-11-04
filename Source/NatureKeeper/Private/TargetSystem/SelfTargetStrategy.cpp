@@ -12,7 +12,7 @@ void USelfTargetStrategy::StartStrategy(UAbility* InAbility, UTargetComponent* I
 	Ability = InAbility;
 	TargetComponent = InTargetComponent;
 
-	if (TargetComponent->GetOwner()->Implements<UAffectable>())
+	if (TargetComponent->GetOwner()->Implements<UAffectable>() && Ability && Ability->TrySpendMana())
 	{
 		Ability->ApplyAbilityEffect(TargetComponent->GetOwner());
 	}

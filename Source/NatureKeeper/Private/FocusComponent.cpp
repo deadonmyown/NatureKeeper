@@ -16,7 +16,10 @@ void UFocusComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	PlayerController = Cast<APlayerController>(Cast<ACharacter>(GetOwner())->GetController());
+	PlayerRef = Cast<ANatureKeeperCharacter>(GetOwner());
+	
+	if (PlayerRef)
+		PlayerController = Cast<ANatureKeeperPlayerController>(PlayerRef->GetController());
 	
 	if (PlayerController)
 		GetWorld()->GetTimerManager().SetTimer(TraceUpdateTimerHandle, this, &UFocusComponent::UpdateTrace, TraceUpdateTime);
@@ -40,6 +43,14 @@ void UFocusComponent::UpdateTrace()
 	{
 		ClearFocus();
 	}
+}
+
+USceneComponent* UFocusComponent::GetPlayerMuzzleComponent_Implementation()
+{
+	if (PlayerRef)
+		return PlayerRef->GetMuzzleComponent();
+
+	return GetOwner()->GetRootComponent();
 }
 
 void UFocusComponent::GetPlayerCursorLookAtNormalized_Implementation(FVector& OutputDirectionNormalized, FVector& OutputWorldLocation)

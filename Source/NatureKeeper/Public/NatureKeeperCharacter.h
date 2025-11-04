@@ -37,6 +37,7 @@ public:
 
 	FORCEINLINE UCameraComponent* GetTopDownCameraComponent() const { return TopDownCameraComponent; }
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+	FORCEINLINE USceneComponent* GetMuzzleComponent() const { return MuzzleComponent; }
 
 protected:
 	UPROPERTY(Category = Components, EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true, NoEditInline))
@@ -59,6 +60,9 @@ protected:
 	/** Camera boom positioning the camera above the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	USceneComponent* MuzzleComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damageable")
 	EDamageableType DamageableType = EDamageableType::DT_GoodPlayer;

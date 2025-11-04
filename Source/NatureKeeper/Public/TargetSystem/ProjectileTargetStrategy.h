@@ -1,22 +1,22 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "TargetStrategy.h"
-#include "FlowTargetStrategy.generated.h"
+#include "ProjectileTargetStrategy.generated.h"
 
-class UNiagaraComponent;
-class UFocusComponent;
+class AAbilityProjectile;
 class ANatureKeeperPlayerController;
+class UFocusComponent;
 /**
  * 
  */
 UCLASS()
-class NATUREKEEPER_API UFlowTargetStrategy : public UTargetStrategy
+class NATUREKEEPER_API UProjectileTargetStrategy : public UTargetStrategy
 {
 	GENERATED_BODY()
-	
+
 protected:
 	UPROPERTY()
 	USceneComponent* MuzzleComponent;
@@ -24,22 +24,15 @@ protected:
 	UFocusComponent* FocusComponent;
 	UPROPERTY()
 	ANatureKeeperPlayerController* PlayerController;
-	UPROPERTY()
-	UNiagaraComponent* AbilityVFXComponent;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Target")
-	float FlowUpdateTimeInSec = 1.0f;
-
-	bool bFlowStart = false;
-	float CurrentFlowCooldown = 0.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Target")
+	TSubclassOf<AAbilityProjectile> ProjectileClass;
 	
 public:
 	virtual void StartStrategy(UAbility* InAbility, UTargetComponent* InTargetComponent) override;
 	virtual void UpdateStrategy(float DeltaTime) override;
 	virtual void CancelStrategy() override;
 
-	UFUNCTION()
-	void OnPlayerClickStarted();
 	UFUNCTION()
 	void OnPlayerClickStopped();
 };

@@ -7,6 +7,9 @@
 #include "FocusComponent.generated.h"
 
 
+class ANatureKeeperPlayerController;
+class ANatureKeeperCharacter;
+
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class NATUREKEEPER_API UFocusComponent : public UActorComponent
 {
@@ -19,7 +22,9 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(BlueprintReadOnly, Category="Focus")
-	APlayerController* PlayerController;
+	ANatureKeeperCharacter* PlayerRef;
+	UPROPERTY(BlueprintReadOnly, Category="Focus")
+	ANatureKeeperPlayerController* PlayerController;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Player)
 	float TraceUpdateTime = 0.5f;
@@ -53,6 +58,8 @@ public:
 	void GetPlayerLookAtNormalizedLocation(FVector& OutputResult);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Focus")
 	void GetPlayerLookAtNormalized(FVector& OutputDirection);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Focus")
+	USceneComponent* GetPlayerMuzzleComponent();
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Focus")
 	void GetPlayerCursorLookAtNormalized(FVector& OutputDirectionNormalized, FVector& OutputWorldLocation);

@@ -19,8 +19,10 @@ void UAbility::Target_Implementation(UTargetComponent* InTargetComponent)
 
 void UAbility::ApplyAbilityEffect_Implementation(const TScriptInterface<UAffectable>& InAffectedObject)
 {
-	if (!TrySpendMana())
-		return;
+	//We should check this before apply ability separately, because for example in projectile on hit we just invoke applyability method
+	//and we don't care about mana, but to create this projectile we should spend ability mana
+	/*if (!TrySpendMana())
+		return;*/
 	
 	TArray<UEffectFactory*> ActualEffectFactory = GetActualEffects();
 	for (int i = 0; i < ActualEffectFactory.Num(); i++)

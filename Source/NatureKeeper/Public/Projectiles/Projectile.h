@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Projectile.generated.h"
 
+class UNiagaraSystem;
 class UProjectileMovementComponent;
 class USphereComponent;
 
@@ -18,9 +19,15 @@ public:
 	AProjectile();
 
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
+	float ProjectileLifeSpan = 5.0f;
+	
 	virtual void BeginPlay() override;
-
 public:
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
+	UNiagaraSystem* HitNiagaraSystem;
+	
 	// Sphere collision component.
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = Projectile)
 	USphereComponent* CollisionComponent;
@@ -28,11 +35,11 @@ public:
 	// Projectile movement component.
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = Projectile)
 	UProjectileMovementComponent* ProjectileMovementComponent;
-	
-	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintCallable, Category = Projectile)
 	virtual void FireProjectileInDirection(const FVector& Direction);
+	UFUNCTION(BlueprintCallable, Category = Projectile)
+	virtual void AddActorsToIgnore(AActor* NewActorToIgnore);
 
 	// Function that is called when the projectile hits something.
 	UFUNCTION()

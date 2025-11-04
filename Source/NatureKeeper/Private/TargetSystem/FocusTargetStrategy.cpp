@@ -48,14 +48,13 @@ void UFocusTargetStrategy::CancelStrategy()
 
 void UFocusTargetStrategy::OnPlayerClickStopped()
 {
-	if (Ability)
-	{
-		FocusComponent->UpdateTrace();
+	FocusComponent->UpdateTrace();
 
-		if (FocusComponent->FocusedActor && FocusComponent->FocusedActor->Implements<UAffectable>())
-		{
-			Ability->ApplyAbilityEffect(FocusComponent->FocusedActor);
-			CancelStrategy();
-		}
+	if (FocusComponent->FocusedActor && FocusComponent->FocusedActor->Implements<UAffectable>()
+		&& Ability && Ability->TrySpendMana())
+	{
+		Ability->ApplyAbilityEffect(FocusComponent->FocusedActor);
 	}
+	
+	CancelStrategy();
 }

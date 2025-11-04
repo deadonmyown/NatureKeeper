@@ -6,20 +6,25 @@
 #include "Projectile.h"
 #include "AbilityProjectile.generated.h"
 
+class UAbility;
+
 UCLASS()
 class NATUREKEEPER_API AAbilityProjectile : public AProjectile
 {
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this actor's properties
 	AAbilityProjectile();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Projectile)
+	UAbility* Ability;
+
 public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	UFUNCTION(BlueprintCallable, Category = Projectile)
+	virtual void InitAbilityProjectile(UAbility* ProjectileAbility);
+
+	virtual void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit) override;
 };
