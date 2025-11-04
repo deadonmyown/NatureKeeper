@@ -4,7 +4,9 @@
 #include "TargetSystem/FlowTargetStrategy.h"
 
 #include "FocusComponent.h"
+#include "GameCollisionChannels.h"
 #include "NatureKeeperCharacter.h"
+#include "NatureKeeperGameMode.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Effects/Ability.h"
 #include "Effects/Data/AbilityDataAsset.h"
@@ -35,6 +37,12 @@ void UFlowTargetStrategy::StartStrategy(UAbility* InAbility, UTargetComponent* I
 
 void UFlowTargetStrategy::UpdateStrategy(float DeltaTime)
 {
+	if (!Ability->CanCastAbility())
+	{
+		CancelStrategy();
+		return;
+	}
+	
 	FVector PlayerDir;
 	FVector PlayerLoc;
 	FocusComponent->GetPlayerLookAtNormalized(PlayerDir);
@@ -58,15 +66,39 @@ void UFlowTargetStrategy::UpdateStrategy(float DeltaTime)
 	
 	if (bFlowStart && CurrentFlowCooldown == 0.0f)
 	{
-		//TODO: Update trigger
 		TArray<FHitResult> HitResults;
-		UKismetSystemLibrary::BoxTraceMulti(this, PlayerLoc, PlayerLoc + PlayerDir * 2.0f,
-			FVector(1.0f, 1.0f, 1.0f), PlayerRot,
-			ETraceTypeQuery::TraceTypeQuery_MAX, false,{TargetComponent->GetOwner()},
-			EDrawDebugTrace::ForOneFrame, HitResults, true, FLinearColor::Green,
-			FLinearColor::Red, 0.1f);
 
-		UE_LOG(LogTemp, Display, TEXT("Flow Target Strategy: Hit"));
+		FCollisionShape BoxShape = FCollisionShape::MakeBox(FVector(100.0f, 100.0f, 100.0f));
+
+		FCollisionQueryParams Params;
+		Params.AddIgnoredActor(TargetComponent->GetOwner());
+		Params.bTraceComplex = false;
+		Params.bDebugQuery = true;
+
+		bool bHit = GetWorld()->SweepMultiByChannel(
+			HitResults,
+			PlayerLoc,
+			PlayerLoc + PlayerDir * 100.0f,
+			PlayerRot.Quaternion(),
+			CollisionChannels::ECC_Damageable,
+			BoxShape,
+			Params
+		);
+
+		if (bHit)
+		{
+			for (int i = 0; i < HitResults.Num(); i++)
+			{
+				if (HitResults[i].GetActor()->Implements<UDamageable>())
+				{
+					Ability->ApplyAbilityEffect(HitResults[i].GetActor());
+				}
+			}
+		}
+		else
+		{
+			Ability->TrySpendMana();
+		}
 		CurrentFlowCooldown = FlowUpdateTimeInSec;
 	}
 }
@@ -75,13 +107,16 @@ void UFlowTargetStrategy::CancelStrategy()
 {
 	PlayerController->OnPlayerClickStarted.RemoveDynamic(this, &UFlowTargetStrategy::OnPlayerClickStarted);
 	PlayerController->OnPlayerClickStopped.RemoveDynamic(this, &UFlowTargetStrategy::OnPlayerClickStopped);
+
+	bFlowStart = false;
+	
+	if (AbilityVFXComponent)
+		AbilityVFXComponent->DestroyInstance();
 	
 	if (TargetComponent->GetTargetStrategy() == this)
 	{
 		TargetComponent->ClearTargetStrategy();
 	}
-
-	bFlowStart = false;
 
 	FocusComponent = nullptr;
 	PlayerController = nullptr;
@@ -110,10 +145,5 @@ void UFlowTargetStrategy::OnPlayerClickStarted()
 
 void UFlowTargetStrategy::OnPlayerClickStopped()
 {
-	bFlowStart = false;
-	
-	if (AbilityVFXComponent)
-		AbilityVFXComponent->DestroyInstance();
-
 	CancelStrategy();
 }

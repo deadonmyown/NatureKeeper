@@ -56,6 +56,8 @@ public:
 	void Target(UTargetComponent* InTargetComponent);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Ability")
 	void ApplyAbilityEffect(const TScriptInterface<UAffectable>& InAffectedObject);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Ability")
+	bool TrySpendMana();
 	/*UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Ability")
 	void CancelAbilityEffect();*/
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Ability")

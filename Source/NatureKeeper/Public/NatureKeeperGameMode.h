@@ -6,7 +6,6 @@
 #include "GameFramework/GameModeBase.h"
 #include "NatureKeeperGameMode.generated.h"
 
-
 class AWinManager;
 
 UCLASS(minimalapi)

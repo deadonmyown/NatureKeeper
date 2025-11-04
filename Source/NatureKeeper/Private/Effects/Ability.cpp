@@ -19,7 +19,7 @@ void UAbility::Target_Implementation(UTargetComponent* InTargetComponent)
 
 void UAbility::ApplyAbilityEffect_Implementation(const TScriptInterface<UAffectable>& InAffectedObject)
 {
-	if (!CanCastAbility())
+	if (!TrySpendMana())
 		return;
 	
 	TArray<UEffectFactory*> ActualEffectFactory = GetActualEffects();
@@ -28,9 +28,6 @@ void UAbility::ApplyAbilityEffect_Implementation(const TScriptInterface<UAffecta
 		UEffectBase* NewEffect = ActualEffectFactory[i]->CreateEffect();
 		NewEffect->ApplyEffect(InAffectedObject);
 	}
-
-	if (AbilityDataAsset && AbilityDataAsset->AbilityManaCost > 0)
-		ManaComponent->DecreaseResourceValue(AbilityDataAsset->AbilityManaCost);
 }
 
 /*void UAbility::CancelAbilityEffect_Implementation()
@@ -67,6 +64,17 @@ bool UAbility::CanCastAbility()
 	if (AbilityDataAsset && AbilityDataAsset->AbilityManaCost > 0 &&
 		(!ManaComponent || (ManaComponent->GetResourceValue() < AbilityDataAsset->AbilityManaCost)))
 		return false;
+
+	return true;
+}
+
+bool UAbility::TrySpendMana_Implementation()
+{
+	if (!CanCastAbility())
+		return false;
+	
+	if (AbilityDataAsset && AbilityDataAsset->AbilityManaCost > 0)
+		ManaComponent->DecreaseResourceValue(AbilityDataAsset->AbilityManaCost);
 
 	return true;
 }
