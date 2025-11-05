@@ -1,20 +1,24 @@
-﻿#pragma once
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "GameFramework/Character.h"
 #include "Interfaces/InteractiveActorInterface.h"
-#include "InteractiveActor.generated.h"
-
-class UCellPlacementComponent;
+#include "InteractiveCharacter.generated.h"
 
 UCLASS()
-class NATUREKEEPER_API AInteractiveActor : public AActor, public IInteractiveActorInterface
+class NATUREKEEPER_API AInteractiveCharacter : public ACharacter, public IInteractiveActorInterface
 {
 	GENERATED_BODY()
 
 public:
-	AInteractiveActor();
+	AInteractiveCharacter();
 
+protected:
+	virtual void BeginPlay() override;
+
+public:
 	virtual bool StartInteract_Implementation(AActor* InteractionInvoker) override;
 	virtual bool StopInteract_Implementation(AActor* InteractionInvoker) override;
 	virtual bool StartFocus_Implementation(AActor* InteractionInvoker) override;
