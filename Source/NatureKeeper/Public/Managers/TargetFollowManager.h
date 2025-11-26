@@ -15,7 +15,11 @@ class NATUREKEEPER_API ATargetFollowManager : public AActor
 {
 	GENERATED_BODY()
 
+	ATargetFollowManager();
+
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Target Follow Manager")
+	float TargetFollowInterpSpeed = 1.0f;
 	UPROPERTY(BlueprintReadOnly, Category="Target Follow Manager")
 	TMap<AActor*, TScriptInterface<UTarget>> TargetFollowMap;
 
@@ -23,5 +27,9 @@ protected:
 	
 public:
 	UFUNCTION(BlueprintCallable, Category="Target Follow Manager")
-	void AddTargetFollowMap(AActor* FollowActor, TScriptInterface<UTarget> FollowTarget);
+	void AddTargetFollowMap(AActor* FollowActor, const TScriptInterface<UTarget>& FollowTarget);
+	UFUNCTION(BlueprintCallable, Category="Target Follow Manager")
+	bool RemoveTargetFollowMap(AActor* Key);
+
+	virtual void Tick(float DeltaTime) override;
 };

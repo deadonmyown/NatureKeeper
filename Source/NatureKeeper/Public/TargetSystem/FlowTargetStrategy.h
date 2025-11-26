@@ -27,17 +27,18 @@ protected:
 	UPROPERTY()
 	UNiagaraComponent* AbilityVFXComponent;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Target")
-	float FlowUpdateTimeInSec = 1.0f;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Target")
 	float OverrideFlowUpdateTimeInSec = -1.0f;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Target")
 	bool bHitSingleTarget = true;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Target")
-	FCollisionShape CollisionShape;
+	FVector HitBoxCollisionExtent = FVector(100.0f, 100.0f, 100.0f);
 
 	bool bFlowStart = false;
+	float FlowUpdateTimeInSec = 1.0f;
 	float CurrentFlowCooldown = 0.0f;
+	float AbilityDistance = 1.0f;
 	
 public:
 	virtual void StartStrategy(UAbility* InAbility, UTargetComponent* InTargetComponent) override;

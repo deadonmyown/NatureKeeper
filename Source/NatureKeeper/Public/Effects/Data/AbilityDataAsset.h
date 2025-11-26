@@ -18,6 +18,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
 	int AbilityManaCost;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	float AbilityAffectDistance;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
 	FName AbilityName;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
 	FText AbilityDisplayName;

@@ -7,7 +7,6 @@
 #include "NatureKeeperUtils.generated.h"
 
 class ANatureKeeperCharacter;
-class UTargetFollowComponent;
 class ACell;
 /**
  * 
@@ -19,7 +18,9 @@ class NATUREKEEPER_API UNatureKeeperUtils : public UBlueprintFunctionLibrary
 
 	public:
 	UFUNCTION(BlueprintCallable, Category="Nature Keeper Util")
-	static void SetPlayerFocusComponentAsTarget(UTargetFollowComponent* TargetFollowComponent);
+	static void SetPlayerFocusComponentAsTarget(AActor* FollowActor);
+	UFUNCTION(BlueprintCallable, Category="Nature Keeper Util")
+	static void RemoveElementFromTargetFollowManager(AActor* FollowActor);
 	UFUNCTION(BlueprintCallable, Category="Nature Keeper Util")
 	static ANatureKeeperCharacter* GetNatureKeeperCharacter(const UObject* WorldContextObject, int32 PlayerIndex = 0);
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Nature Keeper Util")

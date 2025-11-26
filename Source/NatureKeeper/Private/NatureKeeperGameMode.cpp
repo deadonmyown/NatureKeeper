@@ -2,6 +2,7 @@
 
 #include "NatureKeeper/Public/NatureKeeperGameMode.h"
 
+#include "Managers/TargetFollowManager.h"
 #include "Managers/WinManager.h"
 #include "NatureKeeper/Public/NatureKeeperPlayerController.h"
 #include "UObject/ConstructorHelpers.h"
@@ -29,6 +30,7 @@ ANatureKeeperGameMode::ANatureKeeperGameMode()
 void ANatureKeeperGameMode::StartPlay()
 {
 	WinManager = GetWorld()->SpawnActor<AWinManager>(WinManagerClass);
+	TargetFollowManager = GetWorld()->SpawnActor<ATargetFollowManager>(TargetFollowManagerClass);
 	
 	Super::StartPlay();
 }

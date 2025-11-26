@@ -30,6 +30,7 @@ void UFlowTargetStrategy::StartStrategy(UAbility* InAbility, UTargetComponent* I
 		Ability = InAbility;
 		TargetComponent = InTargetComponent;
 
+		AbilityDistance = Ability->GetAbilityDataAsset()->AbilityAffectDistance;
 		if (OverrideFlowUpdateTimeInSec >= 0.0f)
 		{
 			FlowUpdateTimeInSec = OverrideFlowUpdateTimeInSec;
@@ -78,7 +79,7 @@ void UFlowTargetStrategy::UpdateStrategy(float DeltaTime)
 		{
 			FHitResult HitResult;
 
-			//FCollisionShape BoxShape = FCollisionShape::MakeBox(FVector(100.0f, 100.0f, 100.0f));
+			FCollisionShape BoxShape = FCollisionShape::MakeBox(HitBoxCollisionExtent);
 
 			FCollisionQueryParams Params;
 			Params.AddIgnoredActor(TargetComponent->GetOwner());
@@ -88,10 +89,10 @@ void UFlowTargetStrategy::UpdateStrategy(float DeltaTime)
 			bool bHit = GetWorld()->SweepSingleByChannel(
 				HitResult,
 				MuzzleComponent->GetComponentLocation(),
-				MuzzleComponent->GetComponentLocation() + PlayerDir * 100.0f,
+				MuzzleComponent->GetComponentLocation() + PlayerDir * AbilityDistance,
 				PlayerRot.Quaternion(),
 				CollisionChannels::ECC_Damageable,
-				CollisionShape,
+				BoxShape,
 				Params
 			);
 
@@ -106,7 +107,7 @@ void UFlowTargetStrategy::UpdateStrategy(float DeltaTime)
 		{
 			TArray<FHitResult> HitResults;
 
-			FCollisionShape BoxShape = FCollisionShape::MakeBox(FVector(100.0f, 100.0f, 100.0f));
+			FCollisionShape BoxShape = FCollisionShape::MakeBox(HitBoxCollisionExtent);
 
 			FCollisionQueryParams Params;
 			Params.AddIgnoredActor(TargetComponent->GetOwner());
@@ -116,7 +117,7 @@ void UFlowTargetStrategy::UpdateStrategy(float DeltaTime)
 			bool bHit = GetWorld()->SweepMultiByChannel(
 				HitResults,
 				MuzzleComponent->GetComponentLocation(),
-				MuzzleComponent->GetComponentLocation() + PlayerDir * 100.0f,
+				MuzzleComponent->GetComponentLocation() + PlayerDir * AbilityDistance,
 				PlayerRot.Quaternion(),
 				CollisionChannels::ECC_Damageable,
 				BoxShape,

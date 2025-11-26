@@ -1,10 +1,12 @@
 #include "Effects/WindEffect.h"
 
+#include "NatureKeeperGameMode.h"
+#include "NatureKeeperUtils.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Effects/EffectFactory.h"
-#include "InteractionSystem/TargetFollowComponent.h"
 #include "Interfaces/Affectable.h"
 #include "Interfaces/Damageable.h"
+#include "Managers/TargetFollowManager.h"
 
 bool UWindEffect::ApplyEffect(TScriptInterface<UAffectable> InAffectedObject)
 {
@@ -31,16 +33,7 @@ bool UWindEffect::ApplyEffect(TScriptInterface<UAffectable> InAffectedObject)
 
 	if (AActor* AffectedActor = Cast<AActor>(InAffectedObject.GetObject()))
 	{
-		if (UTargetFollowComponent* FollowComp = AffectedActor->GetComponentByClass<UTargetFollowComponent>())
-		{
-			AttachedTargetFollow = FollowComp;
-			AttachedTargetFollow
-		}
-		else
-		{
-			AttachedTargetFollow = Cast<UTargetFollowComponent>(AffectedActor->
-				AddComponentByClass(UTargetFollowComponent::StaticClass(), false, FTransform::Identity, false));
-		}
+		UNatureKeeperUtils::SetPlayerFocusComponentAsTarget(AffectedActor);
 	}
 
 	GetWorld()->GetTimerManager().SetTimer(DamageTimerHandle, this, &UTickableDamageableEffect::OnTickDamage, TickAmount, true);
@@ -60,6 +53,11 @@ bool UWindEffect::CancelEffect()
 		OnComplete.Broadcast();
 		
 		return false;
+	}
+
+	if (AActor* AffectedActor = Cast<AActor>(AffectedObject.GetObject()))
+	{
+		UNatureKeeperUtils::RemoveElementFromTargetFollowManager(AffectedActor);
 	}
 
 	GetWorld()->GetTimerManager().ClearTimer(DamageTimerHandle);

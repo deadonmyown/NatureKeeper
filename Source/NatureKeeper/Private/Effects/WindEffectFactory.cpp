@@ -13,7 +13,11 @@ UEffectBase* UWindEffectFactory::CreateEffect()
 	
 	NewEffect->EffectVFX = WindEffectDataAsset->EffectVFX;
 	NewEffect->EffectElementType = WindEffectDataAsset->EffectElementType;
-	NewEffect->DamageAmount = WindEffectDataAsset->DamageAmount;
+	NewEffect->InitialDamageAmount = WindEffectDataAsset->InitialDamageAmount;
+	NewEffect->TickDamageAmount = WindEffectDataAsset->TickDamageAmount;
+	NewEffect->TicksCount = WindEffectDataAsset->TicksCount;
+	NewEffect->TickAmount = WindEffectDataAsset->TickAmount;
+	NewEffect->TickEffectVFX = WindEffectDataAsset->TickEffectVFX;
 	NewEffect->EffectFactory = this;
 	return NewEffect;
 }

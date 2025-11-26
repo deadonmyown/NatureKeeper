@@ -4,13 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "DamageableEffectDataAsset.h"
+#include "TickableDamageableEffectDataAsset.h"
 #include "WindEffectDataAsset.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class NATUREKEEPER_API UWindEffectDataAsset : public UDamageableEffectDataAsset
+class NATUREKEEPER_API UWindEffectDataAsset : public UTickableDamageableEffectDataAsset
 {
 	GENERATED_BODY()
 };
