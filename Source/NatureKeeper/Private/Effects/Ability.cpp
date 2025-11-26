@@ -5,7 +5,9 @@
 
 #include "Effects/EffectBase.h"
 #include "Effects/EffectFactory.h"
+#include "Effects/TickableDamageableEffectFactory.h"
 #include "Effects/Data/AbilityDataAsset.h"
+#include "Effects/Data/TickableDamageableEffectDataAsset.h"
 #include "ResourceSystem/ManaComponent.h"
 #include "TargetSystem/TargetStrategy.h"
 
@@ -30,6 +32,35 @@ void UAbility::ApplyAbilityEffect_Implementation(const TScriptInterface<UAffecta
 		UEffectBase* NewEffect = ActualEffectFactory[i]->CreateEffect();
 		NewEffect->ApplyEffect(InAffectedObject);
 	}
+}
+
+bool UAbility::IsAbilityEffectsCompleted_Implementation()
+{
+	TArray<UEffectFactory*> ActualEffectFactory = GetActualEffects();
+	for (int i = 0; i < ActualEffectFactory.Num(); i++)
+	{
+		TArray<UEffectBase*> Effects = ActualEffectFactory[i]->GetEffects();
+		if (Effects.Num() > 0)
+			return false;
+	}
+
+	return true;
+}
+
+float UAbility::GetAbilityCompletionTime_Implementation()
+{
+	float CompletionTime = 0.0f;
+	TArray<UEffectFactory*> ActualEffectFactory = GetActualEffects();
+	for (int i = 0; i < ActualEffectFactory.Num(); i++)
+	{
+		if (UTickableDamageableEffectFactory* TickableEffect = Cast<UTickableDamageableEffectFactory>(ActualEffectFactory[i]))
+		{
+			UTickableDamageableEffectDataAsset* TickableDataAsset = Cast<UTickableDamageableEffectDataAsset>(TickableEffect->GetEffectDataAsset());
+			CompletionTime += TickableDataAsset->TicksCount * TickableDataAsset->TickAmount;
+		}
+	}
+	
+	return CompletionTime;
 }
 
 /*void UAbility::CancelAbilityEffect_Implementation()

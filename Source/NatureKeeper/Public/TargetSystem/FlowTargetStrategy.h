@@ -27,8 +27,14 @@ protected:
 	UPROPERTY()
 	UNiagaraComponent* AbilityVFXComponent;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Target")
+	UPROPERTY(BlueprintReadOnly, Category = "Target")
 	float FlowUpdateTimeInSec = 1.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Target")
+	float OverrideFlowUpdateTimeInSec = -1.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Target")
+	bool bHitSingleTarget = true;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Target")
+	FCollisionShape CollisionShape;
 
 	bool bFlowStart = false;
 	float CurrentFlowCooldown = 0.0f;

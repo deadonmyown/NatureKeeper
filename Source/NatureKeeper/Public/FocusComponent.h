@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Interfaces/Target.h"
 #include "FocusComponent.generated.h"
 
 
@@ -11,7 +12,7 @@ class ANatureKeeperPlayerController;
 class ANatureKeeperCharacter;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class NATUREKEEPER_API UFocusComponent : public UActorComponent
+class NATUREKEEPER_API UFocusComponent : public UActorComponent, public ITarget
 {
 	GENERATED_BODY()
 
@@ -62,5 +63,8 @@ public:
 	USceneComponent* GetPlayerMuzzleComponent();
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Focus")
-	void GetPlayerCursorLookAtNormalized(FVector& OutputDirectionNormalized, FVector& OutputWorldLocation);
+	void GetPlayerCursorLookAtNormalized(FVector& OutputDirectionNormalized, FVector& OutputWorldLocation, FVector& OutputNormalizedWorldLocation);
+
+	virtual FVector GetTargetLocation_Implementation() override;
+	virtual FRotator GetTargetRotation_Implementation() override;
 };

@@ -61,7 +61,8 @@ void ANatureKeeperPlayerController::Tick(float DeltaSeconds)
 		{
 			FVector WorldDirectionNormalized;
 			FVector WorldLocation;
-			PlayerFocusComponent->GetPlayerCursorLookAtNormalized(WorldDirectionNormalized, WorldLocation);
+			FVector WorldLocationNorm;
+			PlayerFocusComponent->GetPlayerCursorLookAtNormalized(WorldDirectionNormalized, WorldLocation, WorldLocationNorm);
 
 			if (WorldDirectionNormalized.IsNearlyZero()) return;
 
@@ -149,7 +150,8 @@ void ANatureKeeperPlayerController::OnSetDestinationTriggered()
 		{
 			FVector WorldDirectionNormalized;
 			FVector WorldLocation;
-			PlayerFocusComponent->GetPlayerCursorLookAtNormalized(WorldDirectionNormalized, WorldLocation);
+			FVector WorldLocationNorm;
+			PlayerFocusComponent->GetPlayerCursorLookAtNormalized(WorldDirectionNormalized, WorldLocation, WorldLocationNorm);
 			ControlledPawn->AddMovementInput(WorldDirectionNormalized, 1.0, false);
 		}
 	}

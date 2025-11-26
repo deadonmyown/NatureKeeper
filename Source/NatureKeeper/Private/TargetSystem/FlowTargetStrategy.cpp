@@ -30,6 +30,15 @@ void UFlowTargetStrategy::StartStrategy(UAbility* InAbility, UTargetComponent* I
 		Ability = InAbility;
 		TargetComponent = InTargetComponent;
 
+		if (OverrideFlowUpdateTimeInSec >= 0.0f)
+		{
+			FlowUpdateTimeInSec = OverrideFlowUpdateTimeInSec;
+		}
+		else
+		{
+			FlowUpdateTimeInSec = Ability->GetAbilityCompletionTime();
+		}
+
 		TargetComponent->SetTargetStrategy(this);
 		PlayerController->OnPlayerClickStarted.AddDynamic(this, &UFlowTargetStrategy::OnPlayerClickStarted);
 		PlayerController->OnPlayerClickStopped.AddDynamic(this, &UFlowTargetStrategy::OnPlayerClickStopped);
@@ -65,32 +74,63 @@ void UFlowTargetStrategy::UpdateStrategy(float DeltaTime)
 	
 	if (bFlowStart && CurrentFlowCooldown == 0.0f)
 	{
-		TArray<FHitResult> HitResults;
-
-		FCollisionShape BoxShape = FCollisionShape::MakeBox(FVector(100.0f, 100.0f, 100.0f));
-
-		FCollisionQueryParams Params;
-		Params.AddIgnoredActor(TargetComponent->GetOwner());
-		Params.bTraceComplex = false;
-		Params.bDebugQuery = true;
-
-		bool bHit = GetWorld()->SweepMultiByChannel(
-			HitResults,
-			MuzzleComponent->GetComponentLocation(),
-			MuzzleComponent->GetComponentLocation() + PlayerDir * 100.0f,
-			PlayerRot.Quaternion(),
-			CollisionChannels::ECC_Damageable,
-			BoxShape,
-			Params
-		);
-
-		Ability->TrySpendMana();
-		
-		for (int i = 0; i < HitResults.Num(); i++)
+		if (bHitSingleTarget)
 		{
-			if (HitResults[i].GetActor()->Implements<UAffectable>())
+			FHitResult HitResult;
+
+			//FCollisionShape BoxShape = FCollisionShape::MakeBox(FVector(100.0f, 100.0f, 100.0f));
+
+			FCollisionQueryParams Params;
+			Params.AddIgnoredActor(TargetComponent->GetOwner());
+			Params.bTraceComplex = false;
+			Params.bDebugQuery = true;
+
+			bool bHit = GetWorld()->SweepSingleByChannel(
+				HitResult,
+				MuzzleComponent->GetComponentLocation(),
+				MuzzleComponent->GetComponentLocation() + PlayerDir * 100.0f,
+				PlayerRot.Quaternion(),
+				CollisionChannels::ECC_Damageable,
+				CollisionShape,
+				Params
+			);
+
+			Ability->TrySpendMana();
+
+			if (HitResult.GetActor() && HitResult.GetActor()->Implements<UAffectable>())
 			{
-				Ability->ApplyAbilityEffect(HitResults[i].GetActor());
+				Ability->ApplyAbilityEffect(HitResult.GetActor());
+			}
+		}
+		else
+		{
+			TArray<FHitResult> HitResults;
+
+			FCollisionShape BoxShape = FCollisionShape::MakeBox(FVector(100.0f, 100.0f, 100.0f));
+
+			FCollisionQueryParams Params;
+			Params.AddIgnoredActor(TargetComponent->GetOwner());
+			Params.bTraceComplex = false;
+			Params.bDebugQuery = true;
+
+			bool bHit = GetWorld()->SweepMultiByChannel(
+				HitResults,
+				MuzzleComponent->GetComponentLocation(),
+				MuzzleComponent->GetComponentLocation() + PlayerDir * 100.0f,
+				PlayerRot.Quaternion(),
+				CollisionChannels::ECC_Damageable,
+				BoxShape,
+				Params
+			);
+
+			Ability->TrySpendMana();
+		
+			for (int i = 0; i < HitResults.Num(); i++)
+			{
+				if (HitResults[i].GetActor()->Implements<UAffectable>())
+				{
+					Ability->ApplyAbilityEffect(HitResults[i].GetActor());
+				}
 			}
 		}
 		

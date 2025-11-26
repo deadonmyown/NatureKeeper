@@ -45,6 +45,20 @@ void UFocusComponent::UpdateTrace()
 	}
 }
 
+FVector UFocusComponent::GetTargetLocation_Implementation()
+{
+	FVector WorldDirectionNormalized;
+	FVector WorldLocation;
+	FVector WorldLocationNorm;
+	GetPlayerCursorLookAtNormalized(WorldDirectionNormalized, WorldLocation, WorldLocationNorm);
+	return WorldLocationNorm;
+}
+
+FRotator UFocusComponent::GetTargetRotation_Implementation()
+{
+	return GetOwner()->GetActorRotation();
+}
+
 USceneComponent* UFocusComponent::GetPlayerMuzzleComponent_Implementation()
 {
 	if (PlayerRef)
@@ -53,18 +67,21 @@ USceneComponent* UFocusComponent::GetPlayerMuzzleComponent_Implementation()
 	return GetOwner()->GetRootComponent();
 }
 
-void UFocusComponent::GetPlayerCursorLookAtNormalized_Implementation(FVector& OutputDirectionNormalized, FVector& OutputWorldLocation)
+void UFocusComponent::GetPlayerCursorLookAtNormalized_Implementation(FVector& OutputDirectionNormalized, FVector& OutputWorldLocation, FVector& OutputNormalizedWorldLocation)
 {
 	FVector CameraDir;
+	OutputDirectionNormalized = GetOwner()->GetActorForwardVector();
+	OutputWorldLocation = GetOwner()->GetActorLocation();
+	OutputNormalizedWorldLocation = OutputWorldLocation;
 	if (PlayerController->DeprojectMousePositionToWorld(OutputWorldLocation, CameraDir))
 	{
 		const FVector ActorLoc = GetOwner()->GetActorLocation();
 		if (FMath::Abs(CameraDir.Z) > KINDA_SMALL_NUMBER)
 		{
 			float T = (ActorLoc.Z - OutputWorldLocation.Z) / CameraDir.Z;
-			FVector HitPoint = OutputWorldLocation + CameraDir * T;
+			OutputNormalizedWorldLocation = OutputWorldLocation + CameraDir * T;
 
-			OutputDirectionNormalized = HitPoint - ActorLoc;
+			OutputDirectionNormalized = OutputNormalizedWorldLocation - ActorLoc;
 			OutputDirectionNormalized.Z = 0.0f;
 			OutputDirectionNormalized = OutputDirectionNormalized.GetSafeNormal();
 			

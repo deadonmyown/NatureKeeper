@@ -44,6 +44,9 @@ bool UTickableDamageableEffect::CancelEffect()
 	if (!AffectedObject.GetObject() || !EffectFactory)
 	{
 		GetWorld()->GetTimerManager().ClearTimer(DamageTimerHandle);
+
+		OnComplete.Broadcast();
+		
 		return false;
 	}
 
@@ -54,6 +57,8 @@ bool UTickableDamageableEffect::CancelEffect()
 		
 	AffectedObject = nullptr;
 	EffectFactory = nullptr;
+	
+	OnComplete.Broadcast();
 	
 	return true;
 }

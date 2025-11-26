@@ -1,6 +1,18 @@
 #include "NatureKeeperUtils.h"
 
 #include "IsometricCell.h"
+#include "NatureKeeperCharacter.h"
+#include "Kismet/GameplayStatics.h"
+
+void UNatureKeeperUtils::SetPlayerFocusComponentAsTarget(UTargetFollowComponent* TargetFollowComponent)
+{
+}
+
+ANatureKeeperCharacter* UNatureKeeperUtils::GetNatureKeeperCharacter(const UObject* WorldContextObject,
+	int32 PlayerIndex)
+{
+	return Cast<ANatureKeeperCharacter>(UGameplayStatics::GetPlayerCharacter(WorldContextObject, PlayerIndex));
+}
 
 float UNatureKeeperUtils::CalculatePerlinNoise2D(int XVertexIndex, int YVertexIndex,
                                                  float InNoiseScale, float InNoiseSeed)

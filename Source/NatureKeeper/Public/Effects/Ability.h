@@ -57,6 +57,10 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Ability")
 	void ApplyAbilityEffect(const TScriptInterface<UAffectable>& InAffectedObject);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Ability")
+	bool IsAbilityEffectsCompleted();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Ability")
+	float GetAbilityCompletionTime();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Ability")
 	bool TrySpendMana();
 	/*UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Ability")
 	void CancelAbilityEffect();*/

@@ -12,12 +12,17 @@ class UNiagaraSystem;
 class UEffectFactory;
 class UAffectable;
 
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnComplete);
 UCLASS(BlueprintType, Blueprintable)
 class NATUREKEEPER_API UEffectBase : public UObject
 {
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(BlueprintAssignable, BlueprintReadOnly, BlueprintCallable, Category="Effects")
+	FOnComplete OnComplete;
+	
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Effects")
 	UEffectFactory* EffectFactory = nullptr;
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Effects")

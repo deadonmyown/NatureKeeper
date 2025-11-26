@@ -31,4 +31,6 @@ public:
 	bool RemoveEffect(UEffectBase* EffectToRemove);
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Effects")
 	TArray<UEffectBase*>& GetEffects();
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Effects")
+	UEffectDataAsset* GetEffectDataAsset() const {return EffectDataAsset;}
 };

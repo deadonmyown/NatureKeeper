@@ -30,13 +30,18 @@ bool UEffectBase::ApplyEffect(TScriptInterface<UAffectable> InAffectedObject)
 bool UEffectBase::CancelEffect()
 {
 	if (!AffectedObject.GetObject() || !EffectFactory)
+	{
+		OnComplete.Broadcast();
 		return false;
+	}
 
 	EffectFactory->RemoveEffect(this);
 	IAffectable::Execute_UnregisterEffect(AffectedObject.GetObject(), this);
 		
 	AffectedObject = nullptr;
 	EffectFactory = nullptr;
+
+	OnComplete.Broadcast();
 	
 	return true;
 }
