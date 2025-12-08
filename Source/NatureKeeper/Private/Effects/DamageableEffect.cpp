@@ -3,35 +3,21 @@
 
 #include "Effects/DamageableEffect.h"
 
-#include "NiagaraFunctionLibrary.h"
 #include "Effects/EffectFactory.h"
-#include "Effects/Data/DamageableEffectDataAsset.h"
 #include "Interfaces/Affectable.h"
-#include "Interfaces/Damageable.h"
 
 bool UDamageableEffect::ApplyEffect(TScriptInterface<UAffectable> InAffectedObject)
 {
-	if (!InAffectedObject.GetObject() || !EffectFactory || !InAffectedObject.GetObject()->Implements<UDamageable>())
+	if (!UDamageableBaseEffect::ApplyEffect(InAffectedObject))
 		return false;
 
-	if (IAffectable::Execute_GetResistEffectElements(InAffectedObject.GetObject()).Contains(EffectElementType))
-		return false;
-	
-	AffectedObject = InAffectedObject;
-	EffectFactory->AddEffect(this);
-	IAffectable::Execute_RegisterEffect(InAffectedObject.GetObject(), this);
+	TrySpawnVFX(EffectVFX);
 
-	UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, EffectVFX,
-					IAffectable::Execute_GetEffectLocation(InAffectedObject.GetObject()),
-					FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f),
-					true, true, ENCPoolMethod::None, true);
-	
-	IDamageable::Execute_TakeDamage(InAffectedObject.GetObject(), DamageAmount);
+	TryDamage(DamageAmount);
 
-	UE_LOG(LogTemp, Display, TEXT("AffectedObject: %s"), *InAffectedObject.GetObject()->GetName());
-	UE_LOG(LogTemp, Display, TEXT("Effect factory: %s"), *EffectFactory->GetName());
+	UE_LOG(LogTemp, Display, TEXT("Damageable Effect(%s): %d"), *UEnum::GetDisplayValueAsText(EffectElementType).ToString(), DamageAmount);
 
-	//Immediately cancel because this is base effect
+	//Immediately cancel because this is one shot effect
 	CancelEffect();
 	
 	return true;

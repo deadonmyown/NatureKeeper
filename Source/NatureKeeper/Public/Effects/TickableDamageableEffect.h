@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DamageableBaseEffect.h"
 #include "EffectBase.h"
 #include "TickableDamageableEffect.generated.h"
 
@@ -12,7 +13,7 @@ class UTickableDamageableEffectDataAsset;
  * 
  */
 UCLASS()
-class NATUREKEEPER_API UTickableDamageableEffect : public UEffectBase
+class NATUREKEEPER_API UTickableDamageableEffect : public UDamageableBaseEffect
 {
 	GENERATED_BODY()
 

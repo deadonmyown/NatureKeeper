@@ -17,7 +17,7 @@ enum class EDamageableType : uint8
 };
 
 // This class does not need to be modified.
-UINTERFACE()
+UINTERFACE(BlueprintType)
 class UDamageable : public UInterface
 {
 	GENERATED_BODY()

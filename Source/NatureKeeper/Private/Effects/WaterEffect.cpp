@@ -10,15 +10,8 @@
 
 bool UWaterEffect::ApplyEffect(TScriptInterface<UAffectable> InAffectedObject)
 {
-	if (!InAffectedObject.GetObject() || !EffectFactory || !InAffectedObject.GetObject()->Implements<UDamageable>())
+	if (!UDamageableBaseEffect::ApplyEffect(InAffectedObject))
 		return false;
-
-	if (IAffectable::Execute_GetResistEffectElements(InAffectedObject.GetObject()).Contains(EffectElementType))
-		return false;
-	
-	AffectedObject = InAffectedObject;
-	EffectFactory->AddEffect(this);
-	IAffectable::Execute_RegisterEffect(InAffectedObject.GetObject(), this);
 
 	TArray<UEffectBase*> ObjectEffects = IAffectable::Execute_GetEffects(InAffectedObject.GetObject());
 
@@ -34,31 +27,24 @@ bool UWaterEffect::ApplyEffect(TScriptInterface<UAffectable> InAffectedObject)
 
 	if (bHasOppositeEffect)
 	{
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, SteamEffectVFX,
-					IAffectable::Execute_GetEffectLocation(InAffectedObject.GetObject()),
-					FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f),
-					true, true, ENCPoolMethod::None, true);
+		TrySpawnVFX(SteamEffectVFX);
 
-		IDamageable::Execute_TakeDamage(InAffectedObject.GetObject(), SteamInitialDamageAmount);
+		TryDamage(SteamInitialDamageAmount);
 
 		CancelEffect();
+
+		UE_LOG(LogTemp, Display, TEXT("Water Effect (Steam): %d"), SteamInitialDamageAmount);
+		
 		return true;
 	}
 
-	if (InitialDamageAmount > 0)
-	{
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, EffectVFX,
-					IAffectable::Execute_GetEffectLocation(InAffectedObject.GetObject()),
-					FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f),
-					true, true, ENCPoolMethod::None, true);
-		
-		IDamageable::Execute_TakeDamage(InAffectedObject.GetObject(), InitialDamageAmount);
-	}
+	TrySpawnVFX(EffectVFX);
 
+	TryDamage(InitialDamageAmount);
+		
 	GetWorld()->GetTimerManager().SetTimer(DamageTimerHandle, this, &UTickableDamageableEffect::OnTickDamage, TickAmount, true);
 
-	UE_LOG(LogTemp, Display, TEXT("AffectedObject: %s"), *InAffectedObject.GetObject()->GetName());
-	UE_LOG(LogTemp, Display, TEXT("Effect factory: %s"), *EffectFactory->GetName());
+	UE_LOG(LogTemp, Display, TEXT("Water Effect: %d"), InitialDamageAmount);
 	
 	return true;
 }

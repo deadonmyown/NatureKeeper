@@ -3,38 +3,22 @@
 
 #include "Effects/TickableDamageableEffect.h"
 
-#include "NiagaraFunctionLibrary.h"
 #include "Effects/EffectFactory.h"
 #include "Interfaces/Affectable.h"
 #include "Interfaces/Damageable.h"
 
 bool UTickableDamageableEffect::ApplyEffect(TScriptInterface<UAffectable> InAffectedObject)
 {
-	if (!InAffectedObject.GetObject() || !EffectFactory || !InAffectedObject.GetObject()->Implements<UDamageable>())
+	if (!UDamageableBaseEffect::ApplyEffect(InAffectedObject))
 		return false;
 
-	if (IAffectable::Execute_GetResistEffectElements(InAffectedObject.GetObject()).Contains(EffectElementType))
-		return false;
-	
-	AffectedObject = InAffectedObject;
-	EffectFactory->AddEffect(this);
-	IAffectable::Execute_RegisterEffect(InAffectedObject.GetObject(), this);
-	
+	TrySpawnVFX(EffectVFX);
 
-	if (InitialDamageAmount > 0)
-	{
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, EffectVFX,
-					IAffectable::Execute_GetEffectLocation(InAffectedObject.GetObject()),
-					FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f),
-					true, true, ENCPoolMethod::None, true);
-		
-		IDamageable::Execute_TakeDamage(InAffectedObject.GetObject(), InitialDamageAmount);
-	}
+	TryDamage(InitialDamageAmount);
 
 	GetWorld()->GetTimerManager().SetTimer(DamageTimerHandle, this, &UTickableDamageableEffect::OnTickDamage, TickAmount, true);
 
-	UE_LOG(LogTemp, Display, TEXT("AffectedObject: %s"), *InAffectedObject.GetObject()->GetName());
-	UE_LOG(LogTemp, Display, TEXT("Effect factory: %s"), *EffectFactory->GetName());
+	UE_LOG(LogTemp, Display, TEXT("Tickable Damageable Effect(%s): %d"), *UEnum::GetDisplayValueAsText(EffectElementType).ToString(), InitialDamageAmount);
 	
 	return true;
 }
@@ -67,12 +51,9 @@ void UTickableDamageableEffect::OnTickDamage()
 {
 	TicksCount--;
 
-	UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, TickEffectVFX,
-					IAffectable::Execute_GetEffectLocation(AffectedObject.GetObject()),
-					FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f),
-					true, true, ENCPoolMethod::None, true);
-		
-	IDamageable::Execute_TakeDamage(AffectedObject.GetObject(), TickDamageAmount);
+	TrySpawnVFX(TickEffectVFX);
+
+	TryDamage(TickDamageAmount);
 
 	if (TicksCount <= 0)
 	{

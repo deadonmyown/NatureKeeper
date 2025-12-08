@@ -7,7 +7,7 @@
 #include "Target.generated.h"
 
 // This class does not need to be modified.
-UINTERFACE()
+UINTERFACE(BlueprintType)
 class UTarget : public UInterface
 {
 	GENERATED_BODY()
@@ -21,8 +21,8 @@ class NATUREKEEPER_API ITarget
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="Effects")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="Target Interface")
 	FVector GetTargetLocation();
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="Effects")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="Target Interface")
 	FRotator GetTargetRotation();
 };

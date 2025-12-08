@@ -9,16 +9,16 @@
 UENUM(BlueprintType)
 enum class EEffectElement : uint8
 {
-	EE_Physical,
-	EE_Earth,
-	EE_Fire,
-	EE_Water,
-	EE_Wind
+	EE_Physical UMETA(DisplayName = "Physical"),
+	EE_Earth UMETA(DisplayName = "Earth"),
+	EE_Fire UMETA(DisplayName = "Fire"),
+	EE_Water UMETA(DisplayName = "Water"),
+	EE_Wind UMETA(DisplayName = "Wind")
 };
 
 class UEffectBase;
 // This class does not need to be modified.
-UINTERFACE()
+UINTERFACE(BlueprintType)
 class UAffectable : public UInterface
 {
 	GENERATED_BODY()
@@ -38,7 +38,7 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="Effects")
 	bool UnregisterEffect(UEffectBase* EffectToRemove);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="Effects")
-	FVector GetEffectLocation();
+	USceneComponent* GetEffectLocation();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="Effects")
 	TArray<EEffectElement> GetWeaknessEffectElements();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="Effects")

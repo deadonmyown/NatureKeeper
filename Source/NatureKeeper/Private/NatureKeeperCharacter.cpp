@@ -191,7 +191,7 @@ bool ANatureKeeperCharacter::UnregisterEffect_Implementation(UEffectBase* Effect
 	return true;
 }
 
-FVector ANatureKeeperCharacter::GetEffectLocation_Implementation()
+USceneComponent* ANatureKeeperCharacter::GetEffectLocation_Implementation()
 {
-	return GetActorLocation();
+	return GetRootComponent();
 }

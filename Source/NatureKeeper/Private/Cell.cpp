@@ -61,8 +61,8 @@ bool ACell::UnregisterEffect_Implementation(UEffectBase* EffectToRemove)
 	return true;
 }
 
-FVector ACell::GetEffectLocation_Implementation()
+USceneComponent* ACell::GetEffectLocation_Implementation()
 {
-	return GetNavigationRoot()->GetComponentLocation();
+	return GetNavigationRoot();
 }
 

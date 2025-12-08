@@ -9,11 +9,11 @@
 
 class ANatureKeeperGameMode;
 
-void UNatureKeeperUtils::SetPlayerFocusComponentAsTarget(AActor* FollowActor)
+void UNatureKeeperUtils::SetPlayerFocusComponentAsTarget(const TScriptInterface<UFollow>& FollowActor)
 {
-	if (!FollowActor) return;
+	if (!FollowActor.GetObject()) return;
 
-	UWorld* World = FollowActor->GetWorld();
+	UWorld* World = FollowActor.GetObject()->GetWorld();
 	if (!World) return;
 
 	ANatureKeeperGameMode* GM = World->GetAuthGameMode<ANatureKeeperGameMode>();
@@ -22,17 +22,17 @@ void UNatureKeeperUtils::SetPlayerFocusComponentAsTarget(AActor* FollowActor)
 	ATargetFollowManager* Manager = GM->GetTargetFollowManager();
 	if (!Manager) return;
 
-	ANatureKeeperCharacter* Player = GetNatureKeeperCharacter(FollowActor);
+	ANatureKeeperCharacter* Player = GetNatureKeeperCharacter(FollowActor.GetObject());
 	if (!Player) return;
 
 	Manager->AddTargetFollowMap(FollowActor, Player->GetFocusComponent());
 }
 
-void UNatureKeeperUtils::RemoveElementFromTargetFollowManager(AActor* FollowActor)
+void UNatureKeeperUtils::RemoveElementFromTargetFollowManager(const TScriptInterface<UFollow>& FollowActor)
 {
-	if (!FollowActor) return;
+	if (!FollowActor.GetObject()) return;
 
-	UWorld* World = FollowActor->GetWorld();
+	UWorld* World = FollowActor.GetObject()->GetWorld();
 	if (!World) return;
 
 	ANatureKeeperGameMode* GM = World->GetAuthGameMode<ANatureKeeperGameMode>();

@@ -4,7 +4,7 @@
 #include "UObject/Interface.h"
 #include "InteractiveActorInterface.generated.h"
 
-UINTERFACE()
+UINTERFACE(BlueprintType)
 class UInteractiveActorInterface : public UInterface
 {
 	GENERATED_BODY()

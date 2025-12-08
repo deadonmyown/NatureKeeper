@@ -50,8 +50,8 @@ bool ADamageableInteractiveActor::UnregisterEffect_Implementation(UEffectBase* E
 	return true;
 }
 
-FVector ADamageableInteractiveActor::GetEffectLocation_Implementation()
+USceneComponent* ADamageableInteractiveActor::GetEffectLocation_Implementation()
 {
-	return GetActorLocation();
+	return GetRootComponent();
 }
 

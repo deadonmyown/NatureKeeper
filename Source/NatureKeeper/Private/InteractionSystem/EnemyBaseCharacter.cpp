@@ -47,7 +47,7 @@ bool AEnemyBaseCharacter::UnregisterEffect_Implementation(UEffectBase* EffectToR
 	return true;
 }
 
-FVector AEnemyBaseCharacter::GetEffectLocation_Implementation()
+USceneComponent* AEnemyBaseCharacter::GetEffectLocation_Implementation()
 {
-	return GetActorLocation();
+	return GetRootComponent();
 }

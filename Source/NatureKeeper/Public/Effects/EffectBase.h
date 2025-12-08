@@ -37,4 +37,6 @@ public:
 	virtual bool ApplyEffect(TScriptInterface<UAffectable> InAffectedObject);
 	UFUNCTION(BlueprintCallable, Category = "Effects")
 	virtual bool CancelEffect();
+	UFUNCTION(BlueprintCallable, Category = "Effects")
+	virtual bool TrySpawnVFX(UNiagaraSystem* InEffectVFX);
 };

@@ -8,7 +8,7 @@
 
 class UVisitor;
 // This class does not need to be modified.
-UINTERFACE()
+UINTERFACE(BlueprintType)
 class UVisitable : public UInterface
 {
 	GENERATED_BODY()

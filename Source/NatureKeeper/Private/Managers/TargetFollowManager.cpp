@@ -3,7 +3,8 @@
 
 #include "Managers/TargetFollowManager.h"
 
-#include "Kismet/GameplayStatics.h"
+
+#include "Interfaces/Follow.h"
 #include "Kismet/KismetMathLibrary.h"
 
 
@@ -12,27 +13,53 @@ ATargetFollowManager::ATargetFollowManager()
 	PrimaryActorTick.bCanEverTick = true;
 }
 
-void ATargetFollowManager::AddTargetFollowMap(AActor* FollowActor, const TScriptInterface<UTarget>& FollowTarget)
+void ATargetFollowManager::AddTargetFollowMap(const TScriptInterface<UFollow>& FollowActor, const TScriptInterface<UTarget>& TargetActor)
 {
-	if (!FollowActor) return;
-	
-	if (TargetFollowMap.Contains(FollowActor))
+	if (!FollowActor.GetObject() || !TargetActor.GetObject()) return;
+
+	for (int i = 0; i < TargetFollowMap.Num(); i++)
 	{
-		TargetFollowMap[FollowActor] = FollowTarget;
+		if (TargetFollowMap[i].FollowActor.GetObject() == FollowActor.GetObject())
+		{
+			if (TargetFollowMap[i].TargetActor.GetObject() == TargetActor.GetObject())
+			{
+				TargetFollowMap[i].AssignCount += 1;
+				UE_LOG(LogTemp, Display, TEXT("Add Assign"));
+				return;
+			}
+			else
+			{
+				return;
+			}
+		}
 	}
-	else
-	{
-		TargetFollowMap.Add(FollowActor, FollowTarget);
-	}
+
+	FTargetFollowMap NewMap;
+	NewMap.FollowActor = FollowActor;
+	NewMap.TargetActor = TargetActor;
+	NewMap.AssignCount = 1;
+	TargetFollowMap.Add(NewMap);
+	UE_LOG(LogTemp, Display, TEXT("Add NewMap"));
 }
 
-bool ATargetFollowManager::RemoveTargetFollowMap(AActor* Key)
+bool ATargetFollowManager::RemoveTargetFollowMap(const TScriptInterface<UFollow>& FollowActor, bool bForceDelete)
 {
-	if (!TargetFollowMap.Contains(Key))
-		return false;
+	for (int i = 0; i < TargetFollowMap.Num(); i++)
+	{
+		if (TargetFollowMap[i].FollowActor.GetObject() == FollowActor.GetObject())
+		{
+			TargetFollowMap[i].AssignCount -= 1;
+			UE_LOG(LogTemp, Display, TEXT("Remove assign"));
+			if (bForceDelete || TargetFollowMap[i].AssignCount == 0)
+			{
+				TargetFollowMap.RemoveAt(i);
+				UE_LOG(LogTemp, Display, TEXT("Remove"));
+			}
+			return true;
+		}
+	}
 
-	TargetFollowMap.Remove(Key);
-	return true;
+	return false;
 }
 
 void ATargetFollowManager::Tick(float DeltaTime)
@@ -41,17 +68,22 @@ void ATargetFollowManager::Tick(float DeltaTime)
 
 	if (!TargetFollowMap.IsEmpty())
 	{
-		for (auto [FollowedActor, Target] : TargetFollowMap)
+		for (int i = TargetFollowMap.Num() - 1; i >= 0; i--)
 		{
-			UE_LOG(LogTemp, Display, TEXT("Hello"));
-			if (!FollowedActor || !Target.GetObject()) continue;
+			if (!TargetFollowMap[i].FollowActor.GetObject() || !TargetFollowMap[i].TargetActor.GetObject())
+			{
+				TargetFollowMap.RemoveAt(i);
+				UE_LOG(LogTemp, Display, TEXT("Force remove"));
+				continue;
+			};
+
+			AActor* FollowActorRef = IFollow::Execute_GetFollowActor(TargetFollowMap[i].FollowActor.GetObject());
 
 			//Right now just simple interpolation, later will include gravitation and physics in computation etc.
-			FVector ActorLocation = FollowedActor->GetActorLocation();
-			FVector TargetLocation = ITarget::Execute_GetTargetLocation(Target.GetObject());
+			FVector ActorLocation = FollowActorRef->GetActorLocation();
+			FVector TargetLocation = ITarget::Execute_GetTargetLocation(TargetFollowMap[i].TargetActor.GetObject());
 			FVector GoalLocation = UKismetMathLibrary::VInterpTo(ActorLocation, TargetLocation, DeltaTime, TargetFollowInterpSpeed);
-			FollowedActor->SetActorLocation(GoalLocation);
-			UE_LOG(LogTemp, Display, TEXT("New location for %s = %s"), *FollowedActor->GetName(), *GoalLocation.ToString());
+			FollowActorRef->SetActorLocation(GoalLocation);
 		}
 	}
 }

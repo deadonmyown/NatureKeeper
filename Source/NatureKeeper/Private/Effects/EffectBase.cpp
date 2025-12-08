@@ -3,6 +3,7 @@
 
 #include "Effects/EffectBase.h"
 
+#include "NiagaraFunctionLibrary.h"
 #include "Effects/EffectFactory.h"
 #include "Interfaces/Affectable.h"
 
@@ -14,15 +15,11 @@ bool UEffectBase::ApplyEffect(TScriptInterface<UAffectable> InAffectedObject)
 	if (IAffectable::Execute_GetResistEffectElements(InAffectedObject.GetObject()).Contains(EffectElementType))
 		return false;
 	
+	if (!IAffectable::Execute_RegisterEffect(InAffectedObject.GetObject(), this))
+		return false;
+	
 	AffectedObject = InAffectedObject;
 	EffectFactory->AddEffect(this);
-	IAffectable::Execute_RegisterEffect(InAffectedObject.GetObject(), this);
-
-	UE_LOG(LogTemp, Display, TEXT("AffectedObject: %s"), *InAffectedObject.GetObject()->GetName());
-	UE_LOG(LogTemp, Display, TEXT("Effect factory: %s"), *EffectFactory->GetName());
-
-	//Immediately cancel because this is base effect
-	CancelEffect();
 	
 	return true;
 }
@@ -44,4 +41,21 @@ bool UEffectBase::CancelEffect()
 	OnComplete.Broadcast();
 	
 	return true;
+}
+
+bool UEffectBase::TrySpawnVFX(UNiagaraSystem* InEffectVFX)
+{
+	if (!AffectedObject.GetObject() || !InEffectVFX)
+		return false;
+
+	if (USceneComponent* LocComponent = IAffectable::Execute_GetEffectLocation(AffectedObject.GetObject()))
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, InEffectVFX,
+						LocComponent->GetComponentLocation(), LocComponent->GetComponentRotation(),
+						FVector(1.f, 1.f, 1.f),
+						true, true, ENCPoolMethod::None, true);
+		return true;
+	}
+
+	return false;
 }
