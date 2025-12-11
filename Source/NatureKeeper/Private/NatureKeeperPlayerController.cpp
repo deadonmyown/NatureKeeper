@@ -13,6 +13,8 @@
 #include "FocusComponent.h"
 #include "IsometricCell.h"
 #include "NatureKeeperUtils.h"
+#include "Effects/Ability.h"
+#include "Effects/AbilityComponent.h"
 #include "Engine/LocalPlayer.h"
 #include "Interfaces/InteractiveActorInterface.h"
 #include "TargetSystem/TargetComponent.h"
@@ -48,6 +50,7 @@ void ANatureKeeperPlayerController::BeginPlay()
 	{
 		PlayerFocusComponent = NatureKeeperCharacter->GetFocusComponent();
 		PlayerTargetComponent = NatureKeeperCharacter->GetTargetComponent();
+		PlayerAbilityComponent = NatureKeeperCharacter->GetAbilityComponent();
 	}
 }
 
@@ -105,7 +108,7 @@ void ANatureKeeperPlayerController::SetupInputComponent()
 		for (int i = 0; i < AbilitiesActions.Num(); i++)
 		{
 			if (!AbilitiesActions[i]) continue;
-			//EnhancedInputComponent->BindAction(AbilitiesActions[i], ETriggerEvent::Started);
+			EnhancedInputComponent->BindAction(AbilitiesActions[i], ETriggerEvent::Started, this, &ANatureKeeperPlayerController::OnAbilityAction);
 		}
 	}
 	else
@@ -243,7 +246,26 @@ void ANatureKeeperPlayerController::OnSecondaryInputStopped()
 	SecondaryTriggerTime = 0.0f;
 }
 
-void ANatureKeeperPlayerController::OnAbilityAction()
+void ANatureKeeperPlayerController::OnAbilityAction(const FInputActionInstance& Instance)
 {
-	
+	const UInputAction* SourceAction = Instance.GetSourceAction();
+	if (!SourceAction) return;
+
+	const int32 Index = AbilitiesActions.IndexOfByKey(SourceAction);
+
+	TArray<UAbility*> Abilities = PlayerAbilityComponent->GetAbilities();
+	if (!Abilities.IsValidIndex(Index))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Ability index not valid for action %s"), *SourceAction->GetName());
+		return;
+	}
+
+	UAbility* Ability = Abilities[Index];
+	if (!Ability)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Ability is null at index %d"), Index);
+		return;
+	}
+
+	Ability->Target(PlayerTargetComponent);
 }

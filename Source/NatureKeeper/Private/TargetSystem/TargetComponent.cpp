@@ -32,11 +32,16 @@ void UTargetComponent::SetTargetStrategy(UTargetStrategy* NewTargetStrategy)
 		CancelTargetStrategy();
 	
 	TargetStrategy = NewTargetStrategy;
+	
+	if(OnTargetSet.IsBound())
+		OnTargetSet.Broadcast(TargetStrategy);
 }
 
 void UTargetComponent::ClearTargetStrategy()
 {
 	TargetStrategy = nullptr;
+	if(OnTargetClear.IsBound())
+		OnTargetClear.Broadcast();
 }
 
 void UTargetComponent::CancelTargetStrategy()

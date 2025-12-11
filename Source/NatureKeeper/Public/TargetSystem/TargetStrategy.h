@@ -33,4 +33,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Target")
 	bool GetIsTargeting() const {return bIsTargeting;}
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Target")
+	UAbility* GetAbility() const {return Ability;}
 };

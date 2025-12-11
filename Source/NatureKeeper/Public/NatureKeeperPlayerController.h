@@ -7,6 +7,8 @@
 #include "GameFramework/PlayerController.h"
 #include "NatureKeeperPlayerController.generated.h"
 
+class UAbilityComponent;
+struct FInputActionInstance;
 class UTargetComponent;
 class UFocusComponent;
 class ANatureKeeperCharacter;
@@ -83,6 +85,8 @@ protected:
 	UFocusComponent* PlayerFocusComponent;
 	UPROPERTY(BlueprintReadOnly, Category = Player)
 	UTargetComponent* PlayerTargetComponent;
+	UPROPERTY(BlueprintReadOnly, Category = Player)
+	UAbilityComponent* PlayerAbilityComponent;
 	
 	/** True if the controlled character should navigate to the mouse cursor. */
 	uint32 bMoveToMouseCursor : 1;
@@ -116,7 +120,7 @@ protected:
 	void OnSecondaryInputTriggered();
 	void OnSecondaryInputStopped();
 	
-	void OnAbilityAction();
+	void OnAbilityAction(const FInputActionInstance& Instance);
 };
 
 

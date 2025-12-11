@@ -9,6 +9,9 @@
 
 class UTargetStrategy;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTargetSet, UTargetStrategy*, Target);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTargetClear);
+
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class NATUREKEEPER_API UTargetComponent : public UActorComponent
 {
@@ -17,10 +20,15 @@ class NATUREKEEPER_API UTargetComponent : public UActorComponent
 public:
 	UTargetComponent();
 
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Target")
+	FOnTargetSet OnTargetSet;
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Target")
+	FOnTargetClear OnTargetClear;
+
 protected:
 	virtual void BeginPlay() override;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Aura")
+	UPROPERTY(BlueprintReadOnly, Category = "Target")
 	UTargetStrategy* TargetStrategy;
 
 public:

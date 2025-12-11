@@ -31,5 +31,7 @@ protected:
 public:
 	UAbilityComponent();
 
+	const TArray<UAbility*>& GetAbilities() const { return Abilities; }
+
 	void InitComponent(UManaComponent* InManaComponent);
 };
