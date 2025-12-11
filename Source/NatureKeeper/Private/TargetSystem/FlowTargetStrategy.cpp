@@ -39,8 +39,8 @@ void UFlowTargetStrategy::StartStrategy(UAbility* InAbility, UTargetComponent* I
 		}
 
 		TargetComponent->SetTargetStrategy(this);
-		PlayerController->OnPlayerClickStarted.AddDynamic(this, &UFlowTargetStrategy::OnPlayerClickStarted);
-		PlayerController->OnPlayerClickStopped.AddDynamic(this, &UFlowTargetStrategy::OnPlayerClickStopped);
+		PlayerController->OnPlayerSecondaryClickStarted.AddDynamic(this, &UFlowTargetStrategy::OnPlayerClickStarted);
+		PlayerController->OnPlayerSecondaryClickStopped.AddDynamic(this, &UFlowTargetStrategy::OnPlayerClickStopped);
 	}
 }
 
@@ -139,8 +139,8 @@ void UFlowTargetStrategy::UpdateStrategy(float DeltaTime)
 
 void UFlowTargetStrategy::CancelStrategy()
 {
-	PlayerController->OnPlayerClickStarted.RemoveDynamic(this, &UFlowTargetStrategy::OnPlayerClickStarted);
-	PlayerController->OnPlayerClickStopped.RemoveDynamic(this, &UFlowTargetStrategy::OnPlayerClickStopped);
+	PlayerController->OnPlayerSecondaryClickStarted.RemoveDynamic(this, &UFlowTargetStrategy::OnPlayerClickStarted);
+	PlayerController->OnPlayerSecondaryClickStopped.RemoveDynamic(this, &UFlowTargetStrategy::OnPlayerClickStopped);
 
 	bFlowStart = false;
 	
@@ -178,7 +178,7 @@ void UFlowTargetStrategy::OnPlayerClickStarted()
 					true, true, ENCPoolMethod::None, true);
 }
 
-void UFlowTargetStrategy::OnPlayerClickStopped()
+void UFlowTargetStrategy::OnPlayerClickStopped(float StopTriggerTime)
 {
 	CancelStrategy();
 }

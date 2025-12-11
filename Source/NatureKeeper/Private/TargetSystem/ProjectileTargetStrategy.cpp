@@ -25,7 +25,7 @@ void UProjectileTargetStrategy::StartStrategy(UAbility* InAbility, UTargetCompon
 		TargetComponent = InTargetComponent;
 
 		TargetComponent->SetTargetStrategy(this);
-		PlayerController->OnPlayerClickStopped.AddDynamic(this, &UProjectileTargetStrategy::OnPlayerClickStopped);
+		PlayerController->OnPlayerSecondaryClickStopped.AddDynamic(this, &UProjectileTargetStrategy::OnPlayerClickStopped);
 	}
 }
 
@@ -36,7 +36,7 @@ void UProjectileTargetStrategy::UpdateStrategy(float DeltaTime)
 
 void UProjectileTargetStrategy::CancelStrategy()
 {
-	PlayerController->OnPlayerClickStopped.RemoveDynamic(this, &UProjectileTargetStrategy::OnPlayerClickStopped);
+	PlayerController->OnPlayerSecondaryClickStopped.RemoveDynamic(this, &UProjectileTargetStrategy::OnPlayerClickStopped);
 	
 	if (TargetComponent->GetTargetStrategy() == this)
 	{
@@ -52,7 +52,7 @@ void UProjectileTargetStrategy::CancelStrategy()
 	TargetComponent = nullptr;
 }
 
-void UProjectileTargetStrategy::OnPlayerClickStopped()
+void UProjectileTargetStrategy::OnPlayerClickStopped(float StopTriggerTime)
 {
 	if (Ability)
 	{

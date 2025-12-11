@@ -20,7 +20,7 @@ void UFocusTargetStrategy::StartStrategy(UAbility* InAbility, UTargetComponent* 
 		TargetComponent = InTargetComponent;
 
 		TargetComponent->SetTargetStrategy(this);
-		PlayerController->OnPlayerClickStopped.AddDynamic(this, &UFocusTargetStrategy::OnPlayerClickStopped);
+		PlayerController->OnPlayerSecondaryClickStopped.AddDynamic(this, &UFocusTargetStrategy::OnPlayerClickStopped);
 	}
 }
 
@@ -31,7 +31,7 @@ void UFocusTargetStrategy::UpdateStrategy(float DeltaTime)
 
 void UFocusTargetStrategy::CancelStrategy()
 {
-	PlayerController->OnPlayerClickStopped.RemoveDynamic(this, &UFocusTargetStrategy::OnPlayerClickStopped);
+	PlayerController->OnPlayerSecondaryClickStopped.RemoveDynamic(this, &UFocusTargetStrategy::OnPlayerClickStopped);
 	
 	if (TargetComponent->GetTargetStrategy() == this)
 	{
@@ -46,7 +46,7 @@ void UFocusTargetStrategy::CancelStrategy()
 	TargetComponent = nullptr;
 }
 
-void UFocusTargetStrategy::OnPlayerClickStopped()
+void UFocusTargetStrategy::OnPlayerClickStopped(float StopTriggerTime)
 {
 	FocusComponent->UpdateTrace();
 

@@ -17,10 +17,14 @@ class UInputAction;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerClickStarted);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerMainClickStarted);
 // Triggered every frame when the input is held down
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerClickTriggered);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerClickStopped);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerMainClickTriggered, float, CurrTriggerTime);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerMainClickStopped, float, StopTriggerTime);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerSecondaryClickStarted);
+// Triggered every frame when the input is held down
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerSecondaryClickTriggered, float, CurrTriggerTime);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerSecondaryClickStopped, float, StopTriggerTime);
 
 UCLASS()
 class ANatureKeeperPlayerController : public APlayerController
@@ -31,11 +35,18 @@ public:
 	ANatureKeeperPlayerController();
 
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = Input)
-	FOnPlayerClickStarted OnPlayerClickStarted;
+	FOnPlayerMainClickStarted OnPlayerMainClickStarted;
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = Input)
-	FOnPlayerClickTriggered OnPlayerClickTriggered;
+	FOnPlayerMainClickTriggered OnPlayerMainClickTriggered;
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = Input)
-	FOnPlayerClickStopped OnPlayerClickStopped;
+	FOnPlayerMainClickStopped OnPlayerMainClickStopped;
+
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = Input)
+	FOnPlayerSecondaryClickStarted OnPlayerSecondaryClickStarted;
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = Input)
+	FOnPlayerSecondaryClickTriggered OnPlayerSecondaryClickTriggered;
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = Input)
+	FOnPlayerSecondaryClickStopped OnPlayerSecondaryClickStopped;
 	
 	/** Time Threshold to know if it was a short press */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
@@ -56,6 +67,9 @@ public:
 	/** Secondary Click Input Action (Usually RMB) */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* SecondaryClickAction;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	TArray<UInputAction*> AbilitiesActions;
 
 	UFUNCTION(BlueprintCallable, Category = Input)
 	void StartLookAtCursor();
@@ -75,11 +89,13 @@ protected:
 	
 	/** For how long it has been pressed */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player)
-	float TriggerTime;
+	float MainTriggerTime;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player)
+	float SecondaryTriggerTime;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player)
 	bool bIsInteract;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Player)
-	bool bLookAtCursor = false;
+	bool bLookAtCursor = true;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Player)
 	float LookAtCursorRotationSpeed = 5.0f;
 	
@@ -97,7 +113,10 @@ protected:
 	void OnSetDestinationReleased();
 	
 	void OnSecondaryInputStarted();
+	void OnSecondaryInputTriggered();
 	void OnSecondaryInputStopped();
+	
+	void OnAbilityAction();
 };
 
 

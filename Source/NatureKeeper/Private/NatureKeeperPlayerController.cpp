@@ -24,7 +24,8 @@ ANatureKeeperPlayerController::ANatureKeeperPlayerController()
 {
 	bShowMouseCursor = true;
 	DefaultMouseCursor = EMouseCursor::Default;
-	TriggerTime = 0.f;
+	MainTriggerTime = 0.0f;
+	SecondaryTriggerTime = 0.0f;
 	bIsInteract = false;
 }
 
@@ -97,8 +98,15 @@ void ANatureKeeperPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(PrimaryClickAction, ETriggerEvent::Completed, this, &ANatureKeeperPlayerController::OnSetDestinationReleased);
 		EnhancedInputComponent->BindAction(PrimaryClickAction, ETriggerEvent::Canceled, this, &ANatureKeeperPlayerController::OnSetDestinationReleased);
 		EnhancedInputComponent->BindAction(SecondaryClickAction, ETriggerEvent::Started, this, &ANatureKeeperPlayerController::OnSecondaryInputStarted);
+		EnhancedInputComponent->BindAction(SecondaryClickAction, ETriggerEvent::Triggered, this, &ANatureKeeperPlayerController::OnSecondaryInputTriggered);
 		EnhancedInputComponent->BindAction(SecondaryClickAction, ETriggerEvent::Completed, this, &ANatureKeeperPlayerController::OnSecondaryInputStopped);
 		EnhancedInputComponent->BindAction(SecondaryClickAction, ETriggerEvent::Canceled, this, &ANatureKeeperPlayerController::OnSecondaryInputStopped);
+
+		for (int i = 0; i < AbilitiesActions.Num(); i++)
+		{
+			if (!AbilitiesActions[i]) continue;
+			//EnhancedInputComponent->BindAction(AbilitiesActions[i], ETriggerEvent::Started);
+		}
 	}
 	else
 	{
@@ -108,11 +116,11 @@ void ANatureKeeperPlayerController::SetupInputComponent()
 
 void ANatureKeeperPlayerController::OnInputStarted()
 {
-	if (PlayerTargetComponent->GetTargetStrategy() && PlayerTargetComponent->GetTargetStrategy()->GetIsTargeting())
+	/*if (PlayerTargetComponent->GetTargetStrategy() && PlayerTargetComponent->GetTargetStrategy()->GetIsTargeting())
 	{
-		OnPlayerClickStarted.Broadcast();
+		OnPlayerMainClickStarted.Broadcast();
 		return;
-	}
+	}*/
 
 	StopMovement();
 	
@@ -122,25 +130,28 @@ void ANatureKeeperPlayerController::OnInputStarted()
 	{
 		if (PlayerFocusComponent->FocusedActor->Implements<UInteractiveActorInterface>())
 		{
-			IInteractiveActorInterface::Execute_StartInteract(PlayerFocusComponent->FocusedActor, GetCharacter());
-			bIsInteract = true;
+			if (IInteractiveActorInterface::Execute_StartInteract(PlayerFocusComponent->FocusedActor, GetCharacter()))
+			{
+				bIsInteract = true;
+			}
 		}
 	}
 
-	OnPlayerClickStarted.Broadcast();
+	if (OnPlayerMainClickStarted.IsBound())
+		OnPlayerMainClickStarted.Broadcast();
 }
 
 // Triggered every frame when the input is held down
 void ANatureKeeperPlayerController::OnSetDestinationTriggered()
 {
 	// We flag that the input is being pressed
-	TriggerTime += GetWorld()->GetDeltaSeconds();
+	MainTriggerTime += GetWorld()->GetDeltaSeconds();
 	
-	if (PlayerTargetComponent->GetTargetStrategy() && PlayerTargetComponent->GetTargetStrategy()->GetIsTargeting())
+	/*if (PlayerTargetComponent->GetTargetStrategy() && PlayerTargetComponent->GetTargetStrategy()->GetIsTargeting())
 	{
-		OnPlayerClickTriggered.Broadcast();
+		OnPlayerMainClickTriggered.Broadcast();
 		return;
-	}
+	}*/
 
 	if (!bIsInteract)
 	{
@@ -155,19 +166,20 @@ void ANatureKeeperPlayerController::OnSetDestinationTriggered()
 			ControlledPawn->AddMovementInput(WorldDirectionNormalized, 1.0, false);
 		}
 	}
-	
-	OnPlayerClickTriggered.Broadcast();
+
+	if (OnPlayerMainClickTriggered.IsBound())
+		OnPlayerMainClickTriggered.Broadcast(MainTriggerTime);
 }
 
 void ANatureKeeperPlayerController::OnSetDestinationReleased()
 {
-	if (PlayerTargetComponent->GetTargetStrategy() && PlayerTargetComponent->GetTargetStrategy()->GetIsTargeting())
+	/*if (PlayerTargetComponent->GetTargetStrategy() && PlayerTargetComponent->GetTargetStrategy()->GetIsTargeting())
 	{
 		TriggerTime = 0.f;
 		bIsInteract = false;
-		OnPlayerClickStopped.Broadcast();
+		OnPlayerMainClickStopped.Broadcast();
 		return;
-	}
+	}*/
 	
 	PlayerFocusComponent->UpdateTrace();
 
@@ -186,7 +198,7 @@ void ANatureKeeperPlayerController::OnSetDestinationReleased()
 		else
 		{
 			// If it was a short press
-			if (TriggerTime <= ShortPressThreshold)
+			if (MainTriggerTime <= ShortPressThreshold)
 			{
 				// We move there and spawn some particles
 				UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, PlayerFocusComponent->FocusHitCacheLocation);
@@ -199,18 +211,39 @@ void ANatureKeeperPlayerController::OnSetDestinationReleased()
 		}
 	}
 
-	bIsInteract = false;
-	TriggerTime = 0.f;
+	if(OnPlayerMainClickStopped.IsBound())
+		OnPlayerMainClickStopped.Broadcast(MainTriggerTime);
 	
-	OnPlayerClickStopped.Broadcast();
+	bIsInteract = false;
+	MainTriggerTime = 0.f;
+
 }
 
 void ANatureKeeperPlayerController::OnSecondaryInputStarted()
 {
-	StartLookAtCursor();
+	//StartLookAtCursor();
+	if (OnPlayerSecondaryClickStarted.IsBound())
+		OnPlayerSecondaryClickStarted.Broadcast();
+}
+
+void ANatureKeeperPlayerController::OnSecondaryInputTriggered()
+{
+	SecondaryTriggerTime += GetWorld()->GetDeltaSeconds();
+	
+	if (OnPlayerSecondaryClickTriggered.IsBound())
+		OnPlayerSecondaryClickTriggered.Broadcast(SecondaryTriggerTime);
 }
 
 void ANatureKeeperPlayerController::OnSecondaryInputStopped()
 {
-	StopLookAtCursor();
+	//StopLookAtCursor();
+	if (OnPlayerSecondaryClickStopped.IsBound())
+		OnPlayerSecondaryClickStopped.Broadcast(SecondaryTriggerTime);
+
+	SecondaryTriggerTime = 0.0f;
+}
+
+void ANatureKeeperPlayerController::OnAbilityAction()
+{
+	
 }

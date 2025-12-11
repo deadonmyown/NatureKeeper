@@ -38,5 +38,5 @@ public:
 	UFUNCTION()
 	void OnPlayerClickStarted();
 	UFUNCTION()
-	void OnPlayerClickStopped();
+	void OnPlayerClickStopped(float StopTriggerTime);
 };

@@ -28,5 +28,5 @@ public:
 	virtual void CancelStrategy() override;
 
 	UFUNCTION()
-	void OnPlayerClickStopped();
+	void OnPlayerClickStopped(float StopTriggerTime);
 };
