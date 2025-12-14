@@ -8,10 +8,13 @@
 #include "Effects/Ability.h"
 #include "TargetSystem/TargetComponent.h"
 
-void UFocusTargetStrategy::StartStrategy(UAbility* InAbility, UTargetComponent* InTargetComponent)
+bool UFocusTargetStrategy::StartStrategy(UAbility* InAbility, UTargetComponent* InTargetComponent)
 {
 	if (ANatureKeeperCharacter* Player = Cast<ANatureKeeperCharacter>(InTargetComponent->GetOwner()))
 	{
+		if (!UTargetStrategy::StartStrategy(InAbility, InTargetComponent))
+			return false;
+		
 		FocusComponent = Player->GetFocusComponent();
 		PlayerController = Player->GetNatureKeeperController();
 
@@ -21,7 +24,11 @@ void UFocusTargetStrategy::StartStrategy(UAbility* InAbility, UTargetComponent* 
 
 		TargetComponent->SetTargetStrategy(this);
 		PlayerController->OnPlayerSecondaryClickStopped.AddDynamic(this, &UFocusTargetStrategy::OnPlayerClickStopped);
+
+		return true;
 	}
+
+	return false;
 }
 
 void UFocusTargetStrategy::UpdateStrategy(float DeltaTime)
@@ -31,6 +38,8 @@ void UFocusTargetStrategy::UpdateStrategy(float DeltaTime)
 
 void UFocusTargetStrategy::CancelStrategy()
 {
+	UTargetStrategy::CancelStrategy();
+	
 	PlayerController->OnPlayerSecondaryClickStopped.RemoveDynamic(this, &UFocusTargetStrategy::OnPlayerClickStopped);
 	
 	if (TargetComponent->GetTargetStrategy() == this)

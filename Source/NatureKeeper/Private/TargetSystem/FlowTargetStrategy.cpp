@@ -15,10 +15,13 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 
-void UFlowTargetStrategy::StartStrategy(UAbility* InAbility, UTargetComponent* InTargetComponent)
+bool UFlowTargetStrategy::StartStrategy(UAbility* InAbility, UTargetComponent* InTargetComponent)
 {
 	if (ANatureKeeperCharacter* Player = Cast<ANatureKeeperCharacter>(InTargetComponent->GetOwner()))
 	{
+		if (!UTargetStrategy::StartStrategy(InAbility, InTargetComponent))
+			return false;
+		
 		FocusComponent = Player->GetFocusComponent();
 		PlayerController = Player->GetNatureKeeperController();
 		MuzzleComponent = FocusComponent->GetPlayerMuzzleComponent();
@@ -41,7 +44,11 @@ void UFlowTargetStrategy::StartStrategy(UAbility* InAbility, UTargetComponent* I
 		TargetComponent->SetTargetStrategy(this);
 		PlayerController->OnPlayerSecondaryClickStarted.AddDynamic(this, &UFlowTargetStrategy::OnPlayerClickStarted);
 		PlayerController->OnPlayerSecondaryClickStopped.AddDynamic(this, &UFlowTargetStrategy::OnPlayerClickStopped);
+
+		return true;
 	}
+
+	return false;
 }
 
 void UFlowTargetStrategy::UpdateStrategy(float DeltaTime)
@@ -139,6 +146,8 @@ void UFlowTargetStrategy::UpdateStrategy(float DeltaTime)
 
 void UFlowTargetStrategy::CancelStrategy()
 {
+	UTargetStrategy::CancelStrategy();
+	
 	PlayerController->OnPlayerSecondaryClickStarted.RemoveDynamic(this, &UFlowTargetStrategy::OnPlayerClickStarted);
 	PlayerController->OnPlayerSecondaryClickStopped.RemoveDynamic(this, &UFlowTargetStrategy::OnPlayerClickStopped);
 

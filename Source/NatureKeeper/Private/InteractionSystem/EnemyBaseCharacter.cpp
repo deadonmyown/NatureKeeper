@@ -5,6 +5,7 @@
 
 AEnemyBaseCharacter::AEnemyBaseCharacter()
 {
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>("HealthComponent");
 }
 
 void AEnemyBaseCharacter::BeginPlay()

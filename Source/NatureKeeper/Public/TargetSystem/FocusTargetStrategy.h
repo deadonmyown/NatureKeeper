@@ -23,7 +23,7 @@ protected:
 	ANatureKeeperPlayerController* PlayerController;
 	
 public:
-	virtual void StartStrategy(UAbility* InAbility, UTargetComponent* InTargetComponent) override;
+	virtual bool StartStrategy(UAbility* InAbility, UTargetComponent* InTargetComponent) override;
 	virtual void UpdateStrategy(float DeltaTime) override;
 	virtual void CancelStrategy() override;
 

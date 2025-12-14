@@ -11,10 +11,13 @@
 #include "Interfaces/Affectable.h"
 #include "TargetSystem/TargetComponent.h"
 
-void UFocusHoldTargetStrategy::StartStrategy(UAbility* InAbility, UTargetComponent* InTargetComponent)
+bool UFocusHoldTargetStrategy::StartStrategy(UAbility* InAbility, UTargetComponent* InTargetComponent)
 {
 	if (ANatureKeeperCharacter* Player = Cast<ANatureKeeperCharacter>(InTargetComponent->GetOwner()))
 	{
+		if (!UTargetStrategy::StartStrategy(InAbility, InTargetComponent))
+			return false;
+		
 		FocusComponent = Player->GetFocusComponent();
 		PlayerController = Player->GetNatureKeeperController();
 		
@@ -36,7 +39,11 @@ void UFocusHoldTargetStrategy::StartStrategy(UAbility* InAbility, UTargetCompone
 		TargetComponent->SetTargetStrategy(this);
 		PlayerController->OnPlayerSecondaryClickStarted.AddDynamic(this, &UFocusHoldTargetStrategy::OnPlayerClickStarted);
 		PlayerController->OnPlayerSecondaryClickStopped.AddDynamic(this, &UFocusHoldTargetStrategy::OnPlayerClickStopped);
+
+		return true;
 	}
+
+	return false;
 }
 
 void UFocusHoldTargetStrategy::UpdateStrategy(float DeltaTime)
@@ -72,6 +79,8 @@ void UFocusHoldTargetStrategy::UpdateStrategy(float DeltaTime)
 
 void UFocusHoldTargetStrategy::CancelStrategy()
 {
+	UTargetStrategy::CancelStrategy();
+	
 	PlayerController->OnPlayerSecondaryClickStarted.RemoveDynamic(this, &UFocusHoldTargetStrategy::OnPlayerClickStarted);
 	PlayerController->OnPlayerSecondaryClickStopped.RemoveDynamic(this, &UFocusHoldTargetStrategy::OnPlayerClickStopped);
 

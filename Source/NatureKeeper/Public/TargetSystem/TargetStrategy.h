@@ -22,10 +22,12 @@ protected:
 	UTargetComponent* TargetComponent;
 	UPROPERTY(BlueprintReadOnly, Category = "Target")
 	bool bIsTargeting = false;
+	UPROPERTY(BlueprintReadOnly, Category = "Target")
+	bool bIsStarted = false;
 	
 public:
 	UFUNCTION(BlueprintCallable, Category = "Target")
-	virtual void StartStrategy(UAbility* InAbility, UTargetComponent* InTargetComponent);
+	virtual bool StartStrategy(UAbility* InAbility, UTargetComponent* InTargetComponent);
 	UFUNCTION(BlueprintCallable, Category = "Target")
 	virtual void UpdateStrategy(float DeltaTime);
 	UFUNCTION(BlueprintCallable, Category = "Target")

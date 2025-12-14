@@ -8,10 +8,13 @@
 #include "Interfaces/Affectable.h"
 #include "TargetSystem/TargetComponent.h"
 
-void USelfTargetStrategy::StartStrategy(UAbility* InAbility, UTargetComponent* InTargetComponent)
+bool USelfTargetStrategy::StartStrategy(UAbility* InAbility, UTargetComponent* InTargetComponent)
 {
 	if (ANatureKeeperCharacter* Player = Cast<ANatureKeeperCharacter>(InTargetComponent->GetOwner()))
 	{
+		if (!UTargetStrategy::StartStrategy(InAbility, InTargetComponent))
+			return false;
+		
 		PlayerController = Player->GetNatureKeeperController();
 		
 		Ability = InAbility;
@@ -19,11 +22,16 @@ void USelfTargetStrategy::StartStrategy(UAbility* InAbility, UTargetComponent* I
 
 		TargetComponent->SetTargetStrategy(this);
 		PlayerController->OnPlayerSecondaryClickStopped.AddDynamic(this, &USelfTargetStrategy::OnPlayerClickStopped);
+
+		return true;
 	}
+	return false;
 }
 
 void USelfTargetStrategy::CancelStrategy()
 {
+	UTargetStrategy::CancelStrategy();
+	
 	PlayerController->OnPlayerSecondaryClickStopped.RemoveDynamic(this, &USelfTargetStrategy::OnPlayerClickStopped);
 	
 	if (TargetComponent->GetTargetStrategy() == this)
@@ -43,4 +51,6 @@ void USelfTargetStrategy::OnPlayerClickStopped(float StopTriggerTime)
 	{
 		Ability->ApplyAbilityEffect(TargetComponent->GetOwner());
 	}
+
+	CancelStrategy();
 }

@@ -12,10 +12,13 @@
 
 class ANatureKeeperCharacter;
 
-void UProjectileTargetStrategy::StartStrategy(UAbility* InAbility, UTargetComponent* InTargetComponent)
+bool UProjectileTargetStrategy::StartStrategy(UAbility* InAbility, UTargetComponent* InTargetComponent)
 {
 	if (ANatureKeeperCharacter* Player = Cast<ANatureKeeperCharacter>(InTargetComponent->GetOwner()))
 	{
+		if (!UTargetStrategy::StartStrategy(InAbility, InTargetComponent))
+			return false;
+		
 		FocusComponent = Player->GetFocusComponent();
 		PlayerController = Player->GetNatureKeeperController();
 		MuzzleComponent = FocusComponent->GetPlayerMuzzleComponent();
@@ -26,7 +29,11 @@ void UProjectileTargetStrategy::StartStrategy(UAbility* InAbility, UTargetCompon
 
 		TargetComponent->SetTargetStrategy(this);
 		PlayerController->OnPlayerSecondaryClickStopped.AddDynamic(this, &UProjectileTargetStrategy::OnPlayerClickStopped);
+
+		return true;
 	}
+
+	return false;
 }
 
 void UProjectileTargetStrategy::UpdateStrategy(float DeltaTime)
@@ -36,6 +43,8 @@ void UProjectileTargetStrategy::UpdateStrategy(float DeltaTime)
 
 void UProjectileTargetStrategy::CancelStrategy()
 {
+	UTargetStrategy::CancelStrategy();
+	
 	PlayerController->OnPlayerSecondaryClickStopped.RemoveDynamic(this, &UProjectileTargetStrategy::OnPlayerClickStopped);
 	
 	if (TargetComponent->GetTargetStrategy() == this)
@@ -54,7 +63,7 @@ void UProjectileTargetStrategy::CancelStrategy()
 
 void UProjectileTargetStrategy::OnPlayerClickStopped(float StopTriggerTime)
 {
-	if (Ability)
+	if (Ability && Ability->TrySpendMana())
 	{
 		FVector LookDirection;
 		FocusComponent->GetPlayerLookAtNormalized(LookDirection);
@@ -67,7 +76,7 @@ void UProjectileTargetStrategy::OnPlayerClickStopped(float StopTriggerTime)
 		Projectile->AddActorsToIgnore(TargetComponent->GetOwner());
 		Projectile->FireProjectileInDirection(LookDirection);
 		Projectile->InitAbilityProjectile(Ability);
-
-		CancelStrategy();
 	}
+	
+	CancelStrategy();
 }
