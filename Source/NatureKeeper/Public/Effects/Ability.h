@@ -62,8 +62,8 @@ public:
 	float GetAbilityCompletionTime();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Ability")
 	bool TrySpendMana();
-	/*UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Ability")
-	void CancelAbilityEffect();*/
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Ability")
+	void CancelAbilityEffect();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Ability")
 	void ChangeAbilityEffectsFactory(EAbilityType NewType);
 

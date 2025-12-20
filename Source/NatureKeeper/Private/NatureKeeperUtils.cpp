@@ -4,6 +4,7 @@
 #include "IsometricCell.h"
 #include "NatureKeeperCharacter.h"
 #include "NatureKeeperGameMode.h"
+#include "NavigationSystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "Managers/TargetFollowManager.h"
 
@@ -48,6 +49,30 @@ ANatureKeeperCharacter* UNatureKeeperUtils::GetNatureKeeperCharacter(const UObje
                                                                      int32 PlayerIndex)
 {
 	return Cast<ANatureKeeperCharacter>(UGameplayStatics::GetPlayerCharacter(WorldContextObject, PlayerIndex));
+}
+
+FVector UNatureKeeperUtils::GetRandomNavigableLocationInRadius(UObject* WorldContextObject, const FVector& Origin,
+	const float Radius)
+{
+	if (!IsValid(WorldContextObject))
+	{
+		return FVector::ZeroVector;
+	}
+
+	UWorld* World = WorldContextObject->GetWorld();
+	UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(World);
+
+	if (NavSys)
+	{
+		FNavLocation RandomPoint;
+		if (NavSys->GetRandomReachablePointInRadius(Origin, Radius, RandomPoint))
+		{
+			return RandomPoint.Location;
+		}
+	}
+    
+	// If NavMesh is missing or no reachable point found
+	return Origin; 
 }
 
 float UNatureKeeperUtils::CalculatePerlinNoise2D(int XVertexIndex, int YVertexIndex,

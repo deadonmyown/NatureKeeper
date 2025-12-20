@@ -24,6 +24,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Target")
 	float OverrideFocusUpdateTimeInSec = -1.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Target")
+	bool bCancelAbility = false;
 
 	bool bFocusStart = false;
 	float FocusUpdateTimeInSec = 1.0f;

@@ -9,7 +9,6 @@
 #include "Cell.generated.h"
 
 
-class UWinEntityComponent;
 class UEvilComponent;
 
 UCLASS()
@@ -22,8 +21,6 @@ public:
 
 	UPROPERTY(Category = Components, EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true, NoEditInline))
 	UEvilComponent* EvilComponent;
-	UPROPERTY(Category = Components, EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true, NoEditInline))
-	UWinEntityComponent* WinEntityComponent;
 
 protected:
 	virtual void BeginPlay() override;

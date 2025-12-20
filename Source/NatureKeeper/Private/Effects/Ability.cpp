@@ -63,7 +63,7 @@ float UAbility::GetAbilityCompletionTime_Implementation()
 	return CompletionTime;
 }
 
-/*void UAbility::CancelAbilityEffect_Implementation()
+void UAbility::CancelAbilityEffect_Implementation()
 {
 	TArray<UEffectFactory*> ActualEffectFactory = GetActualEffects();
 	for (int i = 0; i < ActualEffectFactory.Num(); i++)
@@ -74,7 +74,7 @@ float UAbility::GetAbilityCompletionTime_Implementation()
 			ActualEffects[j]->CancelEffect();
 		}
 	}
-}*/
+}
 
 void UAbility::ChangeAbilityEffectsFactory_Implementation(EAbilityType NewType)
 {

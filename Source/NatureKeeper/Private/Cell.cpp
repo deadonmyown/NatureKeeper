@@ -1,16 +1,12 @@
 ﻿#include "Cell.h"
 
 #include "ResourceSystem/EvilComponent.h"
-#include "Managers/WinEntityComponent.h"
-
 
 ACell::ACell()
 {
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	
 	EvilComponent = CreateDefaultSubobject<UEvilComponent>("EvilComponent");
-
-	WinEntityComponent = CreateDefaultSubobject<UWinEntityComponent>("WinEntityComponent");
 }
 
 void ACell::BeginPlay()
@@ -25,7 +21,6 @@ void ACell::BeginPlay()
 //Change material cell color
 void ACell::OnMinEvilEnergyValueReach_Implementation(int MinValue)
 {
-	WinEntityComponent->ClearEntity();
 }
 
 USceneComponent* ACell::GetNavigationRoot_Implementation()

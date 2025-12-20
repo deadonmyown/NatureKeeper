@@ -91,6 +91,11 @@ void UFocusHoldTargetStrategy::CancelStrategy()
 		TargetComponent->ClearTargetStrategy();
 	}
 
+	if (bCancelAbility)
+	{
+		Ability->CancelAbilityEffect();
+	}
+
 	FocusComponent = nullptr;
 	PlayerController = nullptr;
 

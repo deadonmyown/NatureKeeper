@@ -15,7 +15,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Materials/Material.h"
 #include "Engine/World.h"
-#include "Managers/WinManager.h"
+#include "Managers/LevelManager.h"
 #include "ResourceSystem/EvilComponent.h"
 #include "ResourceSystem/HealthComponent.h"
 #include "ResourceSystem/ManaComponent.h"
@@ -111,22 +111,22 @@ void ANatureKeeperCharacter::Tick(float DeltaSeconds)
 
 void ANatureKeeperCharacter::OnMinMana(int MinMana)
 {
-	if (ANatureKeeperGameMode* GameMode = GetWorld()->GetAuthGameMode<ANatureKeeperGameMode>())
+	/*if (ANatureKeeperGameMode* GameMode = GetWorld()->GetAuthGameMode<ANatureKeeperGameMode>())
 	{
-		if (AWinManager* WinManager = GameMode->GetWinManager())
+		if (ALevelManager* LevelManager = GameMode->GetLevelManager())
 		{
-			WinManager->OnLooseLevel();
+			LevelManager->OnLooseLevel();
 		}
-	}
+	}*/
 }
 
 void ANatureKeeperCharacter::OnMinHP(int MinHP)
 {
 	if (ANatureKeeperGameMode* GameMode = GetWorld()->GetAuthGameMode<ANatureKeeperGameMode>())
 	{
-		if (AWinManager* WinManager = GameMode->GetWinManager())
+		if (ALevelManager* LevelManager = GameMode->GetLevelManager())
 		{
-			WinManager->OnLooseLevel();
+			LevelManager->OnLooseLevel();
 		}
 	}
 }

@@ -6,8 +6,8 @@
 #include "GameFramework/GameModeBase.h"
 #include "NatureKeeperGameMode.generated.h"
 
+class ALevelManager;
 class ATargetFollowManager;
-class AWinManager;
 
 UCLASS(minimalapi)
 class ANatureKeeperGameMode : public AGameModeBase
@@ -15,9 +15,9 @@ class ANatureKeeperGameMode : public AGameModeBase
 	GENERATED_BODY()
 
 	UPROPERTY()
-	AWinManager* WinManager;
+	ALevelManager* LevelManager;
 	UPROPERTY(EditAnywhere, Category = "GameMode")
-	TSubclassOf<AWinManager> WinManagerClass;
+	TSubclassOf<ALevelManager> LevelManagerClass;
 	UPROPERTY()
 	ATargetFollowManager* TargetFollowManager;
 	UPROPERTY(EditAnywhere, Category = "GameMode")
@@ -29,7 +29,7 @@ public:
 	virtual void StartPlay() override;
 
 	UFUNCTION(BlueprintCallable, Category = "GameMode")
-	AWinManager* GetWinManager() const {return WinManager;}
+	ALevelManager* GetLevelManager() const {return LevelManager;}
 	UFUNCTION(BlueprintCallable, Category = "GameMode")
 	ATargetFollowManager* GetTargetFollowManager() const {return TargetFollowManager;}
 };
