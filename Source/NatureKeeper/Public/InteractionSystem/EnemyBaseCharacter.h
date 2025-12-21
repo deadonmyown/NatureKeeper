@@ -8,6 +8,7 @@
 #include "Interfaces/Damageable.h"
 #include "EnemyBaseCharacter.generated.h"
 
+class USphereComponent;
 class UHealthComponent;
 
 UCLASS()
@@ -21,22 +22,42 @@ public:
 
 protected:
 	UPROPERTY(Category = Components, EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true, NoEditInline))
+	USphereComponent* AttackDetectorCollision;
+	UPROPERTY(Category = Components, EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true, NoEditInline))
 	UHealthComponent* HealthComponent;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damageable")
-	EDamageableType DamageableType = EDamageableType::DT_EvilNPC;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
+	EDamageableType EnemyType = EDamageableType::DT_EvilNPC;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Affectable")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
+	TArray<EDamageableType> DamageableActorTypes = {EDamageableType::DT_GoodPlayer, EDamageableType::DT_GoodNPC, EDamageableType::DT_Object};
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Enemy")
 	TArray<UEffectBase*> Effects;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Enemy")
+	int AttackDamage;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Enemy")
+	float AttackDelay = 2.0f;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Enemy")
+	float CurrAttackDelay;
 
 	virtual void BeginPlay() override;
 public:
+	virtual void Tick(float DeltaSeconds) override;
+	
+	UFUNCTION(BlueprintCallable, Category = "Enemy")
+	void Attack(TScriptInterface<UDamageable> DamageableActor);
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Enemy")
+	bool CanAttack() const {return CurrAttackDelay == 0.0f;}
+	
 	UFUNCTION()
 	void OnDeath(int MinValue);
 	
 	virtual void Heal_Implementation(int HealAmount) override;
 	virtual void TakeDamage_Implementation(int Damage) override;
-	virtual EDamageableType GetDamageableType_Implementation() override {return DamageableType; }
+	virtual EDamageableType GetDamageableType_Implementation() override {return EnemyType; }
 
 	virtual bool RegisterEffect_Implementation(UEffectBase* EffectToAdd) override;
 	virtual bool UnregisterEffect_Implementation(UEffectBase* EffectToRemove) override;
@@ -44,4 +65,5 @@ public:
 	virtual TArray<EEffectElement> GetWeaknessEffectElements_Implementation() override {return {};}
 	virtual TArray<EEffectElement> GetResistEffectElements_Implementation() override {return {};}
 	virtual TArray<UEffectBase*> GetEffects_Implementation() override {return Effects; }
+
 };

@@ -13,7 +13,9 @@ enum class EEffectElement : uint8
 	EE_Earth UMETA(DisplayName = "Earth"),
 	EE_Fire UMETA(DisplayName = "Fire"),
 	EE_Water UMETA(DisplayName = "Water"),
-	EE_Wind UMETA(DisplayName = "Wind")
+	EE_Wind UMETA(DisplayName = "Wind"),
+	EE_Poison UMETA(DisplayName = "Poison"),
+	EE_Evil UMETA(DisplayName = "Evil"),
 };
 
 class UEffectBase;

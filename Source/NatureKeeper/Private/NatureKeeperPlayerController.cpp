@@ -156,8 +156,8 @@ void ANatureKeeperPlayerController::OnSetDestinationTriggered()
 		return;
 	}*/
 
-	if (!bIsInteract)
-	{
+	/*if (!bIsInteract)
+	{*/
 		// Move towards mouse pointer
 		APawn* ControlledPawn = GetPawn();
 		if (ControlledPawn != nullptr)
@@ -168,7 +168,7 @@ void ANatureKeeperPlayerController::OnSetDestinationTriggered()
 			PlayerFocusComponent->GetPlayerCursorLookAtNormalized(WorldDirectionNormalized, WorldLocation, WorldLocationNorm);
 			ControlledPawn->AddMovementInput(WorldDirectionNormalized, 1.0, false);
 		}
-	}
+	//}
 
 	if (OnPlayerMainClickTriggered.IsBound())
 		OnPlayerMainClickTriggered.Broadcast(MainTriggerTime);
@@ -198,7 +198,7 @@ void ANatureKeeperPlayerController::OnSetDestinationReleased()
 				FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f),
 				true, true, ENCPoolMethod::None, true);
 		}
-		else
+		/*else
 		{
 			// If it was a short press
 			if (MainTriggerTime <= ShortPressThreshold)
@@ -211,7 +211,7 @@ void ANatureKeeperPlayerController::OnSetDestinationReleased()
 					FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f),
 					true, true, ENCPoolMethod::None, true);
 			}
-		}
+		}*/
 	}
 
 	if(OnPlayerMainClickStopped.IsBound())

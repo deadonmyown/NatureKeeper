@@ -40,7 +40,7 @@ bool UTickableDamageableEffect::CancelEffect()
 	IAffectable::Execute_UnregisterEffect(AffectedObject.GetObject(), this);
 		
 	AffectedObject = nullptr;
-	EffectFactory = nullptr;
+	//EffectFactory = nullptr;
 	
 	OnComplete.Broadcast();
 	

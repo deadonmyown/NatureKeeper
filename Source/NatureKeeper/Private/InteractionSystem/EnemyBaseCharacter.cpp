@@ -1,10 +1,15 @@
 #include "InteractionSystem/EnemyBaseCharacter.h"
 
+#include "Components/SphereComponent.h"
 #include "ResourceSystem/HealthComponent.h"
 
 
 AEnemyBaseCharacter::AEnemyBaseCharacter()
 {
+	PrimaryActorTick.bCanEverTick = true;
+
+	AttackDetectorCollision = CreateDefaultSubobject<USphereComponent>("AttackDetectorCollision");
+	
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>("HealthComponent");
 }
 
@@ -13,6 +18,35 @@ void AEnemyBaseCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	HealthComponent->OnResourceValueReachMin.AddDynamic(this, &AEnemyBaseCharacter::OnDeath);
+}
+
+void AEnemyBaseCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	if (CurrAttackDelay == 0.0f)
+		return;
+
+	if (CurrAttackDelay > 0.001f)
+		CurrAttackDelay -= DeltaSeconds;
+	else
+		CurrAttackDelay = 0.0f;
+}
+
+void AEnemyBaseCharacter::Attack(TScriptInterface<UDamageable> DamageableActor)
+{
+	if (!CanAttack())
+		return;
+	
+	if (!DamageableActor.GetObject())
+		return;
+	
+	if (!DamageableActorTypes.Contains(IDamageable::Execute_GetDamageableType(DamageableActor.GetObject())))
+		return;
+
+	IDamageable::Execute_TakeDamage(DamageableActor.GetObject(), AttackDamage);
+
+	CurrAttackDelay = AttackDelay;
 }
 
 void AEnemyBaseCharacter::OnDeath(int MinValue)

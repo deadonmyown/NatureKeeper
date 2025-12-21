@@ -36,11 +36,11 @@ protected:
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Resource Component")
-	void SetResourceValue(int NewValue);
+	virtual void SetResourceValue(int NewValue);
 	UFUNCTION(BlueprintCallable, Category = "Resource Component")
-	void IncreaseResourceValue(int DeltaValue);
+	virtual void IncreaseResourceValue(int DeltaValue);
 	UFUNCTION(BlueprintCallable, Category = "Resource Component")
-	void DecreaseResourceValue(int DeltaValue);
+	virtual void DecreaseResourceValue(int DeltaValue);
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Resource Component")
 	int GetResourceValue() const {return ResourceValue;}

@@ -6,6 +6,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "NatureKeeperUtils.generated.h"
 
+class ANatureKeeperGameMode;
 class UFollow;
 class ANatureKeeperCharacter;
 class ACell;
@@ -24,6 +25,8 @@ class NATUREKEEPER_API UNatureKeeperUtils : public UBlueprintFunctionLibrary
 	static void RemoveElementFromTargetFollowManager(const TScriptInterface<UFollow>& FollowActor);
 	UFUNCTION(BlueprintCallable, Category="Nature Keeper Util")
 	static ANatureKeeperCharacter* GetNatureKeeperCharacter(const UObject* WorldContextObject, int32 PlayerIndex = 0);
+	UFUNCTION(BlueprintCallable, Category="Nature Keeper Util")
+	static ANatureKeeperGameMode* GetNatureKeeperGameMode(const UObject* WorldContextObject);
 	UFUNCTION(BlueprintCallable, Category="Nature Keeper Util")
 	static FVector GetRandomNavigableLocationInRadius(UObject* WorldContextObject, const FVector& Origin, const float Radius);
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Nature Keeper Util")

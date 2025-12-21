@@ -51,8 +51,13 @@ ANatureKeeperCharacter* UNatureKeeperUtils::GetNatureKeeperCharacter(const UObje
 	return Cast<ANatureKeeperCharacter>(UGameplayStatics::GetPlayerCharacter(WorldContextObject, PlayerIndex));
 }
 
+ANatureKeeperGameMode* UNatureKeeperUtils::GetNatureKeeperGameMode(const UObject* WorldContextObject)
+{
+	return WorldContextObject->GetWorld()->GetAuthGameMode<ANatureKeeperGameMode>();
+}
+
 FVector UNatureKeeperUtils::GetRandomNavigableLocationInRadius(UObject* WorldContextObject, const FVector& Origin,
-	const float Radius)
+                                                               const float Radius)
 {
 	if (!IsValid(WorldContextObject))
 	{
