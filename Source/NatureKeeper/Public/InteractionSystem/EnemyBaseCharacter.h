@@ -48,7 +48,7 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 	
 	UFUNCTION(BlueprintCallable, Category = "Enemy")
-	void Attack(TScriptInterface<UDamageable> DamageableActor);
+	void Attack(const TScriptInterface<UDamageable>& DamageableActor);
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Enemy")
 	bool CanAttack() const {return CurrAttackDelay == 0.0f;}
 	

@@ -39,7 +39,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
 	float FirePressMinDuration = 1.0f;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
-	float FirePressMaxDuration = 2.0f;
+	float FirePressMaxDuration = 3.0f;
 	//Divider for FirePressDuration, result give us a speed multiplier
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
 	float FirePressInfluence = 1.0f;

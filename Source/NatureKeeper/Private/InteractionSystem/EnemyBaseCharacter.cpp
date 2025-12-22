@@ -1,5 +1,6 @@
 #include "InteractionSystem/EnemyBaseCharacter.h"
 
+#include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
 #include "ResourceSystem/HealthComponent.h"
 
@@ -9,6 +10,11 @@ AEnemyBaseCharacter::AEnemyBaseCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	AttackDetectorCollision = CreateDefaultSubobject<USphereComponent>("AttackDetectorCollision");
+	AttackDetectorCollision->SetupAttachment(GetCapsuleComponent());
+	AttackDetectorCollision->SetSphereRadius(100.f);
+	AttackDetectorCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	AttackDetectorCollision->SetCollisionResponseToAllChannels(ECR_Ignore);
+	AttackDetectorCollision->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 	
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>("HealthComponent");
 }
@@ -33,7 +39,7 @@ void AEnemyBaseCharacter::Tick(float DeltaSeconds)
 		CurrAttackDelay = 0.0f;
 }
 
-void AEnemyBaseCharacter::Attack(TScriptInterface<UDamageable> DamageableActor)
+void AEnemyBaseCharacter::Attack(const TScriptInterface<UDamageable>& DamageableActor)
 {
 	if (!CanAttack())
 		return;
