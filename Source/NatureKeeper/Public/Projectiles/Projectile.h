@@ -19,13 +19,13 @@ public:
 	AProjectile();
 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
 	float ProjectileLifeSpan = 5.0f;
 	
 	virtual void BeginPlay() override;
 public:
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
 	UNiagaraSystem* HitNiagaraSystem;
 	
 	// Sphere collision component.
@@ -36,12 +36,23 @@ public:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = Projectile)
 	UProjectileMovementComponent* ProjectileMovementComponent;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
+	float FirePressMinDuration = 1.0f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
+	float FirePressMaxDuration = 2.0f;
+	//Divider for FirePressDuration, result give us a speed multiplier
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
+	float FirePressInfluence = 1.0f;
+
 	UFUNCTION(BlueprintCallable, Category = Projectile)
-	virtual void FireProjectileInDirection(const FVector& Direction);
+	virtual void FireProjectileInDirection(const FVector& Direction, float FirePressDuration = 0.0f);
 	UFUNCTION(BlueprintCallable, Category = Projectile)
 	virtual void AddActorsToIgnore(AActor* NewActorToIgnore);
 
 	// Function that is called when the projectile hits something.
 	UFUNCTION()
 	virtual void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = Projectile)
+	void K2_OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
 };

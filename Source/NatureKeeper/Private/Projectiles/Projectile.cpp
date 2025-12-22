@@ -42,9 +42,10 @@ void AProjectile::BeginPlay()
 	
 }
 
-void AProjectile::FireProjectileInDirection(const FVector& Direction)
+void AProjectile::FireProjectileInDirection(const FVector& Direction, float FirePressDuration)
 {
-	ProjectileMovementComponent->Velocity = Direction * ProjectileMovementComponent->InitialSpeed;
+	float SpeedMultiplier = FMath::Clamp(FirePressDuration, FirePressMinDuration, FirePressMaxDuration) / FirePressInfluence;
+	ProjectileMovementComponent->Velocity = Direction * ProjectileMovementComponent->InitialSpeed * SpeedMultiplier;
 }
 
 void AProjectile::AddActorsToIgnore(AActor* NewActorToIgnore)
@@ -67,6 +68,8 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
 						FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f),
 						true, true, ENCPoolMethod::None, true);
 	}
+
+	K2_OnHit(HitComponent, OtherActor, OtherComponent, NormalImpulse, Hit);
 	
 	Destroy();
 }

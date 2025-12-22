@@ -74,7 +74,7 @@ void UProjectileTargetStrategy::OnPlayerClickStopped(float StopTriggerTime)
 		
 		AAbilityProjectile* Projectile = GetWorld()->SpawnActor<AAbilityProjectile>(ProjectileClass, MuzzleComponent->GetComponentTransform(), SpawnParams);
 		Projectile->AddActorsToIgnore(TargetComponent->GetOwner());
-		Projectile->FireProjectileInDirection(LookDirection);
+		Projectile->FireProjectileInDirection(LookDirection, StopTriggerTime);
 		Projectile->InitAbilityProjectile(Ability);
 	}
 	
