@@ -6,6 +6,8 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "NatureKeeperUtils.generated.h"
 
+class UEffectBase;
+class UEffectDataAsset;
 class ANatureKeeperGameMode;
 class UFollow;
 class ANatureKeeperCharacter;
@@ -19,6 +21,9 @@ class NATUREKEEPER_API UNatureKeeperUtils : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 	public:
+	//Lightweight method to create effects and don't store effect factory
+	UFUNCTION(BlueprintCallable, Category="Nature Keeper Util")
+	static UEffectBase* CreateEffect(UObject* Outer, TSubclassOf<UEffectBase> EffectClass, UEffectDataAsset* EffectDataAsset);
 	UFUNCTION(BlueprintCallable, Category="Nature Keeper Util")
 	static void SetPlayerFocusComponentAsTarget(const TScriptInterface<UFollow>& FollowActor);
 	UFUNCTION(BlueprintCallable, Category="Nature Keeper Util")

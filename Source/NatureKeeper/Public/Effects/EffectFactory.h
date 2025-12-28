@@ -21,14 +21,16 @@ protected:
 	TArray<UEffectBase*> Effects;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	TSubclassOf<UEffectBase> EffectClass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
 	UEffectDataAsset* EffectDataAsset;
 public:
 	UFUNCTION(BlueprintCallable, Category = "Effects")
 	virtual UEffectBase* CreateEffect();
 	UFUNCTION(BlueprintCallable, Category = "Effects")
-	bool AddEffect(UEffectBase* EffectToAdd);
+	void AddEffect(UEffectBase* EffectToAdd);
 	UFUNCTION(BlueprintCallable, Category = "Effects")
-	bool RemoveEffect(UEffectBase* EffectToRemove);
+	void RemoveEffect(UEffectBase* EffectToRemove);
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Effects")
 	TArray<UEffectBase*>& GetEffects();
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Effects")

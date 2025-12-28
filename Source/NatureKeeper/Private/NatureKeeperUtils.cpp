@@ -5,10 +5,23 @@
 #include "NatureKeeperCharacter.h"
 #include "NatureKeeperGameMode.h"
 #include "NavigationSystem.h"
+#include "Effects/EffectBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Managers/TargetFollowManager.h"
 
 class ANatureKeeperGameMode;
+
+UEffectBase* UNatureKeeperUtils::CreateEffect(UObject* Outer, TSubclassOf<UEffectBase> EffectClass,
+	UEffectDataAsset* EffectDataAsset)
+{
+	if (!Outer || !EffectClass || !EffectDataAsset) return nullptr;
+	
+	UEffectBase* NewEffect = NewObject<UEffectBase>(Outer, EffectClass);
+
+	if (!NewEffect->InitEffect(EffectDataAsset)) return nullptr;
+	
+	return NewEffect;
+}
 
 void UNatureKeeperUtils::SetPlayerFocusComponentAsTarget(const TScriptInterface<UFollow>& FollowActor)
 {

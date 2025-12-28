@@ -7,13 +7,17 @@
 #include "EffectBase.generated.h"
 
 
+class UEffectDataAsset;
 enum class EEffectElement : uint8;
 class UNiagaraSystem;
 class UEffectFactory;
 class UAffectable;
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnComplete);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStart, UEffectBase*, InEffect);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnComplete, UEffectBase*, InEffect);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnFail, UEffectBase*, InEffect);
+
 UCLASS(BlueprintType, Blueprintable)
 class NATUREKEEPER_API UEffectBase : public UObject
 {
@@ -21,10 +25,12 @@ class NATUREKEEPER_API UEffectBase : public UObject
 
 public:
 	UPROPERTY(BlueprintAssignable, BlueprintReadOnly, BlueprintCallable, Category="Effects")
+	FOnStart OnStart;
+	UPROPERTY(BlueprintAssignable, BlueprintReadOnly, BlueprintCallable, Category="Effects")
 	FOnComplete OnComplete;
+	UPROPERTY(BlueprintAssignable, BlueprintReadOnly, BlueprintCallable, Category="Effects")
+	FOnFail OnFail;
 	
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Effects")
-	UEffectFactory* EffectFactory = nullptr;
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Effects")
 	TScriptInterface<UAffectable> AffectedObject;
 	
@@ -33,6 +39,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Effects")
 	EEffectElement EffectElementType;
 
+	UFUNCTION(BlueprintCallable, Category = "Effects")
+	virtual bool InitEffect(UEffectDataAsset* InEffectDataAsset);
+	
 	UFUNCTION(BlueprintCallable, Category = "Effects")
 	virtual bool ApplyEffect(TScriptInterface<UAffectable> InAffectedObject);
 	UFUNCTION(BlueprintCallable, Category = "Effects")

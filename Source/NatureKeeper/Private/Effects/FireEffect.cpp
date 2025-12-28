@@ -1,7 +1,27 @@
 #include "Effects/FireEffect.h"
 
 #include "Effects/EffectFactory.h"
+#include "Effects/Data/FireEffectDataAsset.h"
 #include "Interfaces/Affectable.h"
+
+bool UFireEffect::InitEffect(UEffectDataAsset* InEffectDataAsset)
+{
+	UFireEffectDataAsset* FireDataAsset = Cast<UFireEffectDataAsset>(InEffectDataAsset);
+
+	if (!FireDataAsset)
+		return false;
+	
+	EffectVFX = FireDataAsset->EffectVFX;
+	EffectElementType = FireDataAsset->EffectElementType;
+	InitialDamageAmount = FireDataAsset->InitialDamageAmount;
+	TickDamageAmount = FireDataAsset->TickDamageAmount;
+	TicksCount = FireDataAsset->TicksCount;
+	TickAmount = FireDataAsset->TickAmount;
+	TickEffectVFX = FireDataAsset->TickEffectVFX;
+	SteamInitialDamageAmount = FireDataAsset->SteamInitialDamageAmount;
+	SteamEffectVFX = FireDataAsset->SteamEffectVFX;
+	return true;
+}
 
 bool UFireEffect::ApplyEffect(TScriptInterface<UAffectable> InAffectedObject)
 {

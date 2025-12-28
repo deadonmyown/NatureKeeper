@@ -4,7 +4,21 @@
 #include "Effects/DamageableEffect.h"
 
 #include "Effects/EffectFactory.h"
+#include "Effects/Data/DamageableEffectDataAsset.h"
 #include "Interfaces/Affectable.h"
+
+bool UDamageableEffect::InitEffect(UEffectDataAsset* InEffectDataAsset)
+{
+	UDamageableEffectDataAsset* DamageableDataAsset = Cast<UDamageableEffectDataAsset>(InEffectDataAsset);
+
+	if (!DamageableDataAsset)
+		return false;
+	
+	EffectVFX = DamageableDataAsset->EffectVFX;
+	EffectElementType = DamageableDataAsset->EffectElementType;
+	DamageAmount = DamageableDataAsset->DamageAmount;
+	return true;
+}
 
 bool UDamageableEffect::ApplyEffect(TScriptInterface<UAffectable> InAffectedObject)
 {
@@ -21,9 +35,4 @@ bool UDamageableEffect::ApplyEffect(TScriptInterface<UAffectable> InAffectedObje
 	CancelEffect();
 	
 	return true;
-}
-
-bool UDamageableEffect::CancelEffect()
-{
-	return Super::CancelEffect();
 }

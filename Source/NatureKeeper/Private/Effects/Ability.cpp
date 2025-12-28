@@ -5,7 +5,6 @@
 
 #include "Effects/EffectBase.h"
 #include "Effects/EffectFactory.h"
-#include "Effects/TickableDamageableEffectFactory.h"
 #include "Effects/Data/AbilityDataAsset.h"
 #include "Effects/Data/TickableDamageableEffectDataAsset.h"
 #include "ResourceSystem/ManaComponent.h"
@@ -26,20 +25,18 @@ void UAbility::ApplyAbilityEffect_Implementation(const TScriptInterface<UAffecta
 	/*if (!TrySpendMana())
 		return;*/
 	
-	TArray<UEffectFactory*> ActualEffectFactory = GetActualEffects();
-	for (int i = 0; i < ActualEffectFactory.Num(); i++)
+	for (int i = 0; i < AbilityEffects.Num(); i++)
 	{
-		UEffectBase* NewEffect = ActualEffectFactory[i]->CreateEffect();
+		UEffectBase* NewEffect = AbilityEffects[i]->CreateEffect();
 		NewEffect->ApplyEffect(InAffectedObject);
 	}
 }
 
 bool UAbility::IsAbilityEffectsCompleted_Implementation()
 {
-	TArray<UEffectFactory*> ActualEffectFactory = GetActualEffects();
-	for (int i = 0; i < ActualEffectFactory.Num(); i++)
+	for (int i = 0; i < AbilityEffects.Num(); i++)
 	{
-		TArray<UEffectBase*> Effects = ActualEffectFactory[i]->GetEffects();
+		TArray<UEffectBase*> Effects = AbilityEffects[i]->GetEffects();
 		if (Effects.Num() > 0)
 			return false;
 	}
@@ -50,12 +47,10 @@ bool UAbility::IsAbilityEffectsCompleted_Implementation()
 float UAbility::GetAbilityCompletionTime_Implementation()
 {
 	float CompletionTime = 0.0f;
-	TArray<UEffectFactory*> ActualEffectFactory = GetActualEffects();
-	for (int i = 0; i < ActualEffectFactory.Num(); i++)
+	for (int i = 0; i < AbilityEffects.Num(); i++)
 	{
-		if (UTickableDamageableEffectFactory* TickableEffect = Cast<UTickableDamageableEffectFactory>(ActualEffectFactory[i]))
+		if (UTickableDamageableEffectDataAsset* TickableDataAsset = Cast<UTickableDamageableEffectDataAsset>(AbilityEffects[i]->GetEffectDataAsset()))
 		{
-			UTickableDamageableEffectDataAsset* TickableDataAsset = Cast<UTickableDamageableEffectDataAsset>(TickableEffect->GetEffectDataAsset());
 			CompletionTime += TickableDataAsset->TicksCount * TickableDataAsset->TickAmount;
 		}
 	}
@@ -65,25 +60,14 @@ float UAbility::GetAbilityCompletionTime_Implementation()
 
 void UAbility::CancelAbilityEffect_Implementation()
 {
-	TArray<UEffectFactory*> ActualEffectFactory = GetActualEffects();
-	for (int i = 0; i < ActualEffectFactory.Num(); i++)
+	for (int i = 0; i < AbilityEffects.Num(); i++)
 	{
-		TArray<UEffectBase*> ActualEffects = ActualEffectFactory[i]->GetEffects();
+		TArray<UEffectBase*> ActualEffects = AbilityEffects[i]->GetEffects();
 		for (int j = ActualEffects.Num() - 1; j >= 0; j--)
 		{
 			ActualEffects[j]->CancelEffect();
 		}
 	}
-}
-
-void UAbility::ChangeAbilityEffectsFactory_Implementation(EAbilityType NewType)
-{
-	if (AbilityType == NewType)
-		return;
-
-	//CancelAbilityEffect();
-
-	AbilityType = NewType;
 }
 
 void UAbility::InitAbility(UManaComponent* InManaComponent)

@@ -33,6 +33,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Effects")
 	UNiagaraSystem* TickEffectVFX;
 
+	virtual bool InitEffect(UEffectDataAsset* InEffectDataAsset) override;
 	virtual bool ApplyEffect(TScriptInterface<UAffectable> InAffectedObject) override;
 	virtual bool CancelEffect() override;
 

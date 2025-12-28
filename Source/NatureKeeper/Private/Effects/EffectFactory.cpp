@@ -5,28 +5,32 @@
 
 UEffectBase* UEffectFactory::CreateEffect()
 {
-	UEffectBase* NewEffect = NewObject<UEffectBase>(this);
-	NewEffect->EffectVFX = EffectDataAsset->EffectVFX;
-	NewEffect->EffectElementType = EffectDataAsset->EffectElementType;
-	NewEffect->EffectFactory = this;
+	UEffectBase* NewEffect = NewObject<UEffectBase>(this, EffectClass);
+
+	if (!NewEffect->InitEffect(EffectDataAsset))
+		return nullptr;
+
+	NewEffect->OnComplete.AddDynamic(this, &UEffectFactory::RemoveEffect);
+	NewEffect->OnFail.AddDynamic(this, &UEffectFactory::RemoveEffect);
+	AddEffect(NewEffect);
+	
 	return NewEffect;
 }
 
-bool UEffectFactory::AddEffect(UEffectBase* EffectToAdd)
+void UEffectFactory::AddEffect(UEffectBase* EffectToAdd)
 {
 	if (Effects.Contains(EffectToAdd))
-		return false;
+		return;
 
 	Effects.Add(EffectToAdd);
-	return true;
 }
-bool UEffectFactory::RemoveEffect(UEffectBase* EffectToRemove)
+
+void UEffectFactory::RemoveEffect(UEffectBase* EffectToRemove)
 {
 	if (!Effects.Contains(EffectToRemove))
-		return false;
+		return;
 
 	Effects.Remove(EffectToRemove);
-	return true;
 }
 
 TArray<UEffectBase*>& UEffectFactory::GetEffects()

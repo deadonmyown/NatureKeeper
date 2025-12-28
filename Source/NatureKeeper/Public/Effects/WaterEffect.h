@@ -20,5 +20,6 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Effects")
 	UNiagaraSystem* SteamEffectVFX;
 
+	virtual bool InitEffect(UEffectDataAsset* InEffectDataAsset) override;
 	virtual bool ApplyEffect(TScriptInterface<UAffectable> InAffectedObject) override;
 };

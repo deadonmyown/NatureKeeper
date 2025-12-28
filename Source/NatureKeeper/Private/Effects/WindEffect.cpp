@@ -4,10 +4,28 @@
 #include "NatureKeeperUtils.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Effects/EffectFactory.h"
+#include "Effects/Data/WindEffectDataAsset.h"
 #include "Interfaces/Affectable.h"
 #include "Interfaces/Damageable.h"
 #include "Interfaces/Follow.h"
 #include "Managers/TargetFollowManager.h"
+
+bool UWindEffect::InitEffect(UEffectDataAsset* InEffectDataAsset)
+{
+	UWindEffectDataAsset* WindEffectDataAsset = Cast<UWindEffectDataAsset>(InEffectDataAsset);
+
+	if (!WindEffectDataAsset)
+		return false;
+	
+	EffectVFX = WindEffectDataAsset->EffectVFX;
+	EffectElementType = WindEffectDataAsset->EffectElementType;
+	InitialDamageAmount = WindEffectDataAsset->InitialDamageAmount;
+	TickDamageAmount = WindEffectDataAsset->TickDamageAmount;
+	TicksCount = WindEffectDataAsset->TicksCount;
+	TickAmount = WindEffectDataAsset->TickAmount;
+	TickEffectVFX = WindEffectDataAsset->TickEffectVFX;
+	return true;
+}
 
 bool UWindEffect::ApplyEffect(TScriptInterface<UAffectable> InAffectedObject)
 {
@@ -32,11 +50,12 @@ bool UWindEffect::ApplyEffect(TScriptInterface<UAffectable> InAffectedObject)
 
 bool UWindEffect::CancelEffect()
 {
-	if (!AffectedObject.GetObject() || !EffectFactory)
+	if (!AffectedObject.GetObject())
 	{
 		GetWorld()->GetTimerManager().ClearTimer(DamageTimerHandle);
 
-		OnComplete.Broadcast();
+		UE_LOG(LogTemp, Warning, TEXT("[WindEffect] Affected Object Ptr is missing!"));
+		OnFail.Broadcast(this);
 		
 		return false;
 	}
@@ -48,13 +67,11 @@ bool UWindEffect::CancelEffect()
 
 	GetWorld()->GetTimerManager().ClearTimer(DamageTimerHandle);
 	
-	EffectFactory->RemoveEffect(this);
 	IAffectable::Execute_UnregisterEffect(AffectedObject.GetObject(), this);
 		
 	AffectedObject = nullptr;
-	//EffectFactory = nullptr;
 	
-	OnComplete.Broadcast();
+	OnComplete.Broadcast(this);
 	
 	return true;
 }

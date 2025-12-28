@@ -4,8 +4,26 @@
 #include "Effects/TickableDamageableEffect.h"
 
 #include "Effects/EffectFactory.h"
+#include "Effects/Data/TickableDamageableEffectDataAsset.h"
 #include "Interfaces/Affectable.h"
 #include "Interfaces/Damageable.h"
+
+bool UTickableDamageableEffect::InitEffect(UEffectDataAsset* InEffectDataAsset)
+{
+	UTickableDamageableEffectDataAsset* TickableDataAsset = Cast<UTickableDamageableEffectDataAsset>(InEffectDataAsset);
+
+	if (!TickableDataAsset)
+		return false;
+	
+	EffectVFX = TickableDataAsset->EffectVFX;
+	EffectElementType = TickableDataAsset->EffectElementType;
+	InitialDamageAmount = TickableDataAsset->InitialDamageAmount;
+	TickDamageAmount = TickableDataAsset->TickDamageAmount;
+	TicksCount = TickableDataAsset->TicksCount;
+	TickAmount = TickableDataAsset->TickAmount;
+	TickEffectVFX = TickableDataAsset->TickEffectVFX;
+	return true;
+}
 
 bool UTickableDamageableEffect::ApplyEffect(TScriptInterface<UAffectable> InAffectedObject)
 {
@@ -25,24 +43,23 @@ bool UTickableDamageableEffect::ApplyEffect(TScriptInterface<UAffectable> InAffe
 
 bool UTickableDamageableEffect::CancelEffect()
 {
-	if (!AffectedObject.GetObject() || !EffectFactory)
+	if (!AffectedObject.GetObject())
 	{
 		GetWorld()->GetTimerManager().ClearTimer(DamageTimerHandle);
 
-		OnComplete.Broadcast();
+		UE_LOG(LogTemp, Warning, TEXT("[TickableDamageableEffect] Affected Object Ptr is missing!"));
+		OnFail.Broadcast(this);
 		
 		return false;
 	}
 
 	GetWorld()->GetTimerManager().ClearTimer(DamageTimerHandle);
 	
-	EffectFactory->RemoveEffect(this);
 	IAffectable::Execute_UnregisterEffect(AffectedObject.GetObject(), this);
 		
 	AffectedObject = nullptr;
-	//EffectFactory = nullptr;
 	
-	OnComplete.Broadcast();
+	OnComplete.Broadcast(this);
 	
 	return true;
 }
