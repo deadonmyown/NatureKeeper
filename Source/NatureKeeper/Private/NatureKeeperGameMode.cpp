@@ -2,6 +2,7 @@
 
 #include "NatureKeeper/Public/NatureKeeperGameMode.h"
 
+#include "Managers/DamageCollisionSpawner.h"
 #include "Managers/LevelManager.h"
 #include "Managers/TargetFollowManager.h"
 #include "NatureKeeper/Public/NatureKeeperPlayerController.h"
@@ -31,6 +32,7 @@ void ANatureKeeperGameMode::StartPlay()
 {
 	LevelManager = GetWorld()->SpawnActor<ALevelManager>(LevelManagerClass);
 	TargetFollowManager = GetWorld()->SpawnActor<ATargetFollowManager>(TargetFollowManagerClass);
+	DamageCollisionSpawner = GetWorld()->SpawnActor<ADamageCollisionSpawner>(DamageCollisionSpawnerClass);
 	
 	Super::StartPlay();
 }

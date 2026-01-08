@@ -17,7 +17,7 @@ ADamageCollisionBase::ADamageCollisionBase()
 void ADamageCollisionBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	UE_LOG(LogTemp, Display, TEXT("Init Life Span = %f"), InitialLifeSpan);
 }
 
 void ADamageCollisionBase::InitDamageCollisionData(const FDamageCollisionData& NewDamageCollisionData)

@@ -48,4 +48,9 @@ public:
 	virtual bool CancelEffect();
 	UFUNCTION(BlueprintCallable, Category = "Effects")
 	virtual bool TrySpawnVFX(UNiagaraSystem* InEffectVFX);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Effects")
+	virtual float GetEffectCompletionTime() const {return 0.0f;}
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Effects")
+	virtual float GetEffectRemainingTime() const {return 0.0f;}
 };

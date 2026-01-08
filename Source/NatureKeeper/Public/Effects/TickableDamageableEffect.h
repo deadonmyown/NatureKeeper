@@ -19,6 +19,8 @@ class NATUREKEEPER_API UTickableDamageableEffect : public UDamageableBaseEffect
 
 protected:
 	FTimerHandle DamageTimerHandle;
+	UPROPERTY()
+	int CurrTick = 0;
 
 public:
 	UPROPERTY(BlueprintReadWrite, Category = "Effects")
@@ -36,6 +38,9 @@ public:
 	virtual bool InitEffect(UEffectDataAsset* InEffectDataAsset) override;
 	virtual bool ApplyEffect(TScriptInterface<UAffectable> InAffectedObject) override;
 	virtual bool CancelEffect() override;
+
+	virtual float GetEffectCompletionTime() const override;
+	virtual float GetEffectRemainingTime() const override;
 
 	UFUNCTION()
 	void OnTickDamage();

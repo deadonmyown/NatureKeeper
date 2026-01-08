@@ -20,6 +20,8 @@ bool UFireEffect::InitEffect(UEffectDataAsset* InEffectDataAsset)
 	TickEffectVFX = FireDataAsset->TickEffectVFX;
 	SteamInitialDamageAmount = FireDataAsset->SteamInitialDamageAmount;
 	SteamEffectVFX = FireDataAsset->SteamEffectVFX;
+
+	CurrTick = 0;
 	return true;
 }
 

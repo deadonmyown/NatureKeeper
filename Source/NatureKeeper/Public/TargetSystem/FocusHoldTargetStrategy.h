@@ -21,6 +21,8 @@ protected:
 	UFocusComponent* FocusComponent;
 	UPROPERTY()
 	ANatureKeeperPlayerController* PlayerController;
+	UPROPERTY()
+	AActor* CachedFocusActor;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Target")
 	float OverrideFocusUpdateTimeInSec = -1.0f;

@@ -3,6 +3,7 @@
 
 #include "Effects/Ability.h"
 
+#include "NatureKeeperUtils.h"
 #include "Effects/EffectBase.h"
 #include "Effects/EffectFactory.h"
 #include "Effects/Data/AbilityDataAsset.h"
@@ -46,7 +47,8 @@ bool UAbility::IsAbilityEffectsCompleted_Implementation()
 
 float UAbility::GetAbilityCompletionTime_Implementation()
 {
-	float CompletionTime = 0.0f;
+	return UNatureKeeperUtils::GetEffectFactoriesCompletionTime(AbilityEffects);
+	/*float CompletionTime = 0.0f;
 	for (int i = 0; i < AbilityEffects.Num(); i++)
 	{
 		if (UTickableDamageableEffectDataAsset* TickableDataAsset = Cast<UTickableDamageableEffectDataAsset>(AbilityEffects[i]->GetEffectDataAsset()))
@@ -55,7 +57,7 @@ float UAbility::GetAbilityCompletionTime_Implementation()
 		}
 	}
 	
-	return CompletionTime;
+	return CompletionTime;*/
 }
 
 void UAbility::CancelAbilityEffect_Implementation()

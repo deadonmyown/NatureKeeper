@@ -24,6 +24,8 @@ bool UWindEffect::InitEffect(UEffectDataAsset* InEffectDataAsset)
 	TicksCount = WindEffectDataAsset->TicksCount;
 	TickAmount = WindEffectDataAsset->TickAmount;
 	TickEffectVFX = WindEffectDataAsset->TickEffectVFX;
+
+	CurrTick = 0;
 	return true;
 }
 

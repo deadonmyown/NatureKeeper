@@ -21,6 +21,8 @@ public:
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
 	float ProjectileLifeSpan = 5.0f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
+	float ProjectileMagnitude = 100.0f;
 	
 	virtual void BeginPlay() override;
 public:

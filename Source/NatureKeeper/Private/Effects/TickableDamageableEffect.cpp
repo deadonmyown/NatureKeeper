@@ -22,6 +22,8 @@ bool UTickableDamageableEffect::InitEffect(UEffectDataAsset* InEffectDataAsset)
 	TicksCount = TickableDataAsset->TicksCount;
 	TickAmount = TickableDataAsset->TickAmount;
 	TickEffectVFX = TickableDataAsset->TickEffectVFX;
+
+	CurrTick = 0;
 	return true;
 }
 
@@ -64,15 +66,32 @@ bool UTickableDamageableEffect::CancelEffect()
 	return true;
 }
 
+float UTickableDamageableEffect::GetEffectCompletionTime() const
+{
+	return TicksCount * TickAmount;
+}
+
+float UTickableDamageableEffect::GetEffectRemainingTime() const
+{
+	if (UWorld* World = GetWorld())
+	{
+		if (World->GetTimerManager().IsTimerActive(DamageTimerHandle))
+		{
+			return FMath::Max(0,TicksCount * TickAmount - World->GetTimerManager().GetTimerElapsed(DamageTimerHandle));
+		}
+	}
+	return (TicksCount - CurrTick) * TickAmount;
+}
+
 void UTickableDamageableEffect::OnTickDamage()
 {
-	TicksCount--;
+	CurrTick++;
 
 	TrySpawnVFX(TickEffectVFX);
 
 	TryDamage(TickDamageAmount);
 
-	if (TicksCount <= 0)
+	if (CurrTick >= TicksCount)
 	{
 		CancelEffect();
 	}

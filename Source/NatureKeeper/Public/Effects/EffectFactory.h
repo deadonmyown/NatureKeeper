@@ -35,4 +35,6 @@ public:
 	TArray<UEffectBase*>& GetEffects();
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Effects")
 	UEffectDataAsset* GetEffectDataAsset() const {return EffectDataAsset;}
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Effects")
+	float GetEffectCompletionTime();
 };

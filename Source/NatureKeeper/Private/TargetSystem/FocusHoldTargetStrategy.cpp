@@ -65,14 +65,27 @@ void UFocusHoldTargetStrategy::UpdateStrategy(float DeltaTime)
 
 	if (bFocusStart && CurrentFocusCooldown == 0.0f)
 	{
-		FocusComponent->UpdateTrace();
-
-		if (FocusComponent->FocusedActor && FocusComponent->FocusedActor->Implements<UAffectable>()
-			&& Ability && Ability->TrySpendMana())
+		if (CachedFocusActor)
 		{
-			Ability->ApplyAbilityEffect(FocusComponent->FocusedActor);
+			if (Ability && Ability->TrySpendMana())
+			{
+				Ability->ApplyAbilityEffect(CachedFocusActor);
 
-			CurrentFocusCooldown = FocusUpdateTimeInSec;
+				CurrentFocusCooldown = FocusUpdateTimeInSec;
+			}
+		}
+		else
+		{
+			FocusComponent->UpdateTrace();
+
+			if (FocusComponent->FocusedActor && FocusComponent->FocusedActor->Implements<UAffectable>()
+				&& Ability && Ability->TrySpendMana())
+			{
+				CachedFocusActor = FocusComponent->FocusedActor;
+				Ability->ApplyAbilityEffect(FocusComponent->FocusedActor);
+
+				CurrentFocusCooldown = FocusUpdateTimeInSec;
+			}
 		}
 	}
 }
@@ -102,6 +115,7 @@ void UFocusHoldTargetStrategy::CancelStrategy()
 	bIsTargeting = false;
 	Ability = nullptr;
 	TargetComponent = nullptr;
+	CachedFocusActor = nullptr;
 }
 
 void UFocusHoldTargetStrategy::OnPlayerClickStarted()

@@ -4,6 +4,8 @@
 #include "GameFramework/Actor.h"
 #include "DamageCollisionSpawner.generated.h"
 
+class AEffectDamageCollision;
+struct FEffectDamageCollisionData;
 struct FDamageCollisionData;
 class ADamageCollisionBase;
 
@@ -19,5 +21,10 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	ADamageCollisionBase* SpawnDamageCollision(const TSubclassOf<ADamageCollisionBase>& DamageCollisionClass, const FTransform& CollisionTransform, const FDamageCollisionData& DamageCollisionData);
+	UFUNCTION(BlueprintCallable, Category = "DamageCollisionSpawner")
+	ADamageCollisionBase* SpawnDamageCollision(const TSubclassOf<ADamageCollisionBase>& InDamageCollisionClass,
+		const FTransform& InCollisionTransform, const FDamageCollisionData& InDamageCollisionData);
+	UFUNCTION(BlueprintCallable, Category = "DamageCollisionSpawner")
+	AEffectDamageCollision* SpawnEffectDamageCollision(const TSubclassOf<AEffectDamageCollision>& InDamageCollisionClass,
+		const FTransform& InCollisionTransform, const FDamageCollisionData& InDamageCollisionData, const FEffectDamageCollisionData& InEffectDamageCollisionData);
 };

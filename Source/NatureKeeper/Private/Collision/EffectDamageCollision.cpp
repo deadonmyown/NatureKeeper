@@ -1,5 +1,8 @@
 ﻿#include "Collision/EffectDamageCollision.h"
 
+#include "NatureKeeperUtils.h"
+#include "Effects/EffectBase.h"
+#include "Interfaces/Affectable.h"
 #include "Interfaces/Damageable.h"
 
 
@@ -19,4 +22,17 @@ void AEffectDamageCollision::OnCollisionOverlap(UPrimitiveComponent* OverlappedC
 		&& !DamageCollisionData.DamageableTypes.Contains(IDamageable::Execute_GetDamageableType(OtherActor))) return;
 	
 	IDamageable::Execute_TakeDamage(OtherActor, DamageCollisionData.DamageAmount);
+
+	if (!OtherActor->Implements<UAffectable>()) return;
+
+	UEffectBase* NewEffect = UNatureKeeperUtils::CreateEffect(this, EffectDamageCollisionData.EffectClass, EffectDamageCollisionData.EffectDataAsset);
+
+	if (!NewEffect) return;
+
+	NewEffect->ApplyEffect(OtherActor);
+}
+
+void AEffectDamageCollision::InitEffectDamageCollisionData(const FEffectDamageCollisionData& NewDamageCollisionData)
+{
+	EffectDamageCollisionData = NewDamageCollisionData;
 }

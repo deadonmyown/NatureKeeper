@@ -25,6 +25,8 @@ bool UWaterEffect::InitEffect(UEffectDataAsset* InEffectDataAsset)
 	TickEffectVFX = WaterDataAsset->TickEffectVFX;
 	SteamInitialDamageAmount = WaterDataAsset->SteamInitialDamageAmount;
 	SteamEffectVFX = WaterDataAsset->SteamEffectVFX;
+
+	CurrTick = 0;
 	return true;
 }
 

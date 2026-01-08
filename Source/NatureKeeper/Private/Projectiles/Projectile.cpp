@@ -58,7 +58,7 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
 {
 	if (OtherActor != this && OtherComponent->IsSimulatingPhysics())
 	{
-		OtherComponent->AddImpulseAtLocation(ProjectileMovementComponent->Velocity * 100.0f, Hit.ImpactPoint);
+		OtherComponent->AddImpulseAtLocation(ProjectileMovementComponent->Velocity * ProjectileMagnitude, Hit.ImpactPoint);
 	}
 
 	if (HitNiagaraSystem)

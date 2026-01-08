@@ -6,6 +6,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "NatureKeeperUtils.generated.h"
 
+class UEffectFactory;
 class UEffectBase;
 class UEffectDataAsset;
 class ANatureKeeperGameMode;
@@ -34,6 +35,12 @@ class NATUREKEEPER_API UNatureKeeperUtils : public UBlueprintFunctionLibrary
 	static ANatureKeeperGameMode* GetNatureKeeperGameMode(const UObject* WorldContextObject);
 	UFUNCTION(BlueprintCallable, Category="Nature Keeper Util")
 	static FVector GetRandomNavigableLocationInRadius(UObject* WorldContextObject, const FVector& Origin, const float Radius);
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Nature Keeper Util")
+	static float GetEffectFactoriesCompletionTime(const TArray<UEffectFactory*>& InEffectFactories);
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Nature Keeper Util")
+	static float GetEffectsCompletionTime(const TArray<UEffectBase*>& InEffects);
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Nature Keeper Util")
+	static float GetEffectsRemainingTime(const TArray<UEffectBase*>& InEffects);
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Nature Keeper Util")
 	static float CalculatePerlinNoise2D(int XVertexIndex, int YVertexIndex, float InNoiseScale, float InNoiseSeed);
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Nature Keeper Util")

@@ -6,6 +6,7 @@
 #include "NatureKeeperGameMode.h"
 #include "NavigationSystem.h"
 #include "Effects/EffectBase.h"
+#include "Effects/EffectFactory.h"
 #include "Kismet/GameplayStatics.h"
 #include "Managers/TargetFollowManager.h"
 
@@ -91,6 +92,39 @@ FVector UNatureKeeperUtils::GetRandomNavigableLocationInRadius(UObject* WorldCon
     
 	// If NavMesh is missing or no reachable point found
 	return Origin; 
+}
+
+float UNatureKeeperUtils::GetEffectFactoriesCompletionTime(const TArray<UEffectFactory*>& InEffectFactories)
+{
+	float CompletionTime = 0.0f;
+	for (int i = 0; i < InEffectFactories.Num(); i++)
+	{
+		CompletionTime += InEffectFactories[i]->GetEffectCompletionTime();
+	}
+
+	return CompletionTime;
+}
+
+float UNatureKeeperUtils::GetEffectsCompletionTime(const TArray<UEffectBase*>& InEffects)
+{
+	float CompletionTime = 0.0f;
+	for (int i = 0; i < InEffects.Num(); i++)
+	{
+		CompletionTime += InEffects[i]->GetEffectCompletionTime();
+	}
+
+	return CompletionTime;
+}
+
+float UNatureKeeperUtils::GetEffectsRemainingTime(const TArray<UEffectBase*>& InEffects)
+{
+	float RemainingTime = 0.0f;
+	for (int i = 0; i < InEffects.Num(); i++)
+	{
+		RemainingTime += InEffects[i]->GetEffectRemainingTime();
+	}
+	
+	return RemainingTime;
 }
 
 float UNatureKeeperUtils::CalculatePerlinNoise2D(int XVertexIndex, int YVertexIndex,

@@ -2,6 +2,7 @@
 
 #include "Effects/EffectBase.h"
 #include "Effects/Data/EffectDataAsset.h"
+#include "Effects/Data/TickableDamageableEffectDataAsset.h"
 
 UEffectBase* UEffectFactory::CreateEffect()
 {
@@ -36,4 +37,13 @@ void UEffectFactory::RemoveEffect(UEffectBase* EffectToRemove)
 TArray<UEffectBase*>& UEffectFactory::GetEffects()
 {
 	return Effects;
+}
+
+float UEffectFactory::GetEffectCompletionTime()
+{
+	if (UTickableDamageableEffectDataAsset* TickableDataAsset = Cast<UTickableDamageableEffectDataAsset>(EffectDataAsset))
+	{
+		return TickableDataAsset->TicksCount * TickableDataAsset->TickAmount;
+	}
+	return 0.0f;
 }
