@@ -27,11 +27,16 @@ void ANatureKeeperActorSpawner::SpawnActor()
 	if (SpawnedActors.Num() >= MaxSpawnedActorsAmount)
 		return;
 
+	FActorSpawnParameters SpawnParameters = FActorSpawnParameters();
 	FVector SpawnLocation = UNatureKeeperUtils::GetRandomNavigableLocationInRadius(this, GetActorLocation(), SpawnActorRadius);
-	AActor* NewActor = GetWorld()->SpawnActor<AActor>(SpawnActorClass, SpawnLocation, FRotator::ZeroRotator);
-	NewActor->OnDestroyed.AddDynamic(this, &ANatureKeeperActorSpawner::OnDestroySpawnedActor);
+	AActor* NewActor = GetWorld()->SpawnActor<AActor>(SpawnActorClass, SpawnLocation, FRotator::ZeroRotator, SpawnParameters);
 
-	SpawnedActors.Add(NewActor);
+	if (NewActor)
+	{
+		NewActor->OnDestroyed.AddDynamic(this, &ANatureKeeperActorSpawner::OnDestroySpawnedActor);
+
+		SpawnedActors.Add(NewActor);
+	}
 }
 
 void ANatureKeeperActorSpawner::OnDestroySpawnedActor(AActor* DestroyedActor)

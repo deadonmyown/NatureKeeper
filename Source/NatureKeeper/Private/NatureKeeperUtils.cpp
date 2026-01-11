@@ -84,7 +84,7 @@ FVector UNatureKeeperUtils::GetRandomNavigableLocationInRadius(UObject* WorldCon
 	if (NavSys)
 	{
 		FNavLocation RandomPoint;
-		if (NavSys->GetRandomReachablePointInRadius(Origin, Radius, RandomPoint))
+		if (NavSys->GetRandomPointInNavigableRadius(Origin, Radius, RandomPoint))
 		{
 			return RandomPoint.Location;
 		}
