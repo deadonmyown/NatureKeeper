@@ -3,8 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Affectable.h"
 #include "UObject/Interface.h"
 #include "Damageable.generated.h"
+
+
+enum class EEffectElement : uint8;
 
 UENUM(BlueprintType)
 enum class EDamageableType : uint8
@@ -35,7 +39,7 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Damageable")
 	void Heal(int HealAmount);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Damageable")
-	void TakeDamage(int Damage);
+	void TakeDamage(int Damage, EEffectElement EffectElement = EEffectElement::EE_Physical, FVector DamageNormal = FVector::ZeroVector);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Damageable")
 	EDamageableType GetDamageableType();
 };

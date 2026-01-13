@@ -2,6 +2,7 @@
 
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "ResourceSystem/HealthComponent.h"
 
 
@@ -43,6 +44,10 @@ void AEnemyBaseCharacter::Attack(const TScriptInterface<UDamageable>& Damageable
 {
 	if (!CanAttack())
 		return;
+
+	AActor* DamagedActor = Cast<AActor>(DamageableActor.GetObject());
+
+	if (!DamagedActor) return;
 	
 	if (!DamageableActor.GetObject())
 		return;
@@ -50,7 +55,10 @@ void AEnemyBaseCharacter::Attack(const TScriptInterface<UDamageable>& Damageable
 	if (!DamageableActorTypes.Contains(IDamageable::Execute_GetDamageableType(DamageableActor.GetObject())))
 		return;
 
-	IDamageable::Execute_TakeDamage(DamageableActor.GetObject(), AttackDamage);
+	
+	FVector DamageNormal = (GetActorLocation() - DamagedActor->GetActorLocation()).GetSafeNormal();
+	DamageNormal.Z = 0.0f;
+	IDamageable::Execute_TakeDamage(DamageableActor.GetObject(), AttackDamage, EEffectElement::EE_Physical, DamageNormal);
 
 	CurrAttackDelay = AttackDelay;
 }
@@ -65,7 +73,7 @@ void AEnemyBaseCharacter::Heal_Implementation(int HealAmount)
 	HealthComponent->IncreaseResourceValue(HealAmount);
 }
 
-void AEnemyBaseCharacter::TakeDamage_Implementation(int Damage)
+void AEnemyBaseCharacter::TakeDamage_Implementation(int Damage, EEffectElement EffectElement, FVector DamageNormal)
 {
 	HealthComponent->DecreaseResourceValue(Damage);
 }

@@ -21,6 +21,7 @@ bool UDamageableBaseEffect::TryDamage(int InDamageAmount, int InDamageMultiplier
 	if (InDamageAmount <= 0 || InDamageMultiplier <= 0 || !AffectedObject.GetObject() || !AffectedObject.GetObject()->Implements<UDamageable>())
 		return false;
 
-	IDamageable::Execute_TakeDamage(AffectedObject.GetObject(), bIsWeakness ? InDamageAmount * InDamageMultiplier : InDamageAmount);
+	IDamageable::Execute_TakeDamage(AffectedObject.GetObject(),
+		bIsWeakness ? InDamageAmount * InDamageMultiplier : InDamageAmount, EffectElementType, FVector::ZeroVector);
 	return true;
 }

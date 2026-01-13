@@ -89,7 +89,7 @@ public:
 	virtual bool OnEndVisit_Implementation(const TScriptInterface<UVisitable>& Visitable) override;
 
 	virtual void Heal_Implementation(int HealAmount) override;
-	virtual void TakeDamage_Implementation(int Damage) override;
+	virtual void TakeDamage_Implementation(int Damage, EEffectElement EffectElement = EEffectElement::EE_Physical, FVector DamageNormal = FVector::ZeroVector) override;
 	virtual EDamageableType GetDamageableType_Implementation() override {return DamageableType; }
 
 	virtual bool RegisterEffect_Implementation(UEffectBase* EffectToAdd) override;

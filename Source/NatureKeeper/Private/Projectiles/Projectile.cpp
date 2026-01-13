@@ -3,6 +3,7 @@
 #include "NiagaraFunctionLibrary.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Interfaces/Damageable.h"
 
 
 AProjectile::AProjectile()
@@ -59,6 +60,11 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
 	if (OtherActor != this && OtherComponent->IsSimulatingPhysics())
 	{
 		OtherComponent->AddImpulseAtLocation(ProjectileMovementComponent->Velocity * ProjectileMagnitude, Hit.ImpactPoint);
+	}
+
+	if (OtherActor->Implements<UDamageable>())
+	{
+		IDamageable::Execute_TakeDamage(OtherActor, ProjectileDamage, EEffectElement::EE_Physical, Hit.ImpactNormal);
 	}
 
 	if (HitNiagaraSystem)

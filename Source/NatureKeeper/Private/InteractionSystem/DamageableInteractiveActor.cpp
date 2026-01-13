@@ -27,7 +27,8 @@ void ADamageableInteractiveActor::Heal_Implementation(int HealAmount)
 	HealthComponent->IncreaseResourceValue(HealAmount);
 }
 
-void ADamageableInteractiveActor::TakeDamage_Implementation(int Damage)
+void ADamageableInteractiveActor::TakeDamage_Implementation(int Damage, EEffectElement EffectElement,
+	FVector DamageNormal)
 {
 	HealthComponent->DecreaseResourceValue(Damage);
 }

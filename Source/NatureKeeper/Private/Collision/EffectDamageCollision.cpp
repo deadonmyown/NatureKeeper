@@ -21,7 +21,7 @@ void AEffectDamageCollision::OnCollisionOverlap(UPrimitiveComponent* OverlappedC
 	if (DamageCollisionData.DamageableTypes.IsEmpty()
 		&& !DamageCollisionData.DamageableTypes.Contains(IDamageable::Execute_GetDamageableType(OtherActor))) return;
 	
-	IDamageable::Execute_TakeDamage(OtherActor, DamageCollisionData.DamageAmount);
+	IDamageable::Execute_TakeDamage(OtherActor, DamageCollisionData.DamageAmount, EEffectElement::EE_Physical, SweepResult.ImpactNormal);
 
 	if (!OtherActor->Implements<UAffectable>()) return;
 

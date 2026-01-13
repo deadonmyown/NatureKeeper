@@ -21,9 +21,12 @@ void AAbilityProjectile::InitAbilityProjectile(UAbility* ProjectileAbility)
 void AAbilityProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if (Ability && OtherActor->Implements<UAffectable>())
+	if (Ability)
 	{
-		Ability->ApplyAbilityEffect(OtherActor);
+		if (OtherActor->Implements<UAffectable>())
+		{
+			Ability->ApplyAbilityEffect(OtherActor);
+		}
 	}
 	Super::OnHit(HitComponent, OtherActor, OtherComponent, NormalImpulse, Hit);
 }

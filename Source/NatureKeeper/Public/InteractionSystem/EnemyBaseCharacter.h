@@ -56,7 +56,7 @@ public:
 	void OnDeath(int MinValue);
 	
 	virtual void Heal_Implementation(int HealAmount) override;
-	virtual void TakeDamage_Implementation(int Damage) override;
+	virtual void TakeDamage_Implementation(int Damage, EEffectElement EffectElement = EEffectElement::EE_Physical, FVector DamageNormal = FVector::ZeroVector) override;
 	virtual EDamageableType GetDamageableType_Implementation() override {return EnemyType; }
 
 	virtual bool RegisterEffect_Implementation(UEffectBase* EffectToAdd) override;
