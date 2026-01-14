@@ -11,14 +11,6 @@
 #include "ResourceSystem/ManaComponent.h"
 #include "TargetSystem/TargetStrategy.h"
 
-void UAbility::Target_Implementation(UTargetComponent* InTargetComponent)
-{
-	if (!CanCastAbility() || !InTargetComponent)
-		return;
-
-	TargetStrategy->StartStrategy(this, InTargetComponent);
-}
-
 void UAbility::ApplyAbilityEffect_Implementation(const TScriptInterface<UAffectable>& InAffectedObject)
 {
 	//We should check this before apply ability separately, because for example in projectile on hit we just invoke applyability method
@@ -72,7 +64,7 @@ void UAbility::CancelAbilityEffect_Implementation()
 	}
 }
 
-void UAbility::InitAbility(UManaComponent* InManaComponent)
+void UAbility::InitManaComponent(UManaComponent* InManaComponent)
 {
 	ManaComponent = InManaComponent;
 }

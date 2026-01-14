@@ -35,6 +35,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Enemy")
 	TArray<UEffectBase*> Effects;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Enemy")
+	bool bIsAttacking = false;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Enemy")
 	int AttackDamage;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Enemy")
@@ -46,11 +48,15 @@ protected:
 	virtual void BeginPlay() override;
 public:
 	virtual void Tick(float DeltaSeconds) override;
-	
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Enemy")
+	bool StartAttack();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Enemy")
+	void EndAttack();
 	UFUNCTION(BlueprintCallable, Category = "Enemy")
-	void Attack(const TScriptInterface<UDamageable>& DamageableActor);
+	void Attack(const TScriptInterface<UDamageable>& DamageableActor, int InDamage);
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Enemy")
-	bool CanAttack() const {return CurrAttackDelay == 0.0f;}
+	bool CanAttack() const {return !bIsAttacking && CurrAttackDelay == 0.0f;}
 	
 	UFUNCTION()
 	void OnDeath(int MinValue);

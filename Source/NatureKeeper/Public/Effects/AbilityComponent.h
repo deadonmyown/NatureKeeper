@@ -6,8 +6,8 @@
 #include "Components/ActorComponent.h"
 #include "AbilityComponent.generated.h"
 
+class UPlayerAbility;
 class UManaComponent;
-class UAbility;
 class UTargetComponent;
 class UTargetStrategy;
 class UAffectable;
@@ -21,7 +21,7 @@ class NATUREKEEPER_API UAbilityComponent : public UActorComponent
 
 protected:
 	UPROPERTY(Instanced, EditAnywhere, BlueprintReadWrite, Category = "Ability")
-	TArray<UAbility*> Abilities;
+	TArray<UPlayerAbility*> Abilities;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Ability")
 	UManaComponent* ManaComponent;
@@ -31,7 +31,7 @@ protected:
 public:
 	UAbilityComponent();
 
-	const TArray<UAbility*>& GetAbilities() const { return Abilities; }
+	const TArray<UPlayerAbility*>& GetAbilities() const { return Abilities; }
 
 	void InitComponent(UManaComponent* InManaComponent);
 };

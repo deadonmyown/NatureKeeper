@@ -15,6 +15,7 @@
 #include "NatureKeeperUtils.h"
 #include "Effects/Ability.h"
 #include "Effects/AbilityComponent.h"
+#include "Effects/PlayerAbility.h"
 #include "Engine/LocalPlayer.h"
 #include "Interfaces/InteractiveActorInterface.h"
 #include "TargetSystem/TargetComponent.h"
@@ -253,19 +254,19 @@ void ANatureKeeperPlayerController::OnAbilityAction(const FInputActionInstance& 
 
 	const int32 Index = AbilitiesActions.IndexOfByKey(SourceAction);
 
-	TArray<UAbility*> Abilities = PlayerAbilityComponent->GetAbilities();
+	TArray<UPlayerAbility*> Abilities = PlayerAbilityComponent->GetAbilities();
 	if (!Abilities.IsValidIndex(Index))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Ability index not valid for action %s"), *SourceAction->GetName());
 		return;
 	}
 
-	UAbility* Ability = Abilities[Index];
-	if (!Ability)
+	UPlayerAbility* PlayerAbility = Abilities[Index];
+	if (!PlayerAbility)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Ability is null at index %d"), Index);
 		return;
 	}
-
-	Ability->Target(PlayerTargetComponent);
+	
+	PlayerAbility->Target(PlayerTargetComponent);
 }

@@ -24,9 +24,6 @@ class NATUREKEEPER_API UAbility : public UObject
 protected:
 	UPROPERTY(Instanced, EditAnywhere, BlueprintReadWrite, Category = "Ability")
 	TArray<UEffectFactory*> AbilityEffects;
-	
-	UPROPERTY(Instanced, EditAnywhere, BlueprintReadWrite, Category = "Ability")
-	UTargetStrategy* TargetStrategy = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Ability")
 	UAbilityDataAsset* AbilityDataAsset;
@@ -35,13 +32,11 @@ protected:
 	UManaComponent* ManaComponent;
 public:
 	UFUNCTION(BlueprintCallable, Category = "Ability")
-	void InitAbility(UManaComponent* InManaComponent);
+	void InitManaComponent(UManaComponent* InManaComponent);
 
 	UFUNCTION(BlueprintCallable, Category = "Ability")
 	bool CanCastAbility();
 	
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Ability")
-	void Target(UTargetComponent* InTargetComponent);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Ability")
 	void ApplyAbilityEffect(const TScriptInterface<UAffectable>& InAffectedObject);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Ability")

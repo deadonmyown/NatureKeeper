@@ -1,9 +1,7 @@
 #include "Effects/AbilityComponent.h"
 
 #include "Effects/Ability.h"
-#include "Effects/EffectBase.h"
-#include "Effects/EffectFactory.h"
-#include "TargetSystem/TargetStrategy.h"
+#include "Effects/PlayerAbility.h"
 
 UAbilityComponent::UAbilityComponent()
 {
@@ -11,12 +9,14 @@ UAbilityComponent::UAbilityComponent()
 
 void UAbilityComponent::InitComponent(UManaComponent* InManaComponent)
 {
+	if (!InManaComponent) return;
+	
 	ManaComponent = InManaComponent;
 
 	for (int i = 0; i < Abilities.Num(); i++)
 	{
 		if (Abilities[i])
-			Abilities[i]->InitAbility(InManaComponent);
+			Abilities[i]->InitManaComponent(InManaComponent);
 	}
 }
 

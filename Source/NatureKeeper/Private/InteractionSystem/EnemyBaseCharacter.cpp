@@ -40,11 +40,22 @@ void AEnemyBaseCharacter::Tick(float DeltaSeconds)
 		CurrAttackDelay = 0.0f;
 }
 
-void AEnemyBaseCharacter::Attack(const TScriptInterface<UDamageable>& DamageableActor)
+bool AEnemyBaseCharacter::StartAttack_Implementation()
 {
-	if (!CanAttack())
-		return;
+	if (!CanAttack()) return false;
+	
+	bIsAttacking = true;
+	return true;
+}
 
+void AEnemyBaseCharacter::EndAttack_Implementation()
+{
+	bIsAttacking = false;
+	CurrAttackDelay = AttackDelay;
+}
+
+void AEnemyBaseCharacter::Attack(const TScriptInterface<UDamageable>& DamageableActor, int InDamage)
+{
 	AActor* DamagedActor = Cast<AActor>(DamageableActor.GetObject());
 
 	if (!DamagedActor) return;
@@ -54,13 +65,10 @@ void AEnemyBaseCharacter::Attack(const TScriptInterface<UDamageable>& Damageable
 	
 	if (!DamageableActorTypes.Contains(IDamageable::Execute_GetDamageableType(DamageableActor.GetObject())))
 		return;
-
 	
 	FVector DamageNormal = (GetActorLocation() - DamagedActor->GetActorLocation()).GetSafeNormal();
 	DamageNormal.Z = 0.0f;
-	IDamageable::Execute_TakeDamage(DamageableActor.GetObject(), AttackDamage, EEffectElement::EE_Physical, DamageNormal);
-
-	CurrAttackDelay = AttackDelay;
+	IDamageable::Execute_TakeDamage(DamageableActor.GetObject(), InDamage, EEffectElement::EE_Physical, DamageNormal);
 }
 
 void AEnemyBaseCharacter::OnDeath(int MinValue)
