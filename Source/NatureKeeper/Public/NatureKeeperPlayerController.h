@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerController.h"
 #include "NatureKeeperPlayerController.generated.h"
 
+struct FInputActionValue;
 class UAbilityComponent;
 struct FInputActionInstance;
 class UTargetComponent;
@@ -61,7 +62,11 @@ public:
 	/** MappingContext */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputMappingContext* DefaultMappingContext;
-	
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* MoveAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* JumpAction;
 	/** Main Click Input Action (Usually LMB) */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* PrimaryClickAction;
@@ -119,6 +124,10 @@ protected:
 	void OnSecondaryInputStarted();
 	void OnSecondaryInputTriggered();
 	void OnSecondaryInputStopped();
+
+	void OnMove(const FInputActionValue& Value);
+	void OnJump();
+	void OnStopJumping();
 	
 	void OnAbilityAction(const FInputActionInstance& Instance);
 };

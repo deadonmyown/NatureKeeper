@@ -13,6 +13,7 @@
 #include "FocusComponent.h"
 #include "IsometricCell.h"
 #include "NatureKeeperUtils.h"
+#include "Camera/CameraComponent.h"
 #include "Effects/Ability.h"
 #include "Effects/AbilityComponent.h"
 #include "Effects/PlayerAbility.h"
@@ -96,6 +97,10 @@ void ANatureKeeperPlayerController::SetupInputComponent()
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
 	{
+		// Setup keyboard input events
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ANatureKeeperPlayerController::OnMove);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ANatureKeeperPlayerController::OnJump);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ANatureKeeperPlayerController::OnStopJumping);
 		// Setup mouse input events
 		EnhancedInputComponent->BindAction(PrimaryClickAction, ETriggerEvent::Started, this, &ANatureKeeperPlayerController::OnInputStarted);
 		EnhancedInputComponent->BindAction(PrimaryClickAction, ETriggerEvent::Triggered, this, &ANatureKeeperPlayerController::OnSetDestinationTriggered);
@@ -245,6 +250,42 @@ void ANatureKeeperPlayerController::OnSecondaryInputStopped()
 		OnPlayerSecondaryClickStopped.Broadcast(SecondaryTriggerTime);
 
 	SecondaryTriggerTime = 0.0f;
+}
+
+void ANatureKeeperPlayerController::OnMove(const FInputActionValue& Value)
+{
+	const FVector2D MovementValue = Value.Get<FVector2D>();
+
+	if (NatureKeeperCharacter)
+	{
+		const FVector CameraRightVector = NatureKeeperCharacter->GetTopDownCameraComponent()->GetRightVector();
+		const FVector CameraForwardVector = NatureKeeperCharacter->GetTopDownCameraComponent()->GetForwardVector();
+
+		FVector CameraVector = CameraRightVector * MovementValue.X + CameraForwardVector * MovementValue.Y;
+		UE_LOG(LogTemp, Display, TEXT("%f %f %f"), CameraVector.X, CameraVector.Y, CameraVector.Z);
+
+		FVector DirectionVector = NatureKeeperCharacter->GetActorForwardVector();
+
+		DrawDebugLine(GetWorld(), NatureKeeperCharacter->GetActorLocation(), NatureKeeperCharacter->GetActorLocation() + CameraVector * 200.0f,
+			FColor::Red, false, 0.1f, 0, 1);
+		DrawDebugLine(GetWorld(), NatureKeeperCharacter->GetActorLocation(), NatureKeeperCharacter->GetActorLocation() + DirectionVector * 200.0f,
+			FColor::Green, false, 0.1f, 0, 1);
+
+		NatureKeeperCharacter->AddMovementInput(CameraRightVector, MovementValue.X, false);
+		NatureKeeperCharacter->AddMovementInput(CameraForwardVector, MovementValue.Y, false);
+	}
+}
+
+void ANatureKeeperPlayerController::OnJump()
+{
+	if (NatureKeeperCharacter)
+		NatureKeeperCharacter->Jump();
+}
+
+void ANatureKeeperPlayerController::OnStopJumping()
+{
+	if (NatureKeeperCharacter)
+		NatureKeeperCharacter->StopJumping();
 }
 
 void ANatureKeeperPlayerController::OnAbilityAction(const FInputActionInstance& Instance)
