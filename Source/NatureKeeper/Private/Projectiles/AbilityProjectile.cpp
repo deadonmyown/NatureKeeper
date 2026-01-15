@@ -1,5 +1,6 @@
 ﻿#include "Projectiles/AbilityProjectile.h"
 
+#include "Components/SphereComponent.h"
 #include "Effects/Ability.h"
 #include "Interfaces/Affectable.h"
 
@@ -21,6 +22,8 @@ void AAbilityProjectile::InitAbilityProjectile(UAbility* ProjectileAbility)
 void AAbilityProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
 {
+	if (CollisionComponent->GetMoveIgnoreActors().Contains(OtherActor)) return;
+	
 	if (Ability)
 	{
 		if (OtherActor->Implements<UAffectable>())

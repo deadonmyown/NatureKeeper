@@ -78,6 +78,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	TArray<UInputAction*> AbilitiesActions;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player)
+	float MovementDirectionDegreesAngle;
+
 	UFUNCTION(BlueprintCallable, Category = Input)
 	void StartLookAtCursor();
 	UFUNCTION(BlueprintCallable, Category = Input)

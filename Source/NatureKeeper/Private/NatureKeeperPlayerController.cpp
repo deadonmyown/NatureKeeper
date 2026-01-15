@@ -258,18 +258,27 @@ void ANatureKeeperPlayerController::OnMove(const FInputActionValue& Value)
 
 	if (NatureKeeperCharacter)
 	{
-		const FVector CameraRightVector = NatureKeeperCharacter->GetTopDownCameraComponent()->GetRightVector();
-		const FVector CameraForwardVector = NatureKeeperCharacter->GetTopDownCameraComponent()->GetForwardVector();
+		const FRotator CameraRot = NatureKeeperCharacter->GetTopDownCameraComponent()->GetComponentRotation();
+
+		const FRotator YawRot(0.f, CameraRot.Yaw, 0.f);
+
+		const FVector CameraForwardVector = FRotationMatrix(YawRot).GetUnitAxis(EAxis::X);
+		const FVector CameraRightVector   = FRotationMatrix(YawRot).GetUnitAxis(EAxis::Y);
 
 		FVector CameraVector = CameraRightVector * MovementValue.X + CameraForwardVector * MovementValue.Y;
-		UE_LOG(LogTemp, Display, TEXT("%f %f %f"), CameraVector.X, CameraVector.Y, CameraVector.Z);
+		CameraVector.Z = 0.0f;
+		CameraVector.Normalize();
 
 		FVector DirectionVector = NatureKeeperCharacter->GetActorForwardVector();
+		DirectionVector.Z = 0.0f;
+		DirectionVector.Normalize();
 
-		DrawDebugLine(GetWorld(), NatureKeeperCharacter->GetActorLocation(), NatureKeeperCharacter->GetActorLocation() + CameraVector * 200.0f,
-			FColor::Red, false, 0.1f, 0, 1);
-		DrawDebugLine(GetWorld(), NatureKeeperCharacter->GetActorLocation(), NatureKeeperCharacter->GetActorLocation() + DirectionVector * 200.0f,
-			FColor::Green, false, 0.1f, 0, 1);
+		const float CrossZ = FVector::CrossProduct(DirectionVector, CameraVector).Z;
+		const float CosBetweenVectors = FVector::DotProduct(DirectionVector, CameraVector);
+		const float AngleRad = FMath::Atan2(CrossZ, CosBetweenVectors);
+		
+		MovementDirectionDegreesAngle = FMath::RadiansToDegrees(AngleRad);
+		UE_LOG(LogTemp, Display, TEXT("%f"), MovementDirectionDegreesAngle);
 
 		NatureKeeperCharacter->AddMovementInput(CameraRightVector, MovementValue.X, false);
 		NatureKeeperCharacter->AddMovementInput(CameraForwardVector, MovementValue.Y, false);
