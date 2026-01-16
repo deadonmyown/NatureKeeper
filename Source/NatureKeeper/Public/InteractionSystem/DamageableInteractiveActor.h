@@ -28,10 +28,13 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Affectable")
 	TArray<UEffectBase*> Effects;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damageable")
+	TArray<EEffectElement> ResistElements;
+
 	virtual void BeginPlay() override;
 public:
 	UFUNCTION()
-	void OnDeath(int MinValue);
+	virtual void OnDeath(int MinValue);
 	
 	virtual void Heal_Implementation(int HealAmount) override;
 	virtual void TakeDamage_Implementation(int Damage, EEffectElement EffectElement = EEffectElement::EE_Physical, FVector DamageNormal = FVector::ZeroVector) override;
@@ -41,6 +44,6 @@ public:
 	virtual bool UnregisterEffect_Implementation(UEffectBase* EffectToRemove) override;
 	virtual USceneComponent* GetEffectLocation_Implementation() override;
 	virtual TArray<EEffectElement> GetWeaknessEffectElements_Implementation() override {return {};}
-	virtual TArray<EEffectElement> GetResistEffectElements_Implementation() override {return {};}
+	virtual TArray<EEffectElement> GetResistEffectElements_Implementation() override {return ResistElements;}
 	virtual TArray<UEffectBase*> GetEffects_Implementation() override {return Effects; }
 };

@@ -84,6 +84,8 @@ public:
 	UFocusComponent* GetFocusComponent() const {return FocusComponent;}
 	UFUNCTION(BlueprintCallable, Category = "Player")
 	ANatureKeeperPlayerController* GetNatureKeeperController() const {return Cast<ANatureKeeperPlayerController>(GetController());}
+	UFUNCTION(BlueprintCallable, Category = "Player")
+	UEvilComponent* GetEvilComponent() const {return EvilComponent;}
 
 	virtual bool OnStartVisit_Implementation(const TScriptInterface<UVisitable>& Visitable) override;
 	virtual bool OnEndVisit_Implementation(const TScriptInterface<UVisitable>& Visitable) override;
