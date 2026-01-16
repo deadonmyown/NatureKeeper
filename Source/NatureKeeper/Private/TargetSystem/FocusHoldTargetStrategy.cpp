@@ -78,11 +78,11 @@ void UFocusHoldTargetStrategy::UpdateStrategy(float DeltaTime)
 		{
 			FocusComponent->UpdateTrace();
 
-			if (FocusComponent->FocusedActor && FocusComponent->FocusedActor->Implements<UAffectable>()
+			if (FocusComponent->CursorFocusedActor && FocusComponent->CursorFocusedActor->Implements<UAffectable>()
 				&& Ability && Ability->TrySpendMana())
 			{
-				CachedFocusActor = FocusComponent->FocusedActor;
-				Ability->ApplyAbilityEffect(FocusComponent->FocusedActor);
+				CachedFocusActor = FocusComponent->CursorFocusedActor;
+				Ability->ApplyAbilityEffect(FocusComponent->CursorFocusedActor);
 
 				CurrentFocusCooldown = FocusUpdateTimeInSec;
 			}

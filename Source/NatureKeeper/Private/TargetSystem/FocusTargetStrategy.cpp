@@ -59,10 +59,10 @@ void UFocusTargetStrategy::OnPlayerClickStopped(float StopTriggerTime)
 {
 	FocusComponent->UpdateTrace();
 
-	if (FocusComponent->FocusedActor && FocusComponent->FocusedActor->Implements<UAffectable>()
+	if (FocusComponent->CursorFocusedActor && FocusComponent->CursorFocusedActor->Implements<UAffectable>()
 		&& Ability && Ability->TrySpendMana())
 	{
-		Ability->ApplyAbilityEffect(FocusComponent->FocusedActor);
+		Ability->ApplyAbilityEffect(FocusComponent->CursorFocusedActor);
 	}
 	
 	CancelStrategy();

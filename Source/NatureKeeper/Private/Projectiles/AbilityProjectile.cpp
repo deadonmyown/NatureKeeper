@@ -1,8 +1,12 @@
 ﻿#include "Projectiles/AbilityProjectile.h"
 
+#include "NatureKeeperGameMode.h"
+#include "NatureKeeperUtils.h"
+#include "Collision/DamageCollisionBase.h"
 #include "Components/SphereComponent.h"
 #include "Effects/Ability.h"
 #include "Interfaces/Affectable.h"
+#include "Managers/DamageCollisionSpawner.h"
 
 
 AAbilityProjectile::AAbilityProjectile()
@@ -26,9 +30,25 @@ void AAbilityProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherA
 	
 	if (Ability)
 	{
-		if (OtherActor->Implements<UAffectable>())
+		if (CachedFirePressDuration == FirePressMaxDuration && AbilityDamageCollisionClass)
 		{
-			Ability->ApplyAbilityEffect(OtherActor);
+			if (ANatureKeeperGameMode* GameMode = GetWorld()->GetAuthGameMode<ANatureKeeperGameMode>())
+			{
+				FTransform HitTransform;
+				HitTransform.SetLocation(Hit.ImpactPoint);
+				FDamageCollisionData DamageCollisionData = FDamageCollisionData();
+				FAbilityDamageCollisionData AbilityDamageCollisionData = FAbilityDamageCollisionData();
+				AbilityDamageCollisionData.Ability = Ability;
+				GameMode->GetDamageCollisionSpawner()
+				->SpawnAbilityDamageCollision(AbilityDamageCollisionClass, HitTransform, DamageCollisionData, AbilityDamageCollisionData);
+			}
+		}
+		else
+		{
+			if (OtherActor->Implements<UAffectable>())
+			{
+				Ability->ApplyAbilityEffect(OtherActor);
+			}
 		}
 	}
 	Super::OnHit(HitComponent, OtherActor, OtherComponent, NormalImpulse, Hit);

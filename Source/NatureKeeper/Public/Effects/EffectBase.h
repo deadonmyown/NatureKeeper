@@ -38,6 +38,12 @@ public:
 	UNiagaraSystem* EffectVFX;
 	UPROPERTY(BlueprintReadWrite, Category = "Effects")
 	EEffectElement EffectElementType;
+	UPROPERTY(BlueprintReadWrite, Category = "Effects")
+	TSubclassOf<UEffectBase> BlendingEffectClass;
+	UPROPERTY(BlueprintReadWrite, Category = "Effects")
+	UEffectDataAsset* BlendingEffectDataAsset;
+	UPROPERTY(BlueprintReadWrite, Category = "Effects")
+	EEffectElement BlendingEffectElementType;
 
 	UFUNCTION(BlueprintCallable, Category = "Effects")
 	virtual bool InitEffect(UEffectDataAsset* InEffectDataAsset);

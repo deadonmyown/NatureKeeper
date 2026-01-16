@@ -17,10 +17,4 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-
-public:
-	virtual bool StartInteract_Implementation(AActor* InteractionInvoker) override;
-	virtual bool StopInteract_Implementation(AActor* InteractionInvoker) override;
-	virtual bool StartFocus_Implementation(AActor* InteractionInvoker) override;
-	virtual bool StopFocus_Implementation(AActor* InteractionInvoker) override;
 };

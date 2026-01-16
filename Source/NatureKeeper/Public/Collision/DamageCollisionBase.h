@@ -1,9 +1,9 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "Effects/Ability.h"
 #include "GameFramework/Actor.h"
+#include "Interfaces/Damageable.h"
 #include "DamageCollisionBase.generated.h"
 
 class UEffectDataAsset;
@@ -17,13 +17,18 @@ struct FDamageCollisionData
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float CollisionLifeSpan = 5.0f;
+	float CollisionLifeSpan = 0.05f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float CollisionSphereRadius = 100.0f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<EDamageableType> DamageableTypes = {};
+	TArray<EDamageableType> DamageableTypes = {
+		EDamageableType::DT_GoodPlayer,
+	EDamageableType::DT_GoodNPC,
+	EDamageableType::DT_EvilNPC,
+	EDamageableType::DT_EvilPlayer,
+	EDamageableType::DT_Object};
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int DamageAmount = 10;
+	int DamageAmount = 0;
 	
 };
 
@@ -32,10 +37,19 @@ struct FEffectDamageCollisionData
 {
 	GENERATED_BODY()
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Effects")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<UEffectBase> EffectClass;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Effects")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UEffectDataAsset* EffectDataAsset = nullptr;
+};
+
+USTRUCT(BlueprintType)
+struct FAbilityDamageCollisionData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UAbility* Ability = nullptr;
 };
 
 UCLASS()

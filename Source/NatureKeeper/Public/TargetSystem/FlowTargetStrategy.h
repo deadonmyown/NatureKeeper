@@ -27,13 +27,17 @@ protected:
 	UPROPERTY()
 	UNiagaraComponent* AbilityVFXComponent;
 
+	UPROPERTY()
+	TArray<AActor*> CachedActors;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Target")
 	float OverrideFlowUpdateTimeInSec = -1.0f;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Target")
 	bool bHitSingleTarget = true;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Target")
-	FVector HitBoxCollisionExtent = FVector(100.0f, 100.0f, 100.0f);
+	float CapsuleRadius = 100.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Target")
+	float CapsuleHalfHeight = 100.0f;
 
 	bool bFlowStart = false;
 	float FlowUpdateTimeInSec = 1.0f;

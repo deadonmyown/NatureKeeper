@@ -17,6 +17,9 @@ bool UTickableDamageableEffect::InitEffect(UEffectDataAsset* InEffectDataAsset)
 	
 	EffectVFX = TickableDataAsset->EffectVFX;
 	EffectElementType = TickableDataAsset->EffectElementType;
+	BlendingEffectClass = InEffectDataAsset->BlendingEffectClass;
+	BlendingEffectDataAsset = InEffectDataAsset->BlendingEffectDataAsset;
+	BlendingEffectElementType = InEffectDataAsset->BlendingEffectElementType;
 	InitialDamageAmount = TickableDataAsset->InitialDamageAmount;
 	TickDamageAmount = TickableDataAsset->TickDamageAmount;
 	TicksCount = TickableDataAsset->TicksCount;

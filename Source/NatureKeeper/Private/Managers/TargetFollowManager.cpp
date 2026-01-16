@@ -70,7 +70,7 @@ void ATargetFollowManager::Tick(float DeltaTime)
 	{
 		for (int i = TargetFollowMap.Num() - 1; i >= 0; i--)
 		{
-			if (!TargetFollowMap[i].FollowActor.GetObject() || !TargetFollowMap[i].TargetActor.GetObject())
+			if (!IsValid(TargetFollowMap[i].FollowActor.GetObject()) || !IsValid(TargetFollowMap[i].TargetActor.GetObject()))
 			{
 				TargetFollowMap.RemoveAt(i);
 				UE_LOG(LogTemp, Display, TEXT("Force remove"));
@@ -78,6 +78,13 @@ void ATargetFollowManager::Tick(float DeltaTime)
 			};
 
 			AActor* FollowActorRef = IFollow::Execute_GetFollowActor(TargetFollowMap[i].FollowActor.GetObject());
+
+			if (!IsValid(FollowActorRef))
+			{
+				TargetFollowMap.RemoveAt(i);
+				UE_LOG(LogTemp, Display, TEXT("Force remove"));
+				continue;
+			}
 
 			//Right now just simple interpolation, later will include gravitation and physics in computation etc.
 			FVector ActorLocation = FollowActorRef->GetActorLocation();

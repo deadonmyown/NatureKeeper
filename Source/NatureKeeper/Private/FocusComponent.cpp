@@ -7,9 +7,9 @@
 UFocusComponent::UFocusComponent()
 {
 	PlayerController = nullptr;
-	FocusDistanceToActor = 0.0f;
-	FocusedComponent = nullptr;
-	FocusedActor = nullptr;
+	CursorFocusDistanceToActor = 0.0f;
+	CursorFocusedComponent = nullptr;
+	CursorFocusedActor = nullptr;
 }
 
 void UFocusComponent::BeginPlay()
@@ -27,22 +27,53 @@ void UFocusComponent::BeginPlay()
 
 void UFocusComponent::UpdateTrace()
 {
-	FHitResult Hit;
+	FHitResult CursorHit;
 	
-	bool bIsHit = PlayerController->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit);
+	bool bIsCursorHit = PlayerController->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, CursorHit);
 
-	if (bIsHit)
+	if (bIsCursorHit)
 	{
-		float Distance = FVector::Distance(Hit.Location, GetOwner()->GetActorLocation());
-		FVector HitLoc = Hit.Location;
-		UPrimitiveComponent* HitComponent = Hit.GetComponent();
-		AActor* HitActor = Hit.GetActor();
-		UpdateFocus(bIsHit, Distance, HitLoc, HitComponent, HitActor);
+		float Distance = FVector::Distance(CursorHit.Location, GetOwner()->GetActorLocation());
+		FVector HitLoc = CursorHit.Location;
+		UPrimitiveComponent* HitComponent = CursorHit.GetComponent();
+		AActor* HitActor = CursorHit.GetActor();
+		UpdateCursorFocus(bIsCursorHit, Distance, HitLoc, HitComponent, HitActor);
 	}
 	else
 	{
-		ClearFocus();
+		ClearCursorFocus();
 	}
+
+	FVector PlayerLookVector;
+	GetPlayerLookAtNormalized(PlayerLookVector);
+	FVector Start = GetOwner()->GetActorLocation();
+	FVector End = Start + PlayerLookVector * PlayerTraceDistance;
+	FHitResult PlayerHit;
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(GetOwner());
+	Params.bTraceComplex = false;
+
+	bool bIsPlayerHit = GetWorld()->LineTraceSingleByChannel(
+		PlayerHit,
+		Start,
+		End,
+		ECC_Visibility,
+		Params
+	);
+
+	if (bIsPlayerHit)
+	{
+		float Distance = FVector::Distance(PlayerHit.Location, GetOwner()->GetActorLocation());
+		FVector HitLoc = PlayerHit.Location;
+		UPrimitiveComponent* HitComponent = PlayerHit.GetComponent();
+		AActor* HitActor = PlayerHit.GetActor();
+		UpdatePlayerFocus(bIsPlayerHit, Distance, HitLoc, HitComponent, HitActor);
+	}
+	else
+	{
+		ClearPlayerFocus();
+	}
+	
 }
 
 FVector UFocusComponent::GetTargetLocation_Implementation()
@@ -103,41 +134,90 @@ void UFocusComponent::GetPlayerLookAtNormalizedLocation_Implementation(FVector& 
 	OutputResult = GetOwner()->GetActorLocation() + GetOwner()->GetActorForwardVector();
 }
 
-void UFocusComponent::UpdateFocus_Implementation(bool bInIsFocus, float InDistanceToPlayer, FVector InFocusHitLocation,
+void UFocusComponent::UpdateCursorFocus_Implementation(bool bInIsFocus, float InDistanceToActor, FVector InFocusHitLocation,
                                                  UPrimitiveComponent* InFocusComponent, AActor* InFocusActor)
 {
 	if (!bInIsFocus)
 	{
-		ClearFocus();
+		ClearCursorFocus();
 		return;
 	}
 
-	bIsFocus = true;
+	bIsCursorFocus = true;
 	//DO SOMETHING LIKE UI OR VISUAL STUFF
-	if (FocusedActor && FocusedActor != InFocusActor)
+	if (CursorFocusedActor && CursorFocusedActor != InFocusActor)
 	{
-		if (FocusedActor->Implements<UInteractiveActorInterface>())
+		if (CursorFocusedActor->Implements<UInteractiveActorInterface>())
 		{
-			IInteractiveActorInterface::Execute_StopFocus(FocusedActor, GetOwner());
+			IInteractiveActorInterface::Execute_StopCursorFocus(CursorFocusedActor, GetOwner());
 		}
 	}
 	
-	FocusDistanceToActor = InDistanceToPlayer;
-	FocusHitCacheLocation = InFocusHitLocation;
-	FocusedComponent = InFocusComponent;
-	FocusedActor = InFocusActor;
+	CursorFocusDistanceToActor = InDistanceToActor;
+	CursorFocusHitCacheLocation = InFocusHitLocation;
+	CursorFocusedComponent = InFocusComponent;
+	CursorFocusedActor = InFocusActor;
 
-	if (FocusedActor->Implements<UInteractiveActorInterface>())
+	if (CursorFocusedActor->Implements<UInteractiveActorInterface>())
 	{
-		IInteractiveActorInterface::Execute_StartFocus(FocusedActor, GetOwner());
+		IInteractiveActorInterface::Execute_StartCursorFocus(CursorFocusedActor, GetOwner());
 	}
 }
 
-void UFocusComponent::ClearFocus_Implementation()
+void UFocusComponent::ClearCursorFocus_Implementation()
 {
-	bIsFocus = false;
-	FocusDistanceToActor = 0.f;
-	FocusHitCacheLocation = FVector::ZeroVector;
-	FocusedComponent = nullptr;
-	FocusedActor = nullptr;
+	if (CursorFocusedActor && CursorFocusedActor->Implements<UInteractiveActorInterface>())
+	{
+		IInteractiveActorInterface::Execute_StopCursorFocus(CursorFocusedActor, GetOwner());
+	}
+	
+	bIsCursorFocus = false;
+	CursorFocusDistanceToActor = 0.f;
+	CursorFocusHitCacheLocation = FVector::ZeroVector;
+	CursorFocusedComponent = nullptr;
+	CursorFocusedActor = nullptr;
+}
+
+void UFocusComponent::UpdatePlayerFocus_Implementation(bool bInIsFocus, float InDistanceToActor,
+													   FVector InFocusHitLocation, UPrimitiveComponent* InFocusComponent, AActor* InFocusActor)
+{
+	if (!bInIsFocus)
+	{
+		ClearPlayerFocus();
+		return;
+	}
+
+	bIsPlayerFocus = true;
+	//DO SOMETHING LIKE UI OR VISUAL STUFF
+	if (PlayerFocusedActor && PlayerFocusedActor != InFocusActor)
+	{
+		if (PlayerFocusedActor->Implements<UInteractiveActorInterface>())
+		{
+			IInteractiveActorInterface::Execute_StopPlayerFocus(PlayerFocusedActor, GetOwner());
+		}
+	}
+	
+	PlayerFocusDistanceToActor = InDistanceToActor;
+	PlayerFocusHitCacheLocation = InFocusHitLocation;
+	PlayerFocusedComponent = InFocusComponent;
+	PlayerFocusedActor = InFocusActor;
+
+	if (PlayerFocusedActor->Implements<UInteractiveActorInterface>())
+	{
+		IInteractiveActorInterface::Execute_StartPlayerFocus(PlayerFocusedActor, GetOwner());
+	}
+}
+
+void UFocusComponent::ClearPlayerFocus_Implementation()
+{
+	if (PlayerFocusedActor && PlayerFocusedActor->Implements<UInteractiveActorInterface>())
+	{
+		IInteractiveActorInterface::Execute_StopPlayerFocus(PlayerFocusedActor, GetOwner());
+	}
+	
+	bIsPlayerFocus = false;
+	PlayerFocusDistanceToActor = 0.f;
+	PlayerFocusHitCacheLocation = FVector::ZeroVector;
+	PlayerFocusedComponent = nullptr;
+	PlayerFocusedActor = nullptr;
 }

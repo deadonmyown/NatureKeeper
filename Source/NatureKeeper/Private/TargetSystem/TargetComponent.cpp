@@ -6,6 +6,7 @@ UTargetComponent::UTargetComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 	PrimaryComponentTick.bStartWithTickEnabled = true;
+	PrimaryComponentTick.TickInterval = 0.5f;
 	
 	TargetStrategy = nullptr;
 }

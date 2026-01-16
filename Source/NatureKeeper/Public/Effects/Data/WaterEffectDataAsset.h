@@ -13,10 +13,4 @@ UCLASS()
 class NATUREKEEPER_API UWaterEffectDataAsset : public UTickableDamageableEffectDataAsset
 {
 	GENERATED_BODY()
-	
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
-	int SteamInitialDamageAmount = 0;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
-	UNiagaraSystem* SteamEffectVFX;
 };

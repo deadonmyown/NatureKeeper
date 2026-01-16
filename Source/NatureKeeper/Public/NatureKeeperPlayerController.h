@@ -67,6 +67,8 @@ public:
 	UInputAction* MoveAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* JumpAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* InteractAction;
 	/** Main Click Input Action (Usually LMB) */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* PrimaryClickAction;
@@ -131,6 +133,9 @@ protected:
 	void OnMove(const FInputActionValue& Value);
 	void OnJump();
 	void OnStopJumping();
+
+	void OnStartInteraction();
+	void OnEndInteraction();
 	
 	void OnAbilityAction(const FInputActionInstance& Instance);
 };

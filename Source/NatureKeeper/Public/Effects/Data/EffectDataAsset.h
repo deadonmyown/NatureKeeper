@@ -6,6 +6,7 @@
 #include "Engine/DataAsset.h"
 #include "EffectDataAsset.generated.h"
 
+class UEffectBase;
 enum class EEffectElement : uint8;
 class UNiagaraSystem;
 /**
@@ -25,6 +26,12 @@ public:
 	FText EffectDescription;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
 	EEffectElement EffectElementType;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	TSubclassOf<UEffectBase> BlendingEffectClass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	UEffectDataAsset* BlendingEffectDataAsset;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	EEffectElement BlendingEffectElementType;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
 	UTexture2D* EffectIcon;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")

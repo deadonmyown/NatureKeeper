@@ -29,20 +29,33 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Player)
 	float TraceUpdateTime = 0.5f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Player)
+	float PlayerTraceDistance = 200.0f;
 
 	FTimerHandle TraceUpdateTimerHandle;
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Focus")
-	bool bIsFocus = false;
+	bool bIsCursorFocus = false;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Focus")
-	float FocusDistanceToActor;
+	float CursorFocusDistanceToActor;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Focus")
-	FVector FocusHitCacheLocation;
+	FVector CursorFocusHitCacheLocation;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Focus")
-	UPrimitiveComponent* FocusedComponent;
+	UPrimitiveComponent* CursorFocusedComponent;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Focus")
-	AActor* FocusedActor;
+	AActor* CursorFocusedActor;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Focus")
+	bool bIsPlayerFocus = false;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Focus")
+	float PlayerFocusDistanceToActor;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Focus")
+	FVector PlayerFocusHitCacheLocation;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Focus")
+	UPrimitiveComponent* PlayerFocusedComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Focus")
+	AActor* PlayerFocusedActor;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Focus")
 	FVector LookAtNormalized;
@@ -51,9 +64,14 @@ public:
 	void UpdateTrace();
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Focus")
-	void UpdateFocus(bool bInIsFocus, float InDistanceToActor, FVector InFocusHitLocation, UPrimitiveComponent* InFocusComponent, AActor* InFocusActor);
+	void UpdateCursorFocus(bool bInIsFocus, float InDistanceToActor, FVector InFocusHitLocation, UPrimitiveComponent* InFocusComponent, AActor* InFocusActor);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Focus")
-	void ClearFocus();
+	void ClearCursorFocus();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Focus")
+	void UpdatePlayerFocus(bool bInIsFocus, float InDistanceToActor, FVector InFocusHitLocation, UPrimitiveComponent* InFocusComponent, AActor* InFocusActor);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Focus")
+	void ClearPlayerFocus();
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Focus")
 	void GetPlayerLookAtNormalizedLocation(FVector& OutputResult);

@@ -45,7 +45,8 @@ void AProjectile::BeginPlay()
 
 void AProjectile::FireProjectileInDirection(const FVector& Direction, float FirePressDuration)
 {
-	float SpeedMultiplier = FMath::Clamp(FirePressDuration, FirePressMinDuration, FirePressMaxDuration) / FirePressInfluence;
+	CachedFirePressDuration = FMath::Clamp(FirePressDuration, FirePressMinDuration, FirePressMaxDuration);
+	const float SpeedMultiplier = CachedFirePressDuration / FirePressInfluence;
 	ProjectileMovementComponent->Velocity = Direction * ProjectileMovementComponent->InitialSpeed * SpeedMultiplier;
 }
 

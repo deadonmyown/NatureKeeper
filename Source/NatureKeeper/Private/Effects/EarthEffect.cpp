@@ -11,6 +11,9 @@ bool UEarthEffect::InitEffect(UEffectDataAsset* InEffectDataAsset)
 	
 	EffectVFX = EarthEffectDataAsset->EffectVFX;
 	EffectElementType = EarthEffectDataAsset->EffectElementType;
+	BlendingEffectClass = InEffectDataAsset->BlendingEffectClass;
+	BlendingEffectDataAsset = InEffectDataAsset->BlendingEffectDataAsset;
+	BlendingEffectElementType = InEffectDataAsset->BlendingEffectElementType;
 	DamageAmount = EarthEffectDataAsset->DamageAmount;
 
 	return true;

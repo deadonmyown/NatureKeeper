@@ -101,6 +101,9 @@ void ANatureKeeperPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ANatureKeeperPlayerController::OnMove);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ANatureKeeperPlayerController::OnJump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ANatureKeeperPlayerController::OnStopJumping);
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &ANatureKeeperPlayerController::OnStartInteraction);
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Completed, this, &ANatureKeeperPlayerController::OnEndInteraction);
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Canceled, this, &ANatureKeeperPlayerController::OnEndInteraction);
 		// Setup mouse input events
 		EnhancedInputComponent->BindAction(PrimaryClickAction, ETriggerEvent::Started, this, &ANatureKeeperPlayerController::OnInputStarted);
 		EnhancedInputComponent->BindAction(PrimaryClickAction, ETriggerEvent::Triggered, this, &ANatureKeeperPlayerController::OnSetDestinationTriggered);
@@ -125,27 +128,6 @@ void ANatureKeeperPlayerController::SetupInputComponent()
 
 void ANatureKeeperPlayerController::OnInputStarted()
 {
-	/*if (PlayerTargetComponent->GetTargetStrategy() && PlayerTargetComponent->GetTargetStrategy()->GetIsTargeting())
-	{
-		OnPlayerMainClickStarted.Broadcast();
-		return;
-	}*/
-
-	StopMovement();
-	
-	PlayerFocusComponent->UpdateTrace();
-
-	if (PlayerFocusComponent->bIsFocus)
-	{
-		if (PlayerFocusComponent->FocusedActor->Implements<UInteractiveActorInterface>())
-		{
-			if (IInteractiveActorInterface::Execute_StartInteract(PlayerFocusComponent->FocusedActor, GetCharacter()))
-			{
-				bIsInteract = true;
-			}
-		}
-	}
-
 	if (OnPlayerMainClickStarted.IsBound())
 		OnPlayerMainClickStarted.Broadcast();
 }
@@ -163,7 +145,7 @@ void ANatureKeeperPlayerController::OnSetDestinationTriggered()
 	}*/
 
 	/*if (!bIsInteract)
-	{*/
+	{
 		// Move towards mouse pointer
 		APawn* ControlledPawn = GetPawn();
 		if (ControlledPawn != nullptr)
@@ -174,7 +156,7 @@ void ANatureKeeperPlayerController::OnSetDestinationTriggered()
 			PlayerFocusComponent->GetPlayerCursorLookAtNormalized(WorldDirectionNormalized, WorldLocation, WorldLocationNorm);
 			ControlledPawn->AddMovementInput(WorldDirectionNormalized, 1.0, false);
 		}
-	//}
+	}*/
 
 	if (OnPlayerMainClickTriggered.IsBound())
 		OnPlayerMainClickTriggered.Broadcast(MainTriggerTime);
@@ -182,55 +164,14 @@ void ANatureKeeperPlayerController::OnSetDestinationTriggered()
 
 void ANatureKeeperPlayerController::OnSetDestinationReleased()
 {
-	/*if (PlayerTargetComponent->GetTargetStrategy() && PlayerTargetComponent->GetTargetStrategy()->GetIsTargeting())
-	{
-		TriggerTime = 0.f;
-		bIsInteract = false;
-		OnPlayerMainClickStopped.Broadcast();
-		return;
-	}*/
-	
-	PlayerFocusComponent->UpdateTrace();
-
-	
-	if (PlayerFocusComponent->bIsFocus)
-	{
-		if (bIsInteract && PlayerFocusComponent->FocusedActor->Implements<UInteractiveActorInterface>())
-		{
-			IInteractiveActorInterface::Execute_StopInteract(PlayerFocusComponent->FocusedActor, GetCharacter());
-				
-			UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FXCursor,
-				PlayerFocusComponent->FocusedActor->GetActorLocation(),
-				FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f),
-				true, true, ENCPoolMethod::None, true);
-		}
-		/*else
-		{
-			// If it was a short press
-			if (MainTriggerTime <= ShortPressThreshold)
-			{
-				// We move there and spawn some particles
-				UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, PlayerFocusComponent->FocusHitCacheLocation);
-
-				UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FXCursor,
-					PlayerFocusComponent->FocusHitCacheLocation,
-					FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f),
-					true, true, ENCPoolMethod::None, true);
-			}
-		}*/
-	}
-
 	if(OnPlayerMainClickStopped.IsBound())
 		OnPlayerMainClickStopped.Broadcast(MainTriggerTime);
 	
-	bIsInteract = false;
 	MainTriggerTime = 0.f;
-
 }
 
 void ANatureKeeperPlayerController::OnSecondaryInputStarted()
 {
-	//StartLookAtCursor();
 	if (OnPlayerSecondaryClickStarted.IsBound())
 		OnPlayerSecondaryClickStarted.Broadcast();
 }
@@ -245,7 +186,6 @@ void ANatureKeeperPlayerController::OnSecondaryInputTriggered()
 
 void ANatureKeeperPlayerController::OnSecondaryInputStopped()
 {
-	//StopLookAtCursor();
 	if (OnPlayerSecondaryClickStopped.IsBound())
 		OnPlayerSecondaryClickStopped.Broadcast(SecondaryTriggerTime);
 
@@ -278,7 +218,6 @@ void ANatureKeeperPlayerController::OnMove(const FInputActionValue& Value)
 		const float AngleRad = FMath::Atan2(CrossZ, CosBetweenVectors);
 		
 		MovementDirectionDegreesAngle = FMath::RadiansToDegrees(AngleRad);
-		UE_LOG(LogTemp, Display, TEXT("%f"), MovementDirectionDegreesAngle);
 
 		NatureKeeperCharacter->AddMovementInput(CameraRightVector, MovementValue.X, false);
 		NatureKeeperCharacter->AddMovementInput(CameraForwardVector, MovementValue.Y, false);
@@ -295,6 +234,36 @@ void ANatureKeeperPlayerController::OnStopJumping()
 {
 	if (NatureKeeperCharacter)
 		NatureKeeperCharacter->StopJumping();
+}
+
+void ANatureKeeperPlayerController::OnStartInteraction()
+{
+	PlayerFocusComponent->UpdateTrace();
+
+	if (PlayerFocusComponent->bIsPlayerFocus)
+	{
+		if (PlayerFocusComponent->PlayerFocusedActor->Implements<UInteractiveActorInterface>())
+		{
+			if (IInteractiveActorInterface::Execute_StartInteract(PlayerFocusComponent->PlayerFocusedActor, GetCharacter()))
+			{
+				bIsInteract = true;
+			}
+		}
+	}
+}
+
+void ANatureKeeperPlayerController::OnEndInteraction()
+{
+	PlayerFocusComponent->UpdateTrace();
+	
+	if (PlayerFocusComponent->bIsPlayerFocus)
+	{
+		if (bIsInteract && PlayerFocusComponent->PlayerFocusedActor->Implements<UInteractiveActorInterface>())
+		{
+			IInteractiveActorInterface::Execute_StopInteract(PlayerFocusComponent->PlayerFocusedActor, GetCharacter());
+		}
+	}
+	bIsInteract = false;
 }
 
 void ANatureKeeperPlayerController::OnAbilityAction(const FInputActionInstance& Instance)

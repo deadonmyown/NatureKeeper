@@ -48,6 +48,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
 	float FirePressInfluence = 1.0f;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Projectile)
+	float CachedFirePressDuration;
+
 	UFUNCTION(BlueprintCallable, Category = Projectile)
 	virtual void FireProjectileInDirection(const FVector& Direction, float FirePressDuration = 0.0f);
 	UFUNCTION(BlueprintCallable, Category = Projectile)

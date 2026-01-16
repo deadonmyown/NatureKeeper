@@ -53,6 +53,9 @@ bool UFlowTargetStrategy::StartStrategy(UAbility* InAbility, UTargetComponent* I
 
 void UFlowTargetStrategy::UpdateStrategy(float DeltaTime)
 {
+	if (!bFlowStart)
+		return;
+	
 	if (!Ability->CanCastAbility())
 	{
 		CancelStrategy();
@@ -63,82 +66,81 @@ void UFlowTargetStrategy::UpdateStrategy(float DeltaTime)
 	FocusComponent->GetPlayerLookAtNormalized(PlayerDir);
 	FRotator PlayerRot = UKismetMathLibrary::MakeRotFromX(PlayerDir);
 
-	if (AbilityVFXComponent)
+	FVector StartTrace = MuzzleComponent->GetComponentLocation();
+	FVector EndTrace = MuzzleComponent->GetComponentLocation() + PlayerDir * AbilityDistance;
+	
+	const FName TraceTag("FlowTargetDebug");
+
+	FCollisionShape CapsuleShape = FCollisionShape::MakeCapsule(CapsuleRadius, CapsuleHalfHeight);
+
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(TargetComponent->GetOwner());
+	Params.TraceTag = TraceTag;
+	Params.bTraceComplex = false;
+	Params.bDebugQuery = true;
+
+	GetWorld()->DebugDrawTraceTag = TraceTag;
+
+	if (bHitSingleTarget)
 	{
-		AbilityVFXComponent->SetWorldLocation(MuzzleComponent->GetComponentLocation());
-		AbilityVFXComponent->SetWorldRotation(PlayerRot);
+		FHitResult HitResult;
+
+		bool bHit = GetWorld()->SweepSingleByChannel(
+			HitResult,
+			StartTrace,
+			EndTrace,
+			PlayerRot.Quaternion(),
+			CollisionChannels::ECC_Damageable,
+			CapsuleShape,
+			Params
+		);
+
+		if (HitResult.GetActor() && !CachedActors.Contains(HitResult.GetActor()) && HitResult.GetActor()->Implements<UAffectable>())
+		{
+			Ability->ApplyAbilityEffect(HitResult.GetActor());
+			CachedActors.Add(HitResult.GetActor());
+		}
 	}
+	else
+	{
+		TArray<FHitResult> HitResults;
+
+		bool bHit = GetWorld()->SweepMultiByChannel(
+			HitResults,
+			StartTrace,
+			EndTrace,
+			PlayerRot.Quaternion(),
+			CollisionChannels::ECC_Damageable,
+			CapsuleShape,
+			Params
+		);
+		
+		for (int i = 0; i < HitResults.Num(); i++)
+		{
+			if (HitResults[i].GetActor() && !CachedActors.Contains(HitResults[i].GetActor()) && HitResults[i].GetActor()->Implements<UAffectable>())
+			{
+				Ability->ApplyAbilityEffect(HitResults[i].GetActor());
+				CachedActors.Add(HitResults[i].GetActor());
+			}
+		}
+	}
+
+	GetWorld()->DebugDrawTraceTag = NAME_None; 
 	
 	if (CurrentFlowCooldown > 0.0f)
 	{
 		CurrentFlowCooldown -= DeltaTime;
 		
-		if (CurrentFlowCooldown < 0.0f)
+		if (CurrentFlowCooldown <= 0.001f)
 			CurrentFlowCooldown = 0.0f;
 		return;
 	}
 	
-	if (bFlowStart && CurrentFlowCooldown == 0.0f)
+	if (CurrentFlowCooldown == 0.0f)
 	{
-		if (bHitSingleTarget)
-		{
-			FHitResult HitResult;
+		Ability->TrySpendMana();
 
-			FCollisionShape BoxShape = FCollisionShape::MakeBox(HitBoxCollisionExtent);
-
-			FCollisionQueryParams Params;
-			Params.AddIgnoredActor(TargetComponent->GetOwner());
-			Params.bTraceComplex = false;
-			Params.bDebugQuery = true;
-
-			bool bHit = GetWorld()->SweepSingleByChannel(
-				HitResult,
-				MuzzleComponent->GetComponentLocation(),
-				MuzzleComponent->GetComponentLocation() + PlayerDir * AbilityDistance,
-				PlayerRot.Quaternion(),
-				CollisionChannels::ECC_Damageable,
-				BoxShape,
-				Params
-			);
-
-			Ability->TrySpendMana();
-
-			if (HitResult.GetActor() && HitResult.GetActor()->Implements<UAffectable>())
-			{
-				Ability->ApplyAbilityEffect(HitResult.GetActor());
-			}
-		}
-		else
-		{
-			TArray<FHitResult> HitResults;
-
-			FCollisionShape BoxShape = FCollisionShape::MakeBox(HitBoxCollisionExtent);
-
-			FCollisionQueryParams Params;
-			Params.AddIgnoredActor(TargetComponent->GetOwner());
-			Params.bTraceComplex = false;
-			Params.bDebugQuery = true;
-
-			bool bHit = GetWorld()->SweepMultiByChannel(
-				HitResults,
-				MuzzleComponent->GetComponentLocation(),
-				MuzzleComponent->GetComponentLocation() + PlayerDir * AbilityDistance,
-				PlayerRot.Quaternion(),
-				CollisionChannels::ECC_Damageable,
-				BoxShape,
-				Params
-			);
-
-			Ability->TrySpendMana();
-		
-			for (int i = 0; i < HitResults.Num(); i++)
-			{
-				if (HitResults[i].GetActor()->Implements<UAffectable>())
-				{
-					Ability->ApplyAbilityEffect(HitResults[i].GetActor());
-				}
-			}
-		}
+		CachedActors.Empty();
 		
 		CurrentFlowCooldown = FlowUpdateTimeInSec;
 	}
@@ -161,6 +163,8 @@ void UFlowTargetStrategy::CancelStrategy()
 		TargetComponent->ClearTargetStrategy();
 	}
 
+	CachedActors.Empty();
+
 	FocusComponent = nullptr;
 	PlayerController = nullptr;
 	MuzzleComponent = nullptr;
@@ -181,10 +185,15 @@ void UFlowTargetStrategy::OnPlayerClickStarted()
 	if (AbilityVFXComponent)
 		AbilityVFXComponent->DestroyInstance();
 	
-	AbilityVFXComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, Ability->GetAbilityDataAsset()->AbilityVFX,
+	
+	AbilityVFXComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(Ability->GetAbilityDataAsset()->AbilityVFX, MuzzleComponent, FName(),
+						MuzzleComponent->GetComponentLocation(), MuzzleComponent->GetComponentRotation(),
+						FVector(1.f, 1.f, 1.f), EAttachLocation::Type::KeepWorldPosition,
+						true, ENCPoolMethod::None, true, true);
+		/*UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, Ability->GetAbilityDataAsset()->AbilityVFX,
 					VFXLoc,
 					FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f),
-					true, true, ENCPoolMethod::None, true);
+					true, true, ENCPoolMethod::None, true);*/
 }
 
 void UFlowTargetStrategy::OnPlayerClickStopped(float StopTriggerTime)

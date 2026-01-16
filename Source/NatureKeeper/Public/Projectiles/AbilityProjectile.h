@@ -6,6 +6,7 @@
 #include "Projectile.h"
 #include "AbilityProjectile.generated.h"
 
+class AAbilityDamageCollision;
 class UAbility;
 
 UCLASS()
@@ -19,6 +20,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
+	TSubclassOf<AAbilityDamageCollision> AbilityDamageCollisionClass;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Projectile)
 	UAbility* Ability;
 

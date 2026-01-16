@@ -19,6 +19,9 @@ bool UWindEffect::InitEffect(UEffectDataAsset* InEffectDataAsset)
 	
 	EffectVFX = WindEffectDataAsset->EffectVFX;
 	EffectElementType = WindEffectDataAsset->EffectElementType;
+	BlendingEffectClass = InEffectDataAsset->BlendingEffectClass;
+	BlendingEffectDataAsset = InEffectDataAsset->BlendingEffectDataAsset;
+	BlendingEffectElementType = InEffectDataAsset->BlendingEffectElementType;
 	InitialDamageAmount = WindEffectDataAsset->InitialDamageAmount;
 	TickDamageAmount = WindEffectDataAsset->TickDamageAmount;
 	TicksCount = WindEffectDataAsset->TicksCount;

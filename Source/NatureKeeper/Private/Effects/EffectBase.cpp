@@ -3,6 +3,7 @@
 
 #include "Effects/EffectBase.h"
 
+#include "NatureKeeperUtils.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Effects/EffectFactory.h"
 #include "Effects/Data/EffectDataAsset.h"
@@ -12,6 +13,9 @@ bool UEffectBase::InitEffect(UEffectDataAsset* InEffectDataAsset)
 {
 	EffectVFX = InEffectDataAsset->EffectVFX;
 	EffectElementType = InEffectDataAsset->EffectElementType;
+	BlendingEffectClass = InEffectDataAsset->BlendingEffectClass;
+	BlendingEffectDataAsset = InEffectDataAsset->BlendingEffectDataAsset;
+	BlendingEffectElementType = InEffectDataAsset->BlendingEffectElementType;
 	
 	return true;
 }
@@ -25,8 +29,37 @@ bool UEffectBase::ApplyEffect(TScriptInterface<UAffectable> InAffectedObject)
 		OnFail.Broadcast(this);
 		return false;
 	}
-	
+
 	AffectedObject = InAffectedObject;
+	
+	if (BlendingEffectElementType != EEffectElement::EE_None && BlendingEffectDataAsset)
+	{
+		TArray<UEffectBase*> ObjectEffects = IAffectable::Execute_GetEffects(InAffectedObject.GetObject());
+
+		bool bHasOppositeEffect = false;
+		for (int i = ObjectEffects.Num() - 1; i >= 0; i--)
+		{
+			if (ObjectEffects[i]->EffectElementType == BlendingEffectElementType)
+			{
+				ObjectEffects[i]->CancelEffect();
+				bHasOppositeEffect = true;
+			}
+		}
+
+		if (bHasOppositeEffect)
+		{
+			if (UEffectBase* OppositeEffect = UNatureKeeperUtils::CreateEffect(InAffectedObject.GetObject(), BlendingEffectClass, BlendingEffectDataAsset))
+			{
+				CancelEffect();
+				
+				OppositeEffect->ApplyEffect(InAffectedObject);
+
+				UE_LOG(LogTemp, Display, TEXT("Opposite Effect: %s"), *UEnum::GetDisplayValueAsText(BlendingEffectDataAsset->EffectElementType).ToString());
+		
+				return false;
+			}
+		}
+	}
 	
 	return true;
 }

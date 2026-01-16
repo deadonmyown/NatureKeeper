@@ -18,55 +18,15 @@ bool UWaterEffect::InitEffect(UEffectDataAsset* InEffectDataAsset)
 	
 	EffectVFX = WaterDataAsset->EffectVFX;
 	EffectElementType = WaterDataAsset->EffectElementType;
+	BlendingEffectClass = InEffectDataAsset->BlendingEffectClass;
+	BlendingEffectDataAsset = InEffectDataAsset->BlendingEffectDataAsset;
+	BlendingEffectElementType = InEffectDataAsset->BlendingEffectElementType;
 	InitialDamageAmount = WaterDataAsset->InitialDamageAmount;
 	TickDamageAmount = WaterDataAsset->TickDamageAmount;
 	TicksCount = WaterDataAsset->TicksCount;
 	TickAmount = WaterDataAsset->TickAmount;
 	TickEffectVFX = WaterDataAsset->TickEffectVFX;
-	SteamInitialDamageAmount = WaterDataAsset->SteamInitialDamageAmount;
-	SteamEffectVFX = WaterDataAsset->SteamEffectVFX;
 
 	CurrTick = 0;
-	return true;
-}
-
-bool UWaterEffect::ApplyEffect(TScriptInterface<UAffectable> InAffectedObject)
-{
-	if (!UDamageableBaseEffect::ApplyEffect(InAffectedObject))
-		return false;
-
-	TArray<UEffectBase*> ObjectEffects = IAffectable::Execute_GetEffects(InAffectedObject.GetObject());
-
-	bool bHasOppositeEffect = false;
-	for (int i = ObjectEffects.Num() - 1; i >= 0; i--)
-	{
-		if (ObjectEffects[i]->EffectElementType == EEffectElement::EE_Fire)
-		{
-			ObjectEffects[i]->CancelEffect();
-			bHasOppositeEffect = true;
-		}
-	}
-
-	if (bHasOppositeEffect)
-	{
-		TrySpawnVFX(SteamEffectVFX);
-
-		TryDamage(SteamInitialDamageAmount);
-
-		CancelEffect();
-
-		UE_LOG(LogTemp, Display, TEXT("Water Effect (Steam): %d"), SteamInitialDamageAmount);
-		
-		return true;
-	}
-
-	TrySpawnVFX(EffectVFX);
-
-	TryDamage(InitialDamageAmount);
-		
-	GetWorld()->GetTimerManager().SetTimer(DamageTimerHandle, this, &UTickableDamageableEffect::OnTickDamage, TickAmount, true);
-
-	UE_LOG(LogTemp, Display, TEXT("Water Effect: %d"), InitialDamageAmount);
-	
 	return true;
 }

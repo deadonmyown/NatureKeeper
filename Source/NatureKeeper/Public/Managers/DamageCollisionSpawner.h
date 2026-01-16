@@ -1,9 +1,11 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "Collision/AbilityDamageCollision.h"
 #include "GameFramework/Actor.h"
 #include "DamageCollisionSpawner.generated.h"
 
+struct FAbilityDamageCollisionData;
 class AEffectDamageCollision;
 struct FEffectDamageCollisionData;
 struct FDamageCollisionData;
@@ -27,4 +29,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "DamageCollisionSpawner")
 	AEffectDamageCollision* SpawnEffectDamageCollision(const TSubclassOf<AEffectDamageCollision>& InDamageCollisionClass,
 		const FTransform& InCollisionTransform, const FDamageCollisionData& InDamageCollisionData, const FEffectDamageCollisionData& InEffectDamageCollisionData);
+	UFUNCTION(BlueprintCallable, Category = "DamageCollisionSpawner")
+	AAbilityDamageCollision* SpawnAbilityDamageCollision(const TSubclassOf<AAbilityDamageCollision>& InAbilityDamageCollisionClass,
+		const FTransform& InCollisionTransform, const FDamageCollisionData& InDamageCollisionData, const FAbilityDamageCollisionData& InAbilityDamageCollisionData);
 };
