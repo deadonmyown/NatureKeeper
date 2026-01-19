@@ -6,7 +6,10 @@
 
 UEffectBase* UEffectFactory::CreateEffect()
 {
-	UEffectBase* NewEffect = NewObject<UEffectBase>(this, EffectClass);
+	if (!EffectDataAsset)
+		return nullptr;
+	
+	UEffectBase* NewEffect = NewObject<UEffectBase>(this, EffectDataAsset->EffectClass);
 
 	if (!NewEffect->InitEffect(EffectDataAsset))
 		return nullptr;
@@ -41,9 +44,5 @@ TArray<UEffectBase*>& UEffectFactory::GetEffects()
 
 float UEffectFactory::GetEffectCompletionTime()
 {
-	if (UTickableDamageableEffectDataAsset* TickableDataAsset = Cast<UTickableDamageableEffectDataAsset>(EffectDataAsset))
-	{
-		return TickableDataAsset->TicksCount * TickableDataAsset->TickAmount;
-	}
-	return 0.0f;
+	return EffectDataAsset->GetEffectCompletionTime();
 }

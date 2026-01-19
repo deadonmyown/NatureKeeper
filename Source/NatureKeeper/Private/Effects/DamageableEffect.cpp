@@ -16,14 +16,13 @@ bool UDamageableEffect::InitEffect(UEffectDataAsset* InEffectDataAsset)
 	
 	EffectVFX = DamageableDataAsset->EffectVFX;
 	EffectElementType = DamageableDataAsset->EffectElementType;
-	BlendingEffectClass = InEffectDataAsset->BlendingEffectClass;
 	BlendingEffectDataAsset = InEffectDataAsset->BlendingEffectDataAsset;
 	BlendingEffectElementType = InEffectDataAsset->BlendingEffectElementType;
 	DamageAmount = DamageableDataAsset->DamageAmount;
 	return true;
 }
 
-bool UDamageableEffect::ApplyEffect(TScriptInterface<UAffectable> InAffectedObject)
+bool UDamageableEffect::ApplyEffect(const TScriptInterface<UAffectable>& InAffectedObject)
 {
 	if (!UDamageableBaseEffect::ApplyEffect(InAffectedObject))
 		return false;

@@ -6,6 +6,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "NatureKeeperUtils.generated.h"
 
+class UAffectable;
 class UEffectFactory;
 class UEffectBase;
 class UEffectDataAsset;
@@ -24,7 +25,9 @@ class NATUREKEEPER_API UNatureKeeperUtils : public UBlueprintFunctionLibrary
 	public:
 	//Lightweight method to create effects and don't store effect factory
 	UFUNCTION(BlueprintCallable, Category="Nature Keeper Util")
-	static UEffectBase* CreateEffect(UObject* Outer, TSubclassOf<UEffectBase> EffectClass, UEffectDataAsset* EffectDataAsset);
+	static UEffectBase* CreateEffect(UObject* Outer, UEffectDataAsset* EffectDataAsset);
+	UFUNCTION(BlueprintCallable, Category="Nature Keeper Util")
+	static void TryCreateAndApplyEffects(UObject* Outer, TArray<UEffectDataAsset*>& InEffectDataAssets, const TScriptInterface<UAffectable>& InAffectedObject);
 	UFUNCTION(BlueprintCallable, Category="Nature Keeper Util")
 	static void SetPlayerFocusComponentAsTarget(const TScriptInterface<UFollow>& FollowActor);
 	UFUNCTION(BlueprintCallable, Category="Nature Keeper Util")
@@ -35,8 +38,6 @@ class NATUREKEEPER_API UNatureKeeperUtils : public UBlueprintFunctionLibrary
 	static ANatureKeeperGameMode* GetNatureKeeperGameMode(const UObject* WorldContextObject);
 	UFUNCTION(BlueprintCallable, Category="Nature Keeper Util")
 	static FVector GetRandomNavigableLocationInRadius(UObject* WorldContextObject, const FVector& Origin, const float Radius);
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Nature Keeper Util")
-	static float GetEffectFactoriesCompletionTime(const TArray<UEffectFactory*>& InEffectFactories);
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Nature Keeper Util")
 	static float GetEffectsCompletionTime(const TArray<UEffectBase*>& InEffects);
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Nature Keeper Util")

@@ -26,4 +26,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
 	UNiagaraSystem* TickEffectVFX;
+
+	virtual float GetEffectCompletionTime() const override {return TicksCount * TickAmount;}
 };

@@ -6,12 +6,11 @@
 #include "FocusComponent.h"
 #include "NatureKeeperCharacter.h"
 #include "NatureKeeperPlayerController.h"
-#include "Effects/Ability.h"
-#include "Effects/Data/AbilityDataAsset.h"
+#include "Effects/PlayerAbility.h"
 #include "Interfaces/Affectable.h"
 #include "TargetSystem/TargetComponent.h"
 
-bool UFocusHoldTargetStrategy::StartStrategy(UAbility* InAbility, UTargetComponent* InTargetComponent)
+bool UFocusHoldTargetStrategy::StartStrategy(UPlayerAbility* InAbility, UTargetComponent* InTargetComponent)
 {
 	if (ANatureKeeperCharacter* Player = Cast<ANatureKeeperCharacter>(InTargetComponent->GetOwner()))
 	{
@@ -20,13 +19,7 @@ bool UFocusHoldTargetStrategy::StartStrategy(UAbility* InAbility, UTargetCompone
 		
 		FocusComponent = Player->GetFocusComponent();
 		PlayerController = Player->GetNatureKeeperController();
-		
-		bIsTargeting = true;
-		bFocusStart = false;
-		Ability = InAbility;
-		TargetComponent = InTargetComponent;
 
-		AbilityDistance = Ability->GetAbilityDataAsset()->AbilityAffectDistance;
 		if (OverrideFocusUpdateTimeInSec >= 0.0f)
 		{
 			FocusUpdateTimeInSec = OverrideFocusUpdateTimeInSec;
@@ -36,7 +29,6 @@ bool UFocusHoldTargetStrategy::StartStrategy(UAbility* InAbility, UTargetCompone
 			FocusUpdateTimeInSec = Ability->GetAbilityCompletionTime();
 		}
 
-		TargetComponent->SetTargetStrategy(this);
 		PlayerController->OnPlayerSecondaryClickStarted.AddDynamic(this, &UFocusHoldTargetStrategy::OnPlayerClickStarted);
 		PlayerController->OnPlayerSecondaryClickStopped.AddDynamic(this, &UFocusHoldTargetStrategy::OnPlayerClickStopped);
 
@@ -50,7 +42,15 @@ void UFocusHoldTargetStrategy::UpdateStrategy(float DeltaTime)
 {
 	if (!Ability->CanCastAbility())
 	{
-		CancelStrategy();
+		CancelStrategy(true);
+		return;
+	}
+
+	FVector TraceLocation = ITarget::Execute_GetTargetLocation(FocusComponent);
+
+	if (TargetStrategyAffectDistance > 0.0f && FVector::Distance(FocusComponent->GetOwner()->GetActorLocation(), TraceLocation) > TargetStrategyAffectDistance)
+	{
+		CancelStrategy(true);
 		return;
 	}
 
@@ -63,7 +63,7 @@ void UFocusHoldTargetStrategy::UpdateStrategy(float DeltaTime)
 		return;
 	}
 
-	if (bFocusStart && CurrentFocusCooldown == 0.0f)
+	if (CurrentFocusCooldown == 0.0f)
 	{
 		if (CachedFocusActor)
 		{
@@ -90,40 +90,29 @@ void UFocusHoldTargetStrategy::UpdateStrategy(float DeltaTime)
 	}
 }
 
-void UFocusHoldTargetStrategy::CancelStrategy()
+void UFocusHoldTargetStrategy::CancelStrategy(bool bClearAbility)
 {
-	UTargetStrategy::CancelStrategy();
-	
 	PlayerController->OnPlayerSecondaryClickStarted.RemoveDynamic(this, &UFocusHoldTargetStrategy::OnPlayerClickStarted);
 	PlayerController->OnPlayerSecondaryClickStopped.RemoveDynamic(this, &UFocusHoldTargetStrategy::OnPlayerClickStopped);
 
-	bFocusStart = false;
-	
-	if (TargetComponent->GetTargetStrategy() == this)
-	{
-		TargetComponent->ClearTargetStrategy();
-	}
-
-	if (bCancelAbility)
+	/*if (bCancelAbility)
 	{
 		Ability->CancelAbilityEffect();
-	}
+	}*/
 
 	FocusComponent = nullptr;
 	PlayerController = nullptr;
 
-	bIsTargeting = false;
-	Ability = nullptr;
-	TargetComponent = nullptr;
 	CachedFocusActor = nullptr;
+	UTargetStrategy::CancelStrategy(bClearAbility);
 }
 
 void UFocusHoldTargetStrategy::OnPlayerClickStarted()
 {
-	bFocusStart = true;
+	bIsTargeting = true;
 }
 
 void UFocusHoldTargetStrategy::OnPlayerClickStopped(float StopTriggerTime)
 {
-	CancelStrategy();
+	CancelStrategy(true);
 }

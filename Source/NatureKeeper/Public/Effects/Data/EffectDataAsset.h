@@ -12,12 +12,14 @@ class UNiagaraSystem;
 /**
  * 
  */
-UCLASS()
+UCLASS(BlueprintType, Blueprintable)
 class NATUREKEEPER_API UEffectDataAsset : public UDataAsset
 {
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	TSubclassOf<UEffectBase> EffectClass;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
 	FName EffectName;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
@@ -27,7 +29,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
 	EEffectElement EffectElementType;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
-	TSubclassOf<UEffectBase> BlendingEffectClass;
+	int32 EffectManaCost;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
 	UEffectDataAsset* BlendingEffectDataAsset;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
@@ -36,4 +38,7 @@ public:
 	UTexture2D* EffectIcon;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
 	UNiagaraSystem* EffectVFX;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Effects")
+	virtual float GetEffectCompletionTime() const {return 0.0f;}
 };

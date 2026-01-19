@@ -12,10 +12,17 @@ class NATUREKEEPER_API UPlayerAbility : public UAbility
 	GENERATED_BODY()
 
 protected:
-	UPROPERTY(Instanced, EditAnywhere, BlueprintReadWrite, Category = "Ability")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Ability")
 	UTargetStrategy* TargetStrategy = nullptr;
 
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Ability")
 	void Target(UTargetComponent* InTargetComponent);
+	UFUNCTION(BlueprintCallable, Category = "Ability")
+	void SetTargetStrategy(UTargetStrategy* NewTargetStrategy);
+	UFUNCTION(BlueprintCallable, Category = "Ability")
+	void ClearTargetStrategy();
+
+	virtual bool CanModifyAbility() override;
+	virtual int32 GetManaCost() override;
 };

@@ -5,10 +5,10 @@
 
 #include "FocusComponent.h"
 #include "NatureKeeperCharacter.h"
-#include "Effects/Ability.h"
+#include "Effects/PlayerAbility.h"
 #include "TargetSystem/TargetComponent.h"
 
-bool UFocusTargetStrategy::StartStrategy(UAbility* InAbility, UTargetComponent* InTargetComponent)
+bool UFocusTargetStrategy::StartStrategy(UPlayerAbility* InAbility, UTargetComponent* InTargetComponent)
 {
 	if (ANatureKeeperCharacter* Player = Cast<ANatureKeeperCharacter>(InTargetComponent->GetOwner()))
 	{
@@ -18,11 +18,6 @@ bool UFocusTargetStrategy::StartStrategy(UAbility* InAbility, UTargetComponent* 
 		FocusComponent = Player->GetFocusComponent();
 		PlayerController = Player->GetNatureKeeperController();
 
-		bIsTargeting = true;
-		Ability = InAbility;
-		TargetComponent = InTargetComponent;
-
-		TargetComponent->SetTargetStrategy(this);
 		PlayerController->OnPlayerSecondaryClickStopped.AddDynamic(this, &UFocusTargetStrategy::OnPlayerClickStopped);
 
 		return true;
@@ -36,23 +31,14 @@ void UFocusTargetStrategy::UpdateStrategy(float DeltaTime)
 	
 }
 
-void UFocusTargetStrategy::CancelStrategy()
+void UFocusTargetStrategy::CancelStrategy(bool bClearAbility)
 {
-	UTargetStrategy::CancelStrategy();
-	
 	PlayerController->OnPlayerSecondaryClickStopped.RemoveDynamic(this, &UFocusTargetStrategy::OnPlayerClickStopped);
-	
-	if (TargetComponent->GetTargetStrategy() == this)
-	{
-		TargetComponent->ClearTargetStrategy();
-	}
 
 	FocusComponent = nullptr;
 	PlayerController = nullptr;
 
-	bIsTargeting = false;
-	Ability = nullptr;
-	TargetComponent = nullptr;
+	UTargetStrategy::CancelStrategy(bClearAbility);
 }
 
 void UFocusTargetStrategy::OnPlayerClickStopped(float StopTriggerTime)
@@ -65,5 +51,5 @@ void UFocusTargetStrategy::OnPlayerClickStopped(float StopTriggerTime)
 		Ability->ApplyAbilityEffect(FocusComponent->CursorFocusedActor);
 	}
 	
-	CancelStrategy();
+	CancelStrategy(true);
 }

@@ -36,7 +36,7 @@ public:
 	UNiagaraSystem* TickEffectVFX;
 
 	virtual bool InitEffect(UEffectDataAsset* InEffectDataAsset) override;
-	virtual bool ApplyEffect(TScriptInterface<UAffectable> InAffectedObject) override;
+	virtual bool ApplyEffect(const TScriptInterface<UAffectable>& InAffectedObject) override;
 	virtual bool CancelEffect() override;
 
 	virtual float GetEffectCompletionTime() const override;

@@ -30,8 +30,18 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Target")
 	UTargetStrategy* TargetStrategy;
-
 public:
+	UPROPERTY(Instanced, EditAnywhere, BlueprintReadWrite, Category = "Target")
+	UTargetStrategy* DefaultTargetStrategy;
+	UPROPERTY(Instanced, EditAnywhere, BlueprintReadWrite, Category = "Target")
+	UTargetStrategy* ProjectileTargetStrategy;
+	UPROPERTY(Instanced, EditAnywhere, BlueprintReadWrite, Category = "Target")
+	UTargetStrategy* AOETargetStrategy;
+	UPROPERTY(Instanced, EditAnywhere, BlueprintReadWrite, Category = "Target")
+	UTargetStrategy* FocusHoldTargetStrategy;
+	UPROPERTY(Instanced, EditAnywhere, BlueprintReadWrite, Category = "Target")
+	UTargetStrategy* SelfTargetStrategy;
+	
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION(BlueprintCallable, Category = "Target")

@@ -13,14 +13,13 @@ bool UEffectBase::InitEffect(UEffectDataAsset* InEffectDataAsset)
 {
 	EffectVFX = InEffectDataAsset->EffectVFX;
 	EffectElementType = InEffectDataAsset->EffectElementType;
-	BlendingEffectClass = InEffectDataAsset->BlendingEffectClass;
 	BlendingEffectDataAsset = InEffectDataAsset->BlendingEffectDataAsset;
 	BlendingEffectElementType = InEffectDataAsset->BlendingEffectElementType;
 	
 	return true;
 }
 
-bool UEffectBase::ApplyEffect(TScriptInterface<UAffectable> InAffectedObject)
+bool UEffectBase::ApplyEffect(const TScriptInterface<UAffectable>& InAffectedObject)
 {
 	if (!InAffectedObject.GetObject() || IAffectable::Execute_GetResistEffectElements(InAffectedObject.GetObject()).Contains(EffectElementType)
 		|| !IAffectable::Execute_RegisterEffect(InAffectedObject.GetObject(), this))
@@ -48,7 +47,7 @@ bool UEffectBase::ApplyEffect(TScriptInterface<UAffectable> InAffectedObject)
 
 		if (bHasOppositeEffect)
 		{
-			if (UEffectBase* OppositeEffect = UNatureKeeperUtils::CreateEffect(InAffectedObject.GetObject(), BlendingEffectClass, BlendingEffectDataAsset))
+			if (UEffectBase* OppositeEffect = UNatureKeeperUtils::CreateEffect(InAffectedObject.GetObject(), BlendingEffectDataAsset))
 			{
 				CancelEffect();
 				

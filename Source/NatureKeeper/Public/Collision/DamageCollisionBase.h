@@ -38,18 +38,7 @@ struct FEffectDamageCollisionData
 	GENERATED_BODY()
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<UEffectBase> EffectClass;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UEffectDataAsset* EffectDataAsset = nullptr;
-};
-
-USTRUCT(BlueprintType)
-struct FAbilityDamageCollisionData
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UAbility* Ability = nullptr;
+	TArray<UEffectDataAsset*> EffectDataAsset;
 };
 
 UCLASS()

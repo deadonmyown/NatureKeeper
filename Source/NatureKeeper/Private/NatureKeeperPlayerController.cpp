@@ -113,12 +113,21 @@ void ANatureKeeperPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(SecondaryClickAction, ETriggerEvent::Triggered, this, &ANatureKeeperPlayerController::OnSecondaryInputTriggered);
 		EnhancedInputComponent->BindAction(SecondaryClickAction, ETriggerEvent::Completed, this, &ANatureKeeperPlayerController::OnSecondaryInputStopped);
 		EnhancedInputComponent->BindAction(SecondaryClickAction, ETriggerEvent::Canceled, this, &ANatureKeeperPlayerController::OnSecondaryInputStopped);
+		EnhancedInputComponent->BindAction(ThirdClickAction, ETriggerEvent::Started, this, &ANatureKeeperPlayerController::OnThirdInputStarted);
+		EnhancedInputComponent->BindAction(ThirdClickAction, ETriggerEvent::Triggered, this, &ANatureKeeperPlayerController::OnThirdInputTriggered);
+		EnhancedInputComponent->BindAction(ThirdClickAction, ETriggerEvent::Completed, this, &ANatureKeeperPlayerController::OnThirdInputStopped);
+		EnhancedInputComponent->BindAction(ThirdClickAction, ETriggerEvent::Canceled, this, &ANatureKeeperPlayerController::OnThirdInputStopped);
 
-		for (int i = 0; i < AbilitiesActions.Num(); i++)
+		for (int i = 0; i < EffectsActions.Num(); i++)
 		{
-			if (!AbilitiesActions[i]) continue;
-			EnhancedInputComponent->BindAction(AbilitiesActions[i], ETriggerEvent::Started, this, &ANatureKeeperPlayerController::OnAbilityAction);
+			if (!EffectsActions[i]) continue;
+			EnhancedInputComponent->BindAction(EffectsActions[i], ETriggerEvent::Started, this, &ANatureKeeperPlayerController::OnEffectActions);
 		}
+		EnhancedInputComponent->BindAction(EffectClearAction, ETriggerEvent::Started, this, &ANatureKeeperPlayerController::OnEffectClear);
+		EnhancedInputComponent->BindAction(EffectProjectileAction, ETriggerEvent::Started, this, &ANatureKeeperPlayerController::OnEffectProjectileAction);
+		EnhancedInputComponent->BindAction(EffectAOEAction, ETriggerEvent::Started, this, &ANatureKeeperPlayerController::OnEffectAOEAction);
+		//EnhancedInputComponent->BindAction(EffectFocusAction, ETriggerEvent::Started, this, &ANatureKeeperPlayerController::OnEffectSelfAction);
+		//EnhancedInputComponent->BindAction(EffectSelfAction, ETriggerEvent::Started, this, &ANatureKeeperPlayerController::OnEffectFocusAction);
 	}
 	else
 	{
@@ -172,6 +181,8 @@ void ANatureKeeperPlayerController::OnSetDestinationReleased()
 
 void ANatureKeeperPlayerController::OnSecondaryInputStarted()
 {
+	OnEffectFocusAction();
+	
 	if (OnPlayerSecondaryClickStarted.IsBound())
 		OnPlayerSecondaryClickStarted.Broadcast();
 }
@@ -190,6 +201,30 @@ void ANatureKeeperPlayerController::OnSecondaryInputStopped()
 		OnPlayerSecondaryClickStopped.Broadcast(SecondaryTriggerTime);
 
 	SecondaryTriggerTime = 0.0f;
+}
+
+void ANatureKeeperPlayerController::OnThirdInputStarted()
+{
+	OnEffectSelfAction();
+	
+	if (OnPlayerThirdClickStarted.IsBound())
+		OnPlayerThirdClickStarted.Broadcast();
+}
+
+void ANatureKeeperPlayerController::OnThirdInputTriggered()
+{
+	ThirdTriggerTime += GetWorld()->GetDeltaSeconds();
+	
+	if (OnPlayerThirdClickTriggered.IsBound())
+		OnPlayerThirdClickTriggered.Broadcast(ThirdTriggerTime);
+}
+
+void ANatureKeeperPlayerController::OnThirdInputStopped()
+{
+	if (OnPlayerThirdClickStopped.IsBound())
+		OnPlayerThirdClickStopped.Broadcast(ThirdTriggerTime);
+
+	ThirdTriggerTime = 0.0f;
 }
 
 void ANatureKeeperPlayerController::OnMove(const FInputActionValue& Value)
@@ -266,26 +301,43 @@ void ANatureKeeperPlayerController::OnEndInteraction()
 	bIsInteract = false;
 }
 
-void ANatureKeeperPlayerController::OnAbilityAction(const FInputActionInstance& Instance)
+void ANatureKeeperPlayerController::OnEffectActions(const FInputActionInstance& Instance)
 {
 	const UInputAction* SourceAction = Instance.GetSourceAction();
 	if (!SourceAction) return;
 
-	const int32 Index = AbilitiesActions.IndexOfByKey(SourceAction);
+	const int32 Index = EffectsActions.IndexOfByKey(SourceAction);
+	PlayerAbilityComponent->AddAbilityEffectByIndex(Index);
 
-	TArray<UPlayerAbility*> Abilities = PlayerAbilityComponent->GetAbilities();
-	if (!Abilities.IsValidIndex(Index))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Ability index not valid for action %s"), *SourceAction->GetName());
-		return;
-	}
+	PlayerAbilityComponent->GetAbility()->Target(PlayerTargetComponent);
+}
 
-	UPlayerAbility* PlayerAbility = Abilities[Index];
-	if (!PlayerAbility)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Ability is null at index %d"), Index);
-		return;
-	}
-	
-	PlayerAbility->Target(PlayerTargetComponent);
+void ANatureKeeperPlayerController::OnEffectClear()
+{
+	PlayerAbilityComponent->ClearAbilityTargetStrategy();
+	PlayerAbilityComponent->ClearAbilityEffects();
+}
+
+void ANatureKeeperPlayerController::OnEffectProjectileAction()
+{
+	PlayerAbilityComponent->SetAbilityTargetStrategy(PlayerTargetComponent->ProjectileTargetStrategy);
+	PlayerAbilityComponent->GetAbility()->Target(PlayerTargetComponent);
+}
+
+void ANatureKeeperPlayerController::OnEffectAOEAction()
+{
+	PlayerAbilityComponent->SetAbilityTargetStrategy(PlayerTargetComponent->AOETargetStrategy);
+	PlayerAbilityComponent->GetAbility()->Target(PlayerTargetComponent);
+}
+
+void ANatureKeeperPlayerController::OnEffectSelfAction()
+{
+	PlayerAbilityComponent->SetAbilityTargetStrategy(PlayerTargetComponent->SelfTargetStrategy);
+	PlayerAbilityComponent->GetAbility()->Target(PlayerTargetComponent);
+}
+
+void ANatureKeeperPlayerController::OnEffectFocusAction()
+{
+	PlayerAbilityComponent->SetAbilityTargetStrategy(PlayerTargetComponent->FocusHoldTargetStrategy);
+	PlayerAbilityComponent->GetAbility()->Target(PlayerTargetComponent);
 }

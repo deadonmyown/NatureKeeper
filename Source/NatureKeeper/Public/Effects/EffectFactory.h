@@ -21,8 +21,6 @@ protected:
 	TArray<UEffectBase*> Effects;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
-	TSubclassOf<UEffectBase> EffectClass;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
 	UEffectDataAsset* EffectDataAsset;
 public:
 	UFUNCTION(BlueprintCallable, Category = "Effects")

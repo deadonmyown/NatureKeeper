@@ -17,7 +17,6 @@ bool UTickableDamageableEffect::InitEffect(UEffectDataAsset* InEffectDataAsset)
 	
 	EffectVFX = TickableDataAsset->EffectVFX;
 	EffectElementType = TickableDataAsset->EffectElementType;
-	BlendingEffectClass = InEffectDataAsset->BlendingEffectClass;
 	BlendingEffectDataAsset = InEffectDataAsset->BlendingEffectDataAsset;
 	BlendingEffectElementType = InEffectDataAsset->BlendingEffectElementType;
 	InitialDamageAmount = TickableDataAsset->InitialDamageAmount;
@@ -30,7 +29,7 @@ bool UTickableDamageableEffect::InitEffect(UEffectDataAsset* InEffectDataAsset)
 	return true;
 }
 
-bool UTickableDamageableEffect::ApplyEffect(TScriptInterface<UAffectable> InAffectedObject)
+bool UTickableDamageableEffect::ApplyEffect(const TScriptInterface<UAffectable>& InAffectedObject)
 {
 	if (!UDamageableBaseEffect::ApplyEffect(InAffectedObject))
 		return false;

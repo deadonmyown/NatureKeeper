@@ -8,14 +8,15 @@
 #include "NatureKeeperCharacter.h"
 #include "NatureKeeperGameMode.h"
 #include "NiagaraFunctionLibrary.h"
-#include "Effects/Ability.h"
-#include "Effects/Data/AbilityDataAsset.h"
 #include "TargetSystem/TargetComponent.h"
 #include "NiagaraComponent.h"
+#include "Effects/PlayerAbility.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 
-bool UFlowTargetStrategy::StartStrategy(UAbility* InAbility, UTargetComponent* InTargetComponent)
+
+
+bool UFlowTargetStrategy::StartStrategy(UPlayerAbility* InAbility, UTargetComponent* InTargetComponent)
 {
 	if (ANatureKeeperCharacter* Player = Cast<ANatureKeeperCharacter>(InTargetComponent->GetOwner()))
 	{
@@ -25,13 +26,9 @@ bool UFlowTargetStrategy::StartStrategy(UAbility* InAbility, UTargetComponent* I
 		FocusComponent = Player->GetFocusComponent();
 		PlayerController = Player->GetNatureKeeperController();
 		MuzzleComponent = FocusComponent->GetPlayerMuzzleComponent();
+		
+		bIsTargeting = false;
 
-		bIsTargeting = true;
-		bFlowStart = false;
-		Ability = InAbility;
-		TargetComponent = InTargetComponent;
-
-		AbilityDistance = Ability->GetAbilityDataAsset()->AbilityAffectDistance;
 		if (OverrideFlowUpdateTimeInSec >= 0.0f)
 		{
 			FlowUpdateTimeInSec = OverrideFlowUpdateTimeInSec;
@@ -41,9 +38,8 @@ bool UFlowTargetStrategy::StartStrategy(UAbility* InAbility, UTargetComponent* I
 			FlowUpdateTimeInSec = Ability->GetAbilityCompletionTime();
 		}
 
-		TargetComponent->SetTargetStrategy(this);
-		PlayerController->OnPlayerSecondaryClickStarted.AddDynamic(this, &UFlowTargetStrategy::OnPlayerClickStarted);
-		PlayerController->OnPlayerSecondaryClickStopped.AddDynamic(this, &UFlowTargetStrategy::OnPlayerClickStopped);
+		PlayerController->OnPlayerMainClickStarted.AddDynamic(this, &UFlowTargetStrategy::OnPlayerClickStarted);
+		PlayerController->OnPlayerMainClickStopped.AddDynamic(this, &UFlowTargetStrategy::OnPlayerClickStopped);
 
 		return true;
 	}
@@ -53,12 +49,9 @@ bool UFlowTargetStrategy::StartStrategy(UAbility* InAbility, UTargetComponent* I
 
 void UFlowTargetStrategy::UpdateStrategy(float DeltaTime)
 {
-	if (!bFlowStart)
-		return;
-	
 	if (!Ability->CanCastAbility())
 	{
-		CancelStrategy();
+		CancelStrategy(true);
 		return;
 	}
 	
@@ -67,7 +60,7 @@ void UFlowTargetStrategy::UpdateStrategy(float DeltaTime)
 	FRotator PlayerRot = UKismetMathLibrary::MakeRotFromX(PlayerDir);
 
 	FVector StartTrace = MuzzleComponent->GetComponentLocation();
-	FVector EndTrace = MuzzleComponent->GetComponentLocation() + PlayerDir * AbilityDistance;
+	FVector EndTrace = MuzzleComponent->GetComponentLocation() + PlayerDir * TargetStrategyAffectDistance;
 	
 	const FName TraceTag("FlowTargetDebug");
 
@@ -98,7 +91,7 @@ void UFlowTargetStrategy::UpdateStrategy(float DeltaTime)
 		if (HitResult.GetActor() && !CachedActors.Contains(HitResult.GetActor()) && HitResult.GetActor()->Implements<UAffectable>())
 		{
 			Ability->ApplyAbilityEffect(HitResult.GetActor());
-			CachedActors.Add(HitResult.GetActor());
+			CachedActors.Add(FFlowUpdateData(HitResult.GetActor(), FlowUpdateTimeInSec));
 		}
 	}
 	else
@@ -120,7 +113,7 @@ void UFlowTargetStrategy::UpdateStrategy(float DeltaTime)
 			if (HitResults[i].GetActor() && !CachedActors.Contains(HitResults[i].GetActor()) && HitResults[i].GetActor()->Implements<UAffectable>())
 			{
 				Ability->ApplyAbilityEffect(HitResults[i].GetActor());
-				CachedActors.Add(HitResults[i].GetActor());
+				CachedActors.Add(FFlowUpdateData(HitResults[i].GetActor(), FlowUpdateTimeInSec));
 			}
 		}
 	}
@@ -130,6 +123,14 @@ void UFlowTargetStrategy::UpdateStrategy(float DeltaTime)
 	if (CurrentFlowCooldown > 0.0f)
 	{
 		CurrentFlowCooldown -= DeltaTime;
+
+		for (int i = CachedActors.Num() - 1; i >= 0; i--)
+		{
+			CachedActors[i].RemainingTime -= DeltaTime;
+
+			if (CachedActors[i].RemainingTime <= 0.001f)
+				CachedActors.RemoveAt(i);
+		}
 		
 		if (CurrentFlowCooldown <= 0.001f)
 			CurrentFlowCooldown = 0.0f;
@@ -139,64 +140,49 @@ void UFlowTargetStrategy::UpdateStrategy(float DeltaTime)
 	if (CurrentFlowCooldown == 0.0f)
 	{
 		Ability->TrySpendMana();
-
-		CachedActors.Empty();
 		
 		CurrentFlowCooldown = FlowUpdateTimeInSec;
 	}
 }
 
-void UFlowTargetStrategy::CancelStrategy()
+void UFlowTargetStrategy::CancelStrategy(bool bClearAbility)
 {
-	UTargetStrategy::CancelStrategy();
-	
-	PlayerController->OnPlayerSecondaryClickStarted.RemoveDynamic(this, &UFlowTargetStrategy::OnPlayerClickStarted);
-	PlayerController->OnPlayerSecondaryClickStopped.RemoveDynamic(this, &UFlowTargetStrategy::OnPlayerClickStopped);
-
-	bFlowStart = false;
+	PlayerController->OnPlayerMainClickStarted.RemoveDynamic(this, &UFlowTargetStrategy::OnPlayerClickStarted);
+	PlayerController->OnPlayerMainClickStopped.RemoveDynamic(this, &UFlowTargetStrategy::OnPlayerClickStopped);
 	
 	if (AbilityVFXComponent)
 		AbilityVFXComponent->DestroyInstance();
-	
-	if (TargetComponent->GetTargetStrategy() == this)
-	{
-		TargetComponent->ClearTargetStrategy();
-	}
 
+	CurrentFlowCooldown = 0.0f;
 	CachedActors.Empty();
 
 	FocusComponent = nullptr;
 	PlayerController = nullptr;
 	MuzzleComponent = nullptr;
 
-	bIsTargeting = false;
-	Ability = nullptr;
-	TargetComponent = nullptr;
+	UTargetStrategy::CancelStrategy(bClearAbility);
 }
 
 void UFlowTargetStrategy::OnPlayerClickStarted()
 {
-	bFlowStart = true;
+	bIsTargeting = true;
 	
-	FVector VFXLoc;
-	FocusComponent->GetPlayerLookAtNormalizedLocation(VFXLoc);
-
-	//Ensure that we don't have instances of ability vfx
-	if (AbilityVFXComponent)
-		AbilityVFXComponent->DestroyInstance();
+	if (TargetStrategyVFX)
+	{
+		FVector VFXLoc;
+		FocusComponent->GetPlayerLookAtNormalizedLocation(VFXLoc);
+		//Ensure that we don't have instances of ability vfx
+		if (AbilityVFXComponent)
+			AbilityVFXComponent->DestroyInstance();
 	
-	
-	AbilityVFXComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(Ability->GetAbilityDataAsset()->AbilityVFX, MuzzleComponent, FName(),
-						MuzzleComponent->GetComponentLocation(), MuzzleComponent->GetComponentRotation(),
-						FVector(1.f, 1.f, 1.f), EAttachLocation::Type::KeepWorldPosition,
-						true, ENCPoolMethod::None, true, true);
-		/*UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, Ability->GetAbilityDataAsset()->AbilityVFX,
-					VFXLoc,
-					FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f),
-					true, true, ENCPoolMethod::None, true);*/
+		AbilityVFXComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(TargetStrategyVFX, MuzzleComponent, FName(),
+							MuzzleComponent->GetComponentLocation(), MuzzleComponent->GetComponentRotation(),
+							FVector(1.f, 1.f, 1.f), EAttachLocation::Type::KeepWorldPosition,
+							true, ENCPoolMethod::None, true, true);
+	}
 }
 
 void UFlowTargetStrategy::OnPlayerClickStopped(float StopTriggerTime)
 {
-	CancelStrategy();
+	CancelStrategy(true);
 }

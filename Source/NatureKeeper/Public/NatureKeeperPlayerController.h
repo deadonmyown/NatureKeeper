@@ -24,10 +24,16 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerMainClickStarted);
 // Triggered every frame when the input is held down
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerMainClickTriggered, float, CurrTriggerTime);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerMainClickStopped, float, StopTriggerTime);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerSecondaryClickStarted);
 // Triggered every frame when the input is held down
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerSecondaryClickTriggered, float, CurrTriggerTime);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerSecondaryClickStopped, float, StopTriggerTime);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPlayerThirdClickStarted);
+// Triggered every frame when the input is held down
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerThirdClickTriggered, float, CurrTriggerTime);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerThirdClickStopped, float, StopTriggerTime);
 
 UCLASS()
 class ANatureKeeperPlayerController : public APlayerController
@@ -50,6 +56,13 @@ public:
 	FOnPlayerSecondaryClickTriggered OnPlayerSecondaryClickTriggered;
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = Input)
 	FOnPlayerSecondaryClickStopped OnPlayerSecondaryClickStopped;
+
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = Input)
+	FOnPlayerThirdClickStarted OnPlayerThirdClickStarted;
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = Input)
+	FOnPlayerThirdClickTriggered OnPlayerThirdClickTriggered;
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = Input)
+	FOnPlayerThirdClickStopped OnPlayerThirdClickStopped;
 	
 	/** Time Threshold to know if it was a short press */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
@@ -76,9 +89,23 @@ public:
 	/** Secondary Click Input Action (Usually RMB) */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* SecondaryClickAction;
+
+	/** Third Click Input Action (Usually MMB) */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* ThirdClickAction;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	TArray<UInputAction*> AbilitiesActions;
+	TArray<UInputAction*> EffectsActions;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* EffectClearAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* EffectProjectileAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* EffectAOEAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* EffectFocusAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* EffectSelfAction;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player)
 	float MovementDirectionDegreesAngle;
@@ -107,6 +134,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player)
 	float SecondaryTriggerTime;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player)
+	float ThirdTriggerTime;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player)
 	bool bIsInteract;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Player)
 	bool bLookAtCursor = true;
@@ -130,6 +159,10 @@ protected:
 	void OnSecondaryInputTriggered();
 	void OnSecondaryInputStopped();
 
+	void OnThirdInputStarted();
+	void OnThirdInputTriggered();
+	void OnThirdInputStopped();
+
 	void OnMove(const FInputActionValue& Value);
 	void OnJump();
 	void OnStopJumping();
@@ -137,7 +170,12 @@ protected:
 	void OnStartInteraction();
 	void OnEndInteraction();
 	
-	void OnAbilityAction(const FInputActionInstance& Instance);
+	void OnEffectActions(const FInputActionInstance& Instance);
+	void OnEffectClear();
+	void OnEffectProjectileAction();
+	void OnEffectAOEAction();
+	void OnEffectSelfAction();
+	void OnEffectFocusAction();
 };
 
 

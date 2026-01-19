@@ -4,11 +4,11 @@
 #include "TargetSystem/SelfTargetStrategy.h"
 
 #include "NatureKeeperCharacter.h"
-#include "Effects/Ability.h"
+#include "Effects/PlayerAbility.h"
 #include "Interfaces/Affectable.h"
 #include "TargetSystem/TargetComponent.h"
 
-bool USelfTargetStrategy::StartStrategy(UAbility* InAbility, UTargetComponent* InTargetComponent)
+bool USelfTargetStrategy::StartStrategy(UPlayerAbility* InAbility, UTargetComponent* InTargetComponent)
 {
 	if (ANatureKeeperCharacter* Player = Cast<ANatureKeeperCharacter>(InTargetComponent->GetOwner()))
 	{
@@ -17,32 +17,20 @@ bool USelfTargetStrategy::StartStrategy(UAbility* InAbility, UTargetComponent* I
 		
 		PlayerController = Player->GetNatureKeeperController();
 		
-		Ability = InAbility;
-		TargetComponent = InTargetComponent;
-
-		TargetComponent->SetTargetStrategy(this);
-		PlayerController->OnPlayerSecondaryClickStopped.AddDynamic(this, &USelfTargetStrategy::OnPlayerClickStopped);
+		PlayerController->OnPlayerThirdClickStopped.AddDynamic(this, &USelfTargetStrategy::OnPlayerClickStopped);
 
 		return true;
 	}
 	return false;
 }
 
-void USelfTargetStrategy::CancelStrategy()
+void USelfTargetStrategy::CancelStrategy(bool bClearAbility)
 {
-	UTargetStrategy::CancelStrategy();
-	
-	PlayerController->OnPlayerSecondaryClickStopped.RemoveDynamic(this, &USelfTargetStrategy::OnPlayerClickStopped);
-	
-	if (TargetComponent->GetTargetStrategy() == this)
-	{
-		TargetComponent->ClearTargetStrategy();
-	}
+	PlayerController->OnPlayerThirdClickStopped.RemoveDynamic(this, &USelfTargetStrategy::OnPlayerClickStopped);
 
 	PlayerController = nullptr;
-
-	Ability = nullptr;
-	TargetComponent = nullptr;
+	
+	UTargetStrategy::CancelStrategy(bClearAbility);
 }
 
 void USelfTargetStrategy::OnPlayerClickStopped(float StopTriggerTime)
@@ -52,5 +40,5 @@ void USelfTargetStrategy::OnPlayerClickStopped(float StopTriggerTime)
 		Ability->ApplyAbilityEffect(TargetComponent->GetOwner());
 	}
 
-	CancelStrategy();
+	CancelStrategy(true);
 }

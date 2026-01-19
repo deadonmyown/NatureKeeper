@@ -1,67 +1,99 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Effects/Ability.h"
 
 #include "NatureKeeperUtils.h"
 #include "Effects/EffectBase.h"
-#include "Effects/EffectFactory.h"
-#include "Effects/Data/AbilityDataAsset.h"
 #include "Effects/Data/TickableDamageableEffectDataAsset.h"
 #include "ResourceSystem/ManaComponent.h"
-#include "TargetSystem/TargetStrategy.h"
 
 void UAbility::ApplyAbilityEffect_Implementation(const TScriptInterface<UAffectable>& InAffectedObject)
 {
-	//We should check this before apply ability separately, because for example in projectile on hit we just invoke applyability method
-	//and we don't care about mana, but to create this projectile we should spend ability mana
-	/*if (!TrySpendMana())
-		return;*/
+	UNatureKeeperUtils::TryCreateAndApplyEffects(this, EffectDataAssets, InAffectedObject);
+}
+
+void UAbility::ClearEffectDataAssets()
+{
+	if (!CanModifyAbility())
+		return;
 	
-	for (int i = 0; i < AbilityEffects.Num(); i++)
+	EffectDataAssets.Empty();
+
+	if (OnEffectDataAssetClear.IsBound())
 	{
-		UEffectBase* NewEffect = AbilityEffects[i]->CreateEffect();
-		NewEffect->ApplyEffect(InAffectedObject);
+		OnEffectDataAssetClear.Broadcast(this);
 	}
 }
 
-bool UAbility::IsAbilityEffectsCompleted_Implementation()
+void UAbility::AddEffectDataAssets(UEffectDataAsset* DataAssetToAdd)
 {
-	for (int i = 0; i < AbilityEffects.Num(); i++)
-	{
-		TArray<UEffectBase*> Effects = AbilityEffects[i]->GetEffects();
-		if (Effects.Num() > 0)
-			return false;
-	}
+	if (!CanModifyAbility())
+		return;
+	
+	if (EffectDataAssets.Num() >= MaxEffectsAmount)
+		return;
+	
+	EffectDataAssets.Add(DataAssetToAdd);
 
-	return true;
+	if (OnEffectDataAssetAdded.IsBound())
+	{
+		OnEffectDataAssetAdded.Broadcast(this, DataAssetToAdd);
+	}
+}
+
+void UAbility::RemoveEffectDataAssets(UEffectDataAsset* DataAssetToRemove)
+{
+	if (!CanModifyAbility())
+		return;
+	
+	if (!EffectDataAssets.Contains(DataAssetToRemove))
+		return;
+
+	EffectDataAssets.RemoveSingle(DataAssetToRemove);
+
+	if (OnEffectDataAssetRemoved.IsBound())
+	{
+		OnEffectDataAssetRemoved.Broadcast(this, DataAssetToRemove);
+	}
+	
+	if (EffectDataAssets.IsEmpty())
+	{
+		if (OnEffectDataAssetClear.IsBound())
+		{
+			OnEffectDataAssetClear.Broadcast(this);
+		}
+	}
+}
+
+void UAbility::SetEffectDataAssets(const TArray<UEffectDataAsset*>& NewDataAssets)
+{
+	if (!CanModifyAbility())
+		return;
+	
+	if (NewDataAssets.Num() > MaxEffectsAmount)
+		return;
+	
+	EffectDataAssets = NewDataAssets;
+
+	if (OnEffectDataAssetAdded.IsBound())
+	{
+		for (int i = 0; i < EffectDataAssets.Num(); i++)
+		{
+			OnEffectDataAssetAdded.Broadcast(this, EffectDataAssets[i]);
+		}
+	}
 }
 
 float UAbility::GetAbilityCompletionTime_Implementation()
 {
-	return UNatureKeeperUtils::GetEffectFactoriesCompletionTime(AbilityEffects);
-	/*float CompletionTime = 0.0f;
-	for (int i = 0; i < AbilityEffects.Num(); i++)
-	{
-		if (UTickableDamageableEffectDataAsset* TickableDataAsset = Cast<UTickableDamageableEffectDataAsset>(AbilityEffects[i]->GetEffectDataAsset()))
-		{
-			CompletionTime += TickableDataAsset->TicksCount * TickableDataAsset->TickAmount;
-		}
-	}
+	if (EffectDataAssets.IsEmpty())
+		return 0.0f;
 	
-	return CompletionTime;*/
-}
-
-void UAbility::CancelAbilityEffect_Implementation()
-{
-	for (int i = 0; i < AbilityEffects.Num(); i++)
+	float CompletionTime = 0.0f;
+	for (int i = 0; i < EffectDataAssets.Num(); i++)
 	{
-		TArray<UEffectBase*> ActualEffects = AbilityEffects[i]->GetEffects();
-		for (int j = ActualEffects.Num() - 1; j >= 0; j--)
-		{
-			ActualEffects[j]->CancelEffect();
-		}
+		CompletionTime = FMath::Max(CompletionTime, EffectDataAssets[i]->GetEffectCompletionTime());
 	}
+
+	return CompletionTime;
 }
 
 void UAbility::InitManaComponent(UManaComponent* InManaComponent)
@@ -71,21 +103,40 @@ void UAbility::InitManaComponent(UManaComponent* InManaComponent)
 
 bool UAbility::CanCastAbility()
 {
-	//Can't cast ability if we have ability data asset, mana cost greater than zero and we didn't have enough mana or mana component is invalid
-	if (AbilityDataAsset && AbilityDataAsset->AbilityManaCost > 0 &&
-		(!ManaComponent || (ManaComponent->GetResourceValue() < AbilityDataAsset->AbilityManaCost)))
+	//Can't cast ability if mana cost greater than zero and we didn't have enough mana or mana component is invalid
+	if (EffectDataAssets.IsEmpty() || !ManaComponent || (ManaComponent->GetResourceValue() < GetManaCost()))
 		return false;
 
 	return true;
+}
+
+bool UAbility::CanModifyAbility()
+{
+	return true;
+}
+
+int32 UAbility::GetManaCost()
+{
+	if (EffectDataAssets.IsEmpty())
+		return 0;
+	
+	int32 CurrManaCost = 0;
+	for (int i = 0; i < EffectDataAssets.Num(); i++)
+	{
+		CurrManaCost += EffectDataAssets[i]->EffectManaCost;
+	}
+
+	return CurrManaCost;
 }
 
 bool UAbility::TrySpendMana_Implementation()
 {
 	if (!CanCastAbility())
 		return false;
-	
-	if (AbilityDataAsset && AbilityDataAsset->AbilityManaCost > 0)
-		ManaComponent->DecreaseResourceValue(AbilityDataAsset->AbilityManaCost);
+
+	int32 ManaCost = GetManaCost();
+	if (ManaComponent && ManaCost > 0)
+		ManaComponent->DecreaseResourceValue(ManaCost);
 
 	return true;
 }

@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "AbilityComponent.generated.h"
 
+class UEffectDataAsset;
 class UPlayerAbility;
 class UManaComponent;
 class UTargetComponent;
@@ -21,7 +22,9 @@ class NATUREKEEPER_API UAbilityComponent : public UActorComponent
 
 protected:
 	UPROPERTY(Instanced, EditAnywhere, BlueprintReadWrite, Category = "Ability")
-	TArray<UPlayerAbility*> Abilities;
+	UPlayerAbility* PlayerAbility;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
+	TArray<UEffectDataAsset*> AvailableEffectDataAssets;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Ability")
 	UManaComponent* ManaComponent;
@@ -31,7 +34,18 @@ protected:
 public:
 	UAbilityComponent();
 
-	const TArray<UPlayerAbility*>& GetAbilities() const { return Abilities; }
-
-	void InitComponent(UManaComponent* InManaComponent);
+	UFUNCTION(BlueprintCallable, Category = "Ability")
+	void SetAbilityTargetStrategy(UTargetStrategy* NewTargetStrategy);
+	UFUNCTION(BlueprintCallable, Category = "Ability")
+	void ClearAbilityTargetStrategy();
+	UFUNCTION(BlueprintCallable, Category = "Ability")
+	void ClearAbilityEffects();
+	UFUNCTION(BlueprintCallable, Category = "Ability")
+	void AddAbilityEffect(UEffectDataAsset* DataAssetToAdd);
+	UFUNCTION(BlueprintCallable, Category = "Ability")
+	void AddAbilityEffectByIndex(int32 EffectIndex);
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Ability")
+	UPlayerAbility* GetAbility() const { return PlayerAbility; }
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Ability")
+	const TArray<UEffectDataAsset*>& GetAvailableEffects() const { return AvailableEffectDataAssets; }
 };

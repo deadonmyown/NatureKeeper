@@ -26,18 +26,16 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Target")
 	float OverrideFocusUpdateTimeInSec = -1.0f;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Target")
-	bool bCancelAbility = false;
+	/*UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Target")
+	bool bCancelAbility = false;*/
 
-	bool bFocusStart = false;
 	float FocusUpdateTimeInSec = 1.0f;
 	float CurrentFocusCooldown = 0.0f;
-	float AbilityDistance = 1.0f;
 	
 public:
-	virtual bool StartStrategy(UAbility* InAbility, UTargetComponent* InTargetComponent) override;
+	virtual bool StartStrategy(UPlayerAbility* InAbility, UTargetComponent* InTargetComponent) override;
 	virtual void UpdateStrategy(float DeltaTime) override;
-	virtual void CancelStrategy() override;
+	virtual void CancelStrategy(bool bClearAbility = false) override;
 
 	UFUNCTION()
 	void OnPlayerClickStarted();

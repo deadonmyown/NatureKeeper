@@ -1,27 +1,40 @@
 #include "NatureKeeperUtils.h"
 
 #include "FocusComponent.h"
-#include "IsometricCell.h"
 #include "NatureKeeperCharacter.h"
 #include "NatureKeeperGameMode.h"
 #include "NavigationSystem.h"
 #include "Effects/EffectBase.h"
-#include "Effects/EffectFactory.h"
+#include "Effects/Data/EffectDataAsset.h"
 #include "Kismet/GameplayStatics.h"
 #include "Managers/TargetFollowManager.h"
 
 class ANatureKeeperGameMode;
 
-UEffectBase* UNatureKeeperUtils::CreateEffect(UObject* Outer, TSubclassOf<UEffectBase> EffectClass,
-	UEffectDataAsset* EffectDataAsset)
+UEffectBase* UNatureKeeperUtils::CreateEffect(UObject* Outer, UEffectDataAsset* EffectDataAsset)
 {
-	if (!Outer || !EffectClass || !EffectDataAsset) return nullptr;
+	if (!Outer || !EffectDataAsset) return nullptr;
 	
-	UEffectBase* NewEffect = NewObject<UEffectBase>(Outer, EffectClass);
+	UEffectBase* NewEffect = NewObject<UEffectBase>(Outer, EffectDataAsset->EffectClass);
 
 	if (!NewEffect->InitEffect(EffectDataAsset)) return nullptr;
 	
 	return NewEffect;
+}
+
+void UNatureKeeperUtils::TryCreateAndApplyEffects(UObject* Outer, TArray<UEffectDataAsset*>& InEffectDataAssets,
+	const TScriptInterface<UAffectable>& InAffectedObject)
+{
+	if (!Outer || InEffectDataAssets.IsEmpty() || !InAffectedObject.GetObject()) return;
+	
+	for (int i = 0; i < InEffectDataAssets.Num(); i++)
+	{
+		UEffectBase* NewEffect = CreateEffect(Outer, InEffectDataAssets[i]);
+
+		if (!NewEffect) continue;
+		
+		NewEffect->ApplyEffect(InAffectedObject);
+	}
 }
 
 void UNatureKeeperUtils::SetPlayerFocusComponentAsTarget(const TScriptInterface<UFollow>& FollowActor)
@@ -92,17 +105,6 @@ FVector UNatureKeeperUtils::GetRandomNavigableLocationInRadius(UObject* WorldCon
     
 	// If NavMesh is missing or no reachable point found
 	return Origin; 
-}
-
-float UNatureKeeperUtils::GetEffectFactoriesCompletionTime(const TArray<UEffectFactory*>& InEffectFactories)
-{
-	float CompletionTime = 0.0f;
-	for (int i = 0; i < InEffectFactories.Num(); i++)
-	{
-		CompletionTime += InEffectFactories[i]->GetEffectCompletionTime();
-	}
-
-	return CompletionTime;
 }
 
 float UNatureKeeperUtils::GetEffectsCompletionTime(const TArray<UEffectBase*>& InEffects)

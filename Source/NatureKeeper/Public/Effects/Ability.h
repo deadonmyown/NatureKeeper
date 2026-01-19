@@ -6,27 +6,40 @@
 #include "UObject/Object.h"
 #include "Ability.generated.h"
 
-class UAbilityDataAsset;
+class UEffectDataAsset;
+class UEffectBase;
 class UManaComponent;
 class UAffectable;
 class UTargetComponent;
-class UEffectFactory;
 class UTargetStrategy;
 
 /**
  * 
  */
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnEffectDataAssetAdded, UAbility*, Ability, UEffectDataAsset*, NewDataAsset);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnEffectDataAssetRemoved, UAbility*, Ability, UEffectDataAsset*, NewDataAsset);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEffectDataAssetClear, UAbility*, Ability);
+
 UCLASS(DefaultToInstanced, Blueprintable, EditInlineNew)
 class NATUREKEEPER_API UAbility : public UObject
 {
 	GENERATED_BODY()
 
-protected:
-	UPROPERTY(Instanced, EditAnywhere, BlueprintReadWrite, Category = "Ability")
-	TArray<UEffectFactory*> AbilityEffects;
+public:
+	UPROPERTY(BlueprintAssignable, Category="Ability")
+	FOnEffectDataAssetAdded OnEffectDataAssetAdded;
+	UPROPERTY(BlueprintAssignable, Category="Ability")
+	FOnEffectDataAssetRemoved OnEffectDataAssetRemoved;
+	UPROPERTY(BlueprintAssignable, Category="Ability")
+	FOnEffectDataAssetClear OnEffectDataAssetClear;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Ability")
-	UAbilityDataAsset* AbilityDataAsset;
+protected:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
+	TArray<UEffectDataAsset*> EffectDataAssets;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
+	int32 MaxEffectsAmount = 1;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Ability")
 	UManaComponent* ManaComponent;
@@ -35,19 +48,27 @@ public:
 	void InitManaComponent(UManaComponent* InManaComponent);
 
 	UFUNCTION(BlueprintCallable, Category = "Ability")
+	void ClearEffectDataAssets();
+	UFUNCTION(BlueprintCallable, Category = "Ability")
+	void AddEffectDataAssets(UEffectDataAsset* DataAssetToAdd);
+	UFUNCTION(BlueprintCallable, Category = "Ability")
+	void RemoveEffectDataAssets(UEffectDataAsset* DataAssetToRemove);
+	UFUNCTION(BlueprintCallable, Category = "Ability")
+	void SetEffectDataAssets(const TArray<UEffectDataAsset*>& NewDataAssets);
+
+	UFUNCTION(BlueprintCallable, Category = "Ability")
 	bool CanCastAbility();
+	UFUNCTION(BlueprintCallable, Category = "Ability")
+	virtual bool CanModifyAbility();
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Ability")
 	void ApplyAbilityEffect(const TScriptInterface<UAffectable>& InAffectedObject);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Ability")
-	bool IsAbilityEffectsCompleted();
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Ability")
 	float GetAbilityCompletionTime();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Ability")
 	bool TrySpendMana();
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Ability")
-	void CancelAbilityEffect();
-	
-	UFUNCTION(BlueprintPure, Category = "Ability")
-	UAbilityDataAsset* GetAbilityDataAsset() const { return AbilityDataAsset; }
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Ability")
+	virtual int32 GetManaCost();
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Ability")
+	TArray<UEffectDataAsset*> GetEffectDataAssets() const {return EffectDataAssets;}
 };

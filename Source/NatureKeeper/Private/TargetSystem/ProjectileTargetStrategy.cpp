@@ -5,14 +5,14 @@
 
 #include "FocusComponent.h"
 #include "NatureKeeperCharacter.h"
-#include "Effects/Ability.h"
+#include "Effects/PlayerAbility.h"
 #include "Projectiles/AbilityProjectile.h"
 #include "Projectiles/Projectile.h"
 #include "TargetSystem/TargetComponent.h"
 
 class ANatureKeeperCharacter;
 
-bool UProjectileTargetStrategy::StartStrategy(UAbility* InAbility, UTargetComponent* InTargetComponent)
+bool UProjectileTargetStrategy::StartStrategy(UPlayerAbility* InAbility, UTargetComponent* InTargetComponent)
 {
 	if (ANatureKeeperCharacter* Player = Cast<ANatureKeeperCharacter>(InTargetComponent->GetOwner()))
 	{
@@ -24,11 +24,8 @@ bool UProjectileTargetStrategy::StartStrategy(UAbility* InAbility, UTargetCompon
 		MuzzleComponent = FocusComponent->GetPlayerMuzzleComponent();
 
 		bIsTargeting = true;
-		Ability = InAbility;
-		TargetComponent = InTargetComponent;
-
-		TargetComponent->SetTargetStrategy(this);
-		PlayerController->OnPlayerSecondaryClickStopped.AddDynamic(this, &UProjectileTargetStrategy::OnPlayerClickStopped);
+		
+		PlayerController->OnPlayerMainClickStopped.AddDynamic(this, &UProjectileTargetStrategy::OnPlayerClickStopped);
 
 		return true;
 	}
@@ -41,24 +38,15 @@ void UProjectileTargetStrategy::UpdateStrategy(float DeltaTime)
 	
 }
 
-void UProjectileTargetStrategy::CancelStrategy()
+void UProjectileTargetStrategy::CancelStrategy(bool bClearAbility)
 {
-	UTargetStrategy::CancelStrategy();
-	
-	PlayerController->OnPlayerSecondaryClickStopped.RemoveDynamic(this, &UProjectileTargetStrategy::OnPlayerClickStopped);
-	
-	if (TargetComponent->GetTargetStrategy() == this)
-	{
-		TargetComponent->ClearTargetStrategy();
-	}
+	PlayerController->OnPlayerMainClickStopped.RemoveDynamic(this, &UProjectileTargetStrategy::OnPlayerClickStopped);
 
 	FocusComponent = nullptr;
 	PlayerController = nullptr;
 	MuzzleComponent = nullptr;
 
-	bIsTargeting = false;
-	Ability = nullptr;
-	TargetComponent = nullptr;
+	UTargetStrategy::CancelStrategy(bClearAbility);
 }
 
 void UProjectileTargetStrategy::OnPlayerClickStopped(float StopTriggerTime)
@@ -75,8 +63,8 @@ void UProjectileTargetStrategy::OnPlayerClickStopped(float StopTriggerTime)
 		AAbilityProjectile* Projectile = GetWorld()->SpawnActor<AAbilityProjectile>(ProjectileClass, MuzzleComponent->GetComponentTransform(), SpawnParams);
 		Projectile->AddActorsToIgnore(TargetComponent->GetOwner());
 		Projectile->FireProjectileInDirection(LookDirection, StopTriggerTime);
-		Projectile->InitAbilityProjectile(Ability);
+		Projectile->InitAbilityProjectile(Ability->GetEffectDataAssets());
 	}
 	
-	CancelStrategy();
+	CancelStrategy(true);
 }

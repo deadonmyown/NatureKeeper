@@ -10,29 +10,7 @@
 #include "Interfaces/Follow.h"
 #include "Managers/TargetFollowManager.h"
 
-bool UWindEffect::InitEffect(UEffectDataAsset* InEffectDataAsset)
-{
-	UWindEffectDataAsset* WindEffectDataAsset = Cast<UWindEffectDataAsset>(InEffectDataAsset);
-
-	if (!WindEffectDataAsset)
-		return false;
-	
-	EffectVFX = WindEffectDataAsset->EffectVFX;
-	EffectElementType = WindEffectDataAsset->EffectElementType;
-	BlendingEffectClass = InEffectDataAsset->BlendingEffectClass;
-	BlendingEffectDataAsset = InEffectDataAsset->BlendingEffectDataAsset;
-	BlendingEffectElementType = InEffectDataAsset->BlendingEffectElementType;
-	InitialDamageAmount = WindEffectDataAsset->InitialDamageAmount;
-	TickDamageAmount = WindEffectDataAsset->TickDamageAmount;
-	TicksCount = WindEffectDataAsset->TicksCount;
-	TickAmount = WindEffectDataAsset->TickAmount;
-	TickEffectVFX = WindEffectDataAsset->TickEffectVFX;
-
-	CurrTick = 0;
-	return true;
-}
-
-bool UWindEffect::ApplyEffect(TScriptInterface<UAffectable> InAffectedObject)
+bool UWindEffect::ApplyEffect(const TScriptInterface<UAffectable>& InAffectedObject)
 {
 	if (!UDamageableBaseEffect::ApplyEffect(InAffectedObject))
 		return false;

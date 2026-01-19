@@ -3,8 +3,10 @@
 #include "NatureKeeperGameMode.h"
 #include "NatureKeeperUtils.h"
 #include "Collision/DamageCollisionBase.h"
+#include "Collision/EffectDamageCollision.h"
 #include "Components/SphereComponent.h"
 #include "Effects/Ability.h"
+#include "Effects/EffectBase.h"
 #include "Interfaces/Affectable.h"
 #include "Managers/DamageCollisionSpawner.h"
 
@@ -18,9 +20,9 @@ void AAbilityProjectile::BeginPlay()
 	Super::BeginPlay();
 }
 
-void AAbilityProjectile::InitAbilityProjectile(UAbility* ProjectileAbility)
+void AAbilityProjectile::InitAbilityProjectile(const TArray<UEffectDataAsset*> InAbilityEffects)
 {
-	Ability = ProjectileAbility;
+	ProjectileAbilityEffects = InAbilityEffects;
 }
 
 void AAbilityProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
@@ -28,26 +30,26 @@ void AAbilityProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherA
 {
 	if (CollisionComponent->GetMoveIgnoreActors().Contains(OtherActor)) return;
 	
-	if (Ability)
+	if (!ProjectileAbilityEffects.IsEmpty())
 	{
-		if (CachedFirePressDuration == FirePressMaxDuration && AbilityDamageCollisionClass)
+		if (CachedFirePressDuration == FirePressMaxDuration && EffectDamageCollisionClass)
 		{
 			if (ANatureKeeperGameMode* GameMode = GetWorld()->GetAuthGameMode<ANatureKeeperGameMode>())
 			{
 				FTransform HitTransform;
 				HitTransform.SetLocation(Hit.ImpactPoint);
 				FDamageCollisionData DamageCollisionData = FDamageCollisionData();
-				FAbilityDamageCollisionData AbilityDamageCollisionData = FAbilityDamageCollisionData();
-				AbilityDamageCollisionData.Ability = Ability;
+				FEffectDamageCollisionData EffectDamageCollisionData = FEffectDamageCollisionData();
+				EffectDamageCollisionData.EffectDataAsset = ProjectileAbilityEffects;
 				GameMode->GetDamageCollisionSpawner()
-				->SpawnAbilityDamageCollision(AbilityDamageCollisionClass, HitTransform, DamageCollisionData, AbilityDamageCollisionData);
+				->SpawnEffectDamageCollision(EffectDamageCollisionClass, HitTransform, DamageCollisionData, EffectDamageCollisionData);
 			}
 		}
 		else
 		{
 			if (OtherActor->Implements<UAffectable>())
 			{
-				Ability->ApplyAbilityEffect(OtherActor);
+				UNatureKeeperUtils::TryCreateAndApplyEffects(this, ProjectileAbilityEffects, OtherActor);
 			}
 		}
 	}

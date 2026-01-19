@@ -6,7 +6,8 @@
 #include "Projectile.h"
 #include "AbilityProjectile.generated.h"
 
-class AAbilityDamageCollision;
+class AEffectDamageCollision;
+class UEffectDataAsset;
 class UAbility;
 
 UCLASS()
@@ -21,13 +22,13 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
-	TSubclassOf<AAbilityDamageCollision> AbilityDamageCollisionClass;
+	TSubclassOf<AEffectDamageCollision> EffectDamageCollisionClass;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Projectile)
-	UAbility* Ability;
+	TArray<UEffectDataAsset*> ProjectileAbilityEffects;
 
 public:
 	UFUNCTION(BlueprintCallable, Category = Projectile)
-	virtual void InitAbilityProjectile(UAbility* ProjectileAbility);
+	virtual void InitAbilityProjectile(const TArray<UEffectDataAsset*> InAbilityEffects);
 
 	virtual void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit) override;
 };

@@ -13,7 +13,4 @@ UCLASS()
 class NATUREKEEPER_API UEarthEffect : public UDamageableEffect
 {
 	GENERATED_BODY()
-
-public:
-	virtual bool InitEffect(UEffectDataAsset* InEffectDataAsset) override;
 };

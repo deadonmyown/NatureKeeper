@@ -25,14 +25,14 @@ class ANatureKeeperGameMode;
 
 ANatureKeeperCharacter::ANatureKeeperCharacter()
 {
-	AbilityComponent = CreateDefaultSubobject<UAbilityComponent>("AbilityComponent");
-	TargetComponent = CreateDefaultSubobject<UTargetComponent>("TargetComponent");
-
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>("HealthComponent");
 	ManaComponent = CreateDefaultSubobject<UManaComponent>("ManaComponent");
 	EvilComponent = CreateDefaultSubobject<UEvilComponent>("EvilComponent");
-
+	
 	FocusComponent = CreateDefaultSubobject<UFocusComponent>("FocusComponent");
+	
+	AbilityComponent = CreateDefaultSubobject<UAbilityComponent>("AbilityComponent");
+	TargetComponent = CreateDefaultSubobject<UTargetComponent>("TargetComponent");
 	
 	// Set size for player capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
@@ -78,11 +78,6 @@ void ANatureKeeperCharacter::BeginPlay()
 
 	if (ManaComponent)
 	{
-		if (AbilityComponent)
-		{
-			AbilityComponent->InitComponent(ManaComponent);
-		}
-		
 		ManaComponent->OnResourceValueReachMin.AddDynamic(this, &ANatureKeeperCharacter::OnMinMana);
 	}
 	
@@ -176,7 +171,10 @@ void ANatureKeeperCharacter::TakeDamage_Implementation(int Damage, EEffectElemen
 bool ANatureKeeperCharacter::RegisterEffect_Implementation(UEffectBase* EffectToAdd)
 {
 	if (Effects.Contains(EffectToAdd))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Effect already registered!"));
 		return false;
+	}
 
 	Effects.Add(EffectToAdd);
 	return true;

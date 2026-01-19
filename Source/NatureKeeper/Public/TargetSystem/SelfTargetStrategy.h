@@ -20,8 +20,8 @@ protected:
 	ANatureKeeperPlayerController* PlayerController;
 	
 public:
-	virtual bool StartStrategy(UAbility* InAbility, UTargetComponent* InTargetComponent) override;
-	virtual void CancelStrategy() override;
+	virtual bool StartStrategy(UPlayerAbility* InAbility, UTargetComponent* InTargetComponent) override;
+	virtual void CancelStrategy(bool bClearAbility = false) override;
 
 	UFUNCTION()
 	void OnPlayerClickStopped(float StopTriggerTime);

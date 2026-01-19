@@ -6,7 +6,7 @@
 #include "Interfaces/Affectable.h"
 #include "Interfaces/Damageable.h"
 
-bool UDamageableBaseEffect::ApplyEffect(TScriptInterface<UAffectable> InAffectedObject)
+bool UDamageableBaseEffect::ApplyEffect(const TScriptInterface<UAffectable>& InAffectedObject)
 {
 	if (!UEffectBase::ApplyEffect(InAffectedObject))
 		return false;

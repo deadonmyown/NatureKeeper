@@ -26,12 +26,10 @@ protected:
 	float AOERadius = 100.0f;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Target")
 	float AOEHalfHeight = 100.0f;
-	
-	float AbilityDistance = 0.0f;
 
 public:
-	virtual bool StartStrategy(UAbility* InAbility, UTargetComponent* InTargetComponent) override;
-	virtual void CancelStrategy() override;
+	virtual bool StartStrategy(UPlayerAbility* InAbility, UTargetComponent* InTargetComponent) override;
+	virtual void CancelStrategy(bool bClearAbility = false) override;
 
 	UFUNCTION()
 	void OnPlayerClickStopped(float StopTriggerTime);
