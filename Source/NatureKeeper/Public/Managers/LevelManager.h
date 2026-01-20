@@ -4,6 +4,8 @@
 #include "GameFramework/Actor.h"
 #include "LevelManager.generated.h"
 
+class ANaturalSpring;
+
 UENUM(BlueprintType)
 enum class ELevelPhase : uint8
 {
@@ -24,6 +26,9 @@ public:
 	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "LevelManager")
 	FOnLevelPhaseChanged OnLevelPhaseChanged;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LevelManager")
+	TArray<ANaturalSpring*> NaturalSprings; 
+
 	UFUNCTION(BlueprintCallable, Category = "LevelManager")
 	void OnLooseLevel();
 	UFUNCTION(BlueprintCallable, Category = "LevelManager")
@@ -32,10 +37,20 @@ public:
 	void ChangeLevelPhase(const ELevelPhase& NewLevelPhase);
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "LevelManager")
 	ELevelPhase GetLevelPhase() const {return CurrentLevelPhase;}
+	
+	UFUNCTION(BlueprintCallable, Category = "LevelManager")
+	void RegisterNaturalSpring(ANaturalSpring* NewNaturalSpring);
+	UFUNCTION(BlueprintCallable, Category = "LevelManager")
+	void UnregisterNaturalSpring(ANaturalSpring* NaturalSpringToRemove);
 
 protected:
-	virtual void BeginPlay() override;
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LevelManager")
+	TArray<UWorld*> WorldList;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "LevelManager")
 	ELevelPhase CurrentLevelPhase = ELevelPhase::LP_Default;
+	
+	virtual void BeginPlay() override;
+
+	UFUNCTION()
+	void OnEvilAbsorbComplete(ANaturalSpring* CompletedNaturalSpring);
 };
