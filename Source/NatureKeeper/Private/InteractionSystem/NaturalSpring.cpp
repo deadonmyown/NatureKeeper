@@ -33,7 +33,7 @@ void ANaturalSpring::OnAbsorbEvil()
 {
 	if (bIsAbsorbComplete) return;
 	
-	if (!InteractingPlayerCache) return;
+	if (!IsValid(InteractingPlayerCache)) return;
 
 	if (!CheckPowerSourcesConditions()) return;
 
@@ -44,13 +44,16 @@ void ANaturalSpring::OnAbsorbEvil()
 	
 	if (OnNaturalSpringEvilAbsorb.IsBound())
 		OnNaturalSpringEvilAbsorb.Broadcast(this, 1);
+
+	if (EvilComponent->GetResourceValue() == EvilComponent->GetMinResourceValue())
+		OnAbsorbComplete(EvilComponent->GetMinResourceValue());
 }
 
 void ANaturalSpring::BeginPlay()
 {
 	Super::BeginPlay();
 
-	EvilComponent->OnResourceValueReachMin.AddDynamic(this, &ANaturalSpring::OnAbsorbComplete);
+	//EvilComponent->OnResourceValueReachMin.AddDynamic(this, &ANaturalSpring::OnAbsorbComplete);
 
 	if (UWorld* World = GetWorld())
 	{
@@ -63,12 +66,30 @@ void ANaturalSpring::BeginPlay()
 	}
 }
 
+void ANaturalSpring::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(EvilAbsorbTimer);
+	}
+	
+	/*if (EvilComponent)
+	{
+		EvilComponent->OnResourceValueReachMin.RemoveAll(this);
+	}*/
+	
+	Super::EndPlay(EndPlayReason);
+}
+
 bool ANaturalSpring::CheckPowerSourcesConditions() const
 {
 	if (NaturalSpringPowerSources.IsEmpty()) return true;
 
 	for (int i = 0; i < NaturalSpringPowerSources.Num(); i++)
 	{
+		if (!IsValid(NaturalSpringPowerSources[i]))
+			continue;
+		
 		if (!NaturalSpringPowerSources[i]->bIsPowerSourceRevived)
 			return false;
 	}

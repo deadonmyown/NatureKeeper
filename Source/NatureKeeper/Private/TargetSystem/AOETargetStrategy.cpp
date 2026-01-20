@@ -41,7 +41,7 @@ void UAOETargetStrategy::CancelStrategy(bool bClearAbility)
 
 void UAOETargetStrategy::OnPlayerClickStopped(float StopTriggerTime)
 {
-	if (!Ability && !Ability->TrySpendMana())
+	if (!Ability || !Ability->TrySpendMana())
 	{
 		CancelStrategy(true);
 		return;

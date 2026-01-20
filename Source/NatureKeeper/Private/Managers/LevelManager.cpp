@@ -35,16 +35,17 @@ void ALevelManager::OnLooseLevel()
 
 void ALevelManager::OnWinLevel()
 {
-	UE_LOG(LogTemp, Display, TEXT("YOU WON)"));
-	for (int i = 1; i < WorldList.Num(); i++)
+	for (int i = 1; i < LevelNames.Num(); i++)
 	{
 		FString CurrentLevelName = UGameplayStatics::GetCurrentLevelName(GetWorld(), true);
-		FString PreviousLevelName = UGameplayStatics::GetCurrentLevelName(WorldList[i-1], false);
-		if (PreviousLevelName == CurrentLevelName)
+		if (LevelNames[i-1] == CurrentLevelName)
 		{
-			UGameplayStatics::OpenLevelBySoftObjectPtr(this, WorldList[i]);
+			UGameplayStatics::OpenLevel(this, LevelNames[i]);
+			return;
 		}
 	}
+
+	UE_LOG(LogTemp, Display, TEXT("YOU WON)"));
 }
 
 void ALevelManager::ChangeLevelPhase(const ELevelPhase& NewLevelPhase)
@@ -73,4 +74,19 @@ void ALevelManager::UnregisterNaturalSpring(ANaturalSpring* NaturalSpringToRemov
 		return;
 
 	NaturalSprings.Remove(NaturalSpringToRemove);
+}
+
+void ALevelManager::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	for (ANaturalSpring* Spring : NaturalSprings)
+	{
+		if (IsValid(Spring))
+		{
+			Spring->OnNaturalSpringEvilAbsorbComplete.RemoveAll(this);
+		}
+	}
+
+	NaturalSprings.Empty();
+
+	Super::EndPlay(EndPlayReason);
 }

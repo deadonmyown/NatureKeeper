@@ -44,12 +44,13 @@ public:
 	void UnregisterNaturalSpring(ANaturalSpring* NaturalSpringToRemove);
 
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LevelManager")
-	TArray<UWorld*> WorldList;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LevelManager")
+	TArray<FName> LevelNames;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "LevelManager")
 	ELevelPhase CurrentLevelPhase = ELevelPhase::LP_Default;
 	
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	UFUNCTION()
 	void OnEvilAbsorbComplete(ANaturalSpring* CompletedNaturalSpring);
