@@ -52,6 +52,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Target")
 	float OverrideFlowUpdateTimeInSec = -1.0f;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Target")
+	float DefaultFlowUpdateTimeInSec = 1.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Target")
 	bool bHitSingleTarget = true;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Target")
 	float CapsuleRadius = 100.0f;

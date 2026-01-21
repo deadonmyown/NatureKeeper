@@ -27,15 +27,30 @@ void UAbility::AddEffectDataAssets(UEffectDataAsset* DataAssetToAdd)
 {
 	if (!CanModifyAbility())
 		return;
+
+	UEffectDataAsset* FinalDataAssetToAdd = DataAssetToAdd;
+	
+	if (!EffectDataAssets.IsEmpty() && DataAssetToAdd->BlendingEffectDataAsset)
+	{
+		for (int i = EffectDataAssets.Num() - 1; i >= 0; i--)
+		{
+			if (EffectDataAssets[i]->EffectElementType == DataAssetToAdd->BlendingEffectElementType)
+			{
+				FinalDataAssetToAdd = DataAssetToAdd->BlendingEffectDataAsset;
+				EffectDataAssets.RemoveAt(i);
+				break;
+			}
+		}
+	}
 	
 	if (EffectDataAssets.Num() >= MaxEffectsAmount)
 		return;
 	
-	EffectDataAssets.Add(DataAssetToAdd);
+	EffectDataAssets.Add(FinalDataAssetToAdd);
 
 	if (OnEffectDataAssetAdded.IsBound())
 	{
-		OnEffectDataAssetAdded.Broadcast(this, DataAssetToAdd);
+		OnEffectDataAssetAdded.Broadcast(this, FinalDataAssetToAdd);
 	}
 }
 

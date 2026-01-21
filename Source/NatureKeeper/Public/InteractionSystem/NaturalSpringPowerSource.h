@@ -20,10 +20,9 @@ protected:
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Natural Spring")
 	bool bIsPowerSourceRevived;
-	
-	UFUNCTION()
-	virtual void OnRevive(int MaxValue);
-	
+
+	virtual void OnRevive(int MaxValue) override;
 	virtual void OnDeath(int MinValue) override;
+	
 	virtual void TakeDamage_Implementation(int Damage, EEffectElement EffectElement = EEffectElement::EE_Physical, FVector DamageNormal = FVector::ZeroVector) override;
 };

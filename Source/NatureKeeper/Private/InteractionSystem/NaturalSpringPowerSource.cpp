@@ -15,7 +15,7 @@ void ANaturalSpringPowerSource::BeginPlay()
 	if (HealthComponent->GetResourceValue() == HealthComponent->GetMaxResourceValue())
 		bIsPowerSourceRevived = true;
 	
-	HealthComponent->OnResourceValueReachMax.AddDynamic(this, &ANaturalSpringPowerSource::OnRevive);
+	HealthComponent->OnResourceValueReachMax.AddDynamic(this, &ANaturalSpringPowerSource::Revive);
 }
 
 void ANaturalSpringPowerSource::OnRevive(int MaxValue)

@@ -14,7 +14,22 @@ void ADamageableInteractiveActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	HealthComponent->OnResourceValueReachMin.AddDynamic(this, &ADamageableInteractiveActor::OnDeath);
+	HealthComponent->OnResourceValueReachMin.AddDynamic(this, &ADamageableInteractiveActor::Death);
+}
+
+void ADamageableInteractiveActor::Revive_Implementation(int MaxValue)
+{
+	OnRevive(MaxValue);
+}
+
+void ADamageableInteractiveActor::Death_Implementation(int MinValue)
+{
+	OnDeath(MinValue);
+}
+
+void ADamageableInteractiveActor::OnRevive(int MaxValue)
+{
+	
 }
 
 void ADamageableInteractiveActor::OnDeath(int MinValue)

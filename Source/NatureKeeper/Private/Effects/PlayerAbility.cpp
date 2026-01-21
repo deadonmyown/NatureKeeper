@@ -26,7 +26,7 @@ void UPlayerAbility::Target_Implementation(UTargetComponent* InTargetComponent)
 
 void UPlayerAbility::SetTargetStrategy(UTargetStrategy* NewTargetStrategy)
 {
-	if (!CanModifyAbility())
+	if (!CanCastAbility() || !CanModifyAbility())
 		return;
 	
 	if (TargetStrategy && TargetStrategy->GetIsStarted())

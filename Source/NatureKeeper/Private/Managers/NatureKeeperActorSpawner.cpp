@@ -28,6 +28,7 @@ void ANatureKeeperActorSpawner::SpawnActor()
 		return;
 
 	FActorSpawnParameters SpawnParameters = FActorSpawnParameters();
+	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 	FVector SpawnLocation = UNatureKeeperUtils::GetRandomNavigableLocationInRadius(this, GetActorLocation(), SpawnActorRadius);
 	AActor* NewActor = GetWorld()->SpawnActor<AActor>(SpawnActorClass, SpawnLocation, FRotator::ZeroRotator, SpawnParameters);
 

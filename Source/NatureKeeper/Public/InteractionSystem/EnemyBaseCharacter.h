@@ -58,8 +58,14 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Enemy")
 	bool CanAttack() const {return !bIsAttacking && CurrAttackDelay == 0.0f;}
 	
-	UFUNCTION()
-	void OnDeath(int MinValue);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Damageable")
+	void Revive(int MaxValue);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Damageable")
+	void Death(int MinValue);
+	UFUNCTION(BlueprintCallable, Category = "Damageable")
+	virtual void OnRevive(int MaxValue);
+	UFUNCTION(BlueprintCallable, Category = "Damageable")
+	virtual void OnDeath(int MinValue);
 	
 	virtual void Heal_Implementation(int HealAmount) override;
 	virtual void TakeDamage_Implementation(int Damage, EEffectElement EffectElement = EEffectElement::EE_Physical, FVector DamageNormal = FVector::ZeroVector) override;

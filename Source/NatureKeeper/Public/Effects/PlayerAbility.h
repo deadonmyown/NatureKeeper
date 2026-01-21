@@ -25,4 +25,6 @@ public:
 
 	virtual bool CanModifyAbility() override;
 	virtual int32 GetManaCost() override;
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Ability")
+	UTargetStrategy* GetTargetStrategy() const {return TargetStrategy;}
 };

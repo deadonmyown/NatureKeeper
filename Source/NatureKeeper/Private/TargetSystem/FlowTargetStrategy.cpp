@@ -36,6 +36,8 @@ bool UFlowTargetStrategy::StartStrategy(UPlayerAbility* InAbility, UTargetCompon
 		else
 		{
 			FlowUpdateTimeInSec = Ability->GetAbilityCompletionTime();
+			if (FlowUpdateTimeInSec <= 0.0f)
+				FlowUpdateTimeInSec = DefaultFlowUpdateTimeInSec;
 		}
 
 		PlayerController->OnPlayerMainClickStarted.AddDynamic(this, &UFlowTargetStrategy::OnPlayerClickStarted);

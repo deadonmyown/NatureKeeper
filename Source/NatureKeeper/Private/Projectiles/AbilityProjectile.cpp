@@ -43,6 +43,8 @@ void AAbilityProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherA
 				EffectDamageCollisionData.EffectDataAsset = ProjectileAbilityEffects;
 				GameMode->GetDamageCollisionSpawner()
 				->SpawnEffectDamageCollision(EffectDamageCollisionClass, HitTransform, DamageCollisionData, EffectDamageCollisionData);
+				DrawDebugSphere(GetWorld(), HitTransform.GetLocation(), DamageCollisionData.CollisionSphereRadius, 12,
+					FColor::Red, false, DamageCollisionData.CollisionLifeSpan, 0, 1);
 			}
 		}
 		else

@@ -94,17 +94,23 @@ FVector UNatureKeeperUtils::GetRandomNavigableLocationInRadius(UObject* WorldCon
 	UWorld* World = WorldContextObject->GetWorld();
 	UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(World);
 
+	FNavLocation ProjectedPoint;
+	if (!NavSys->ProjectPointToNavigation(Origin, ProjectedPoint, FVector(Radius, Radius, Radius)))
+	{
+		return Origin;
+	}
+
 	if (NavSys)
 	{
 		FNavLocation RandomPoint;
-		if (NavSys->GetRandomPointInNavigableRadius(Origin, Radius, RandomPoint))
+		if (NavSys->GetRandomPointInNavigableRadius(ProjectedPoint.Location, Radius, RandomPoint))
 		{
 			return RandomPoint.Location;
 		}
 	}
     
 	// If NavMesh is missing or no reachable point found
-	return Origin; 
+	return ProjectedPoint.Location; 
 }
 
 float UNatureKeeperUtils::GetEffectsCompletionTime(const TArray<UEffectBase*>& InEffects)

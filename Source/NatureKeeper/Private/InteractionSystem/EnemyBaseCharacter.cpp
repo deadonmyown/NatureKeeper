@@ -24,7 +24,27 @@ void AEnemyBaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	HealthComponent->OnResourceValueReachMin.AddDynamic(this, &AEnemyBaseCharacter::OnDeath);
+	HealthComponent->OnResourceValueReachMin.AddDynamic(this, &AEnemyBaseCharacter::Death);
+}
+
+void AEnemyBaseCharacter::Revive_Implementation(int MaxValue)
+{
+	OnRevive(MaxValue);
+}
+
+void AEnemyBaseCharacter::Death_Implementation(int MinValue)
+{
+	OnDeath(MinValue);
+}
+
+void AEnemyBaseCharacter::OnRevive(int MaxValue)
+{
+	
+}
+
+void AEnemyBaseCharacter::OnDeath(int MinValue)
+{
+	GetWorld()->DestroyActor(this);
 }
 
 void AEnemyBaseCharacter::Tick(float DeltaSeconds)
@@ -69,11 +89,6 @@ void AEnemyBaseCharacter::Attack(const TScriptInterface<UDamageable>& Damageable
 	FVector DamageNormal = (GetActorLocation() - DamagedActor->GetActorLocation()).GetSafeNormal();
 	DamageNormal.Z = 0.0f;
 	IDamageable::Execute_TakeDamage(DamageableActor.GetObject(), InDamage, EEffectElement::EE_Physical, DamageNormal);
-}
-
-void AEnemyBaseCharacter::OnDeath(int MinValue)
-{
-	GetWorld()->DestroyActor(this);
 }
 
 void AEnemyBaseCharacter::Heal_Implementation(int HealAmount)
