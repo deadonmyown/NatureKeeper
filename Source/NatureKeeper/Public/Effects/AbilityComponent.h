@@ -28,6 +28,8 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Ability")
 	UManaComponent* ManaComponent;
+	UPROPERTY(BlueprintReadWrite, Category = "Ability")
+	UTargetComponent* TargetComponent;
 	
 	virtual void BeginPlay() override;
 

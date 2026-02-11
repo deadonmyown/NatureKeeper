@@ -27,6 +27,21 @@ void UTargetComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, 
 	}
 }
 
+void UTargetComponent::StartTargetStrategy(UPlayerAbility* PlayerAbility)
+{
+	if (!TargetStrategy)
+	{
+		TargetStrategy = DefaultTargetStrategy;
+	}
+
+	if (TargetStrategy->GetIsStarted())
+	{
+		TargetStrategy->CancelStrategy();
+	}
+
+	TargetStrategy->StartStrategy(PlayerAbility, this);
+}
+
 void UTargetComponent::SetTargetStrategy(UTargetStrategy* NewTargetStrategy)
 {
 	if (TargetStrategy)

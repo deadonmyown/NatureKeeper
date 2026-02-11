@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerController.h"
 #include "NatureKeeperPlayerController.generated.h"
 
+class UTargetStrategy;
 struct FInputActionValue;
 class UAbilityComponent;
 struct FInputActionInstance;
@@ -97,6 +98,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	TArray<UInputAction*> EffectsActions;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	TArray<UInputAction*> EffectTargetStrategiesActions;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* EffectClearAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* EffectProjectileAction;
@@ -171,11 +174,9 @@ protected:
 	void OnEndInteraction();
 	
 	void OnEffectActions(const FInputActionInstance& Instance);
+	void OnEffectTargetStrategiesActions(const FInputActionInstance& Instance);
+	void OnEffectTargetStrategiesActionsByClass(TSubclassOf<UTargetStrategy> TargetStrategyClass);
 	void OnEffectClear();
-	void OnEffectProjectileAction();
-	void OnEffectAOEAction();
-	void OnEffectSelfAction();
-	void OnEffectFocusAction();
 };
 
 

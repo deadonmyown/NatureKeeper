@@ -2,6 +2,7 @@
 
 #include "Effects/Ability.h"
 #include "Effects/PlayerAbility.h"
+#include "TargetSystem/TargetComponent.h"
 #include "ResourceSystem/ManaComponent.h"
 
 UAbilityComponent::UAbilityComponent()
@@ -81,5 +82,11 @@ void UAbilityComponent::BeginPlay()
 		ManaComponent = InManaComponent;
 		
 		PlayerAbility->InitManaComponent(ManaComponent);
+	}
+	if (UTargetComponent* InTargetComponent = GetOwner()->GetComponentByClass<UTargetComponent>())
+	{
+		TargetComponent = InTargetComponent;
+		
+		PlayerAbility->InitTargetComponent(TargetComponent);
 	}
 }

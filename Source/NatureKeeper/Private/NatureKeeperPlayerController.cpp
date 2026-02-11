@@ -19,6 +19,8 @@
 #include "Effects/PlayerAbility.h"
 #include "Engine/LocalPlayer.h"
 #include "Interfaces/InteractiveActorInterface.h"
+#include "TargetSystem/FocusHoldTargetStrategy.h"
+#include "TargetSystem/SelfTargetStrategy.h"
 #include "TargetSystem/TargetComponent.h"
 #include "TargetSystem/TargetStrategy.h"
 
@@ -123,11 +125,15 @@ void ANatureKeeperPlayerController::SetupInputComponent()
 			if (!EffectsActions[i]) continue;
 			EnhancedInputComponent->BindAction(EffectsActions[i], ETriggerEvent::Started, this, &ANatureKeeperPlayerController::OnEffectActions);
 		}
+
+		for (int i = 0; i < EffectTargetStrategiesActions.Num(); i++)
+		{
+			if (!EffectTargetStrategiesActions[i]) continue;
+			EnhancedInputComponent
+			->BindAction(EffectTargetStrategiesActions[i], ETriggerEvent::Started, this, &ANatureKeeperPlayerController::OnEffectTargetStrategiesActions);
+		}
+		
 		EnhancedInputComponent->BindAction(EffectClearAction, ETriggerEvent::Started, this, &ANatureKeeperPlayerController::OnEffectClear);
-		EnhancedInputComponent->BindAction(EffectProjectileAction, ETriggerEvent::Started, this, &ANatureKeeperPlayerController::OnEffectProjectileAction);
-		EnhancedInputComponent->BindAction(EffectAOEAction, ETriggerEvent::Started, this, &ANatureKeeperPlayerController::OnEffectAOEAction);
-		//EnhancedInputComponent->BindAction(EffectFocusAction, ETriggerEvent::Started, this, &ANatureKeeperPlayerController::OnEffectSelfAction);
-		//EnhancedInputComponent->BindAction(EffectSelfAction, ETriggerEvent::Started, this, &ANatureKeeperPlayerController::OnEffectFocusAction);
 	}
 	else
 	{
@@ -181,7 +187,7 @@ void ANatureKeeperPlayerController::OnSetDestinationReleased()
 
 void ANatureKeeperPlayerController::OnSecondaryInputStarted()
 {
-	OnEffectFocusAction();
+	OnEffectTargetStrategiesActionsByClass(UFocusHoldTargetStrategy::StaticClass());
 	
 	if (OnPlayerSecondaryClickStarted.IsBound())
 		OnPlayerSecondaryClickStarted.Broadcast();
@@ -205,7 +211,7 @@ void ANatureKeeperPlayerController::OnSecondaryInputStopped()
 
 void ANatureKeeperPlayerController::OnThirdInputStarted()
 {
-	OnEffectSelfAction();
+	OnEffectTargetStrategiesActionsByClass(USelfTargetStrategy::StaticClass());
 	
 	if (OnPlayerThirdClickStarted.IsBound())
 		OnPlayerThirdClickStarted.Broadcast();
@@ -309,35 +315,49 @@ void ANatureKeeperPlayerController::OnEffectActions(const FInputActionInstance& 
 	const int32 Index = EffectsActions.IndexOfByKey(SourceAction);
 	PlayerAbilityComponent->AddAbilityEffectByIndex(Index);
 
-	PlayerAbilityComponent->GetAbility()->Target(PlayerTargetComponent);
+	PlayerAbilityComponent->GetAbility()->Target();
 }
+
+void ANatureKeeperPlayerController::OnEffectTargetStrategiesActions(const FInputActionInstance& Instance)
+{
+	const UInputAction* SourceAction = Instance.GetSourceAction();
+	if (!SourceAction) return;
+
+	const int32 Index = EffectTargetStrategiesActions.IndexOfByKey(SourceAction);
+	const TArray<UTargetStrategy*>& TargetStrategies = PlayerTargetComponent->GetTargetStrategies();
+
+	if (!TargetStrategies.IsValidIndex(Index))
+		return;
+	
+	PlayerAbilityComponent->SetAbilityTargetStrategy(TargetStrategies[Index]);
+	PlayerAbilityComponent->GetAbility()->Target();
+}
+
+void ANatureKeeperPlayerController::OnEffectTargetStrategiesActionsByClass(
+	TSubclassOf<UTargetStrategy> TargetStrategyClass)
+{
+	const TArray<UTargetStrategy*>& TargetStrategies = PlayerTargetComponent->GetTargetStrategies();
+	UTargetStrategy* FoundedTargetStrategy = nullptr;
+
+	for (int i = 0; i < TargetStrategies.Num(); i++)
+	{
+		if (TargetStrategies[i]->IsA(TargetStrategyClass))
+		{
+			FoundedTargetStrategy = TargetStrategies[i];
+			break;
+		}
+	}
+
+	if (!FoundedTargetStrategy)
+		return;
+
+	PlayerAbilityComponent->SetAbilityTargetStrategy(FoundedTargetStrategy);
+	PlayerAbilityComponent->GetAbility()->Target();
+}
+
 
 void ANatureKeeperPlayerController::OnEffectClear()
 {
 	PlayerAbilityComponent->ClearAbilityTargetStrategy();
 	PlayerAbilityComponent->ClearAbilityEffects();
-}
-
-void ANatureKeeperPlayerController::OnEffectProjectileAction()
-{
-	PlayerAbilityComponent->SetAbilityTargetStrategy(PlayerTargetComponent->ProjectileTargetStrategy);
-	PlayerAbilityComponent->GetAbility()->Target(PlayerTargetComponent);
-}
-
-void ANatureKeeperPlayerController::OnEffectAOEAction()
-{
-	PlayerAbilityComponent->SetAbilityTargetStrategy(PlayerTargetComponent->AOETargetStrategy);
-	PlayerAbilityComponent->GetAbility()->Target(PlayerTargetComponent);
-}
-
-void ANatureKeeperPlayerController::OnEffectSelfAction()
-{
-	PlayerAbilityComponent->SetAbilityTargetStrategy(PlayerTargetComponent->SelfTargetStrategy);
-	PlayerAbilityComponent->GetAbility()->Target(PlayerTargetComponent);
-}
-
-void ANatureKeeperPlayerController::OnEffectFocusAction()
-{
-	PlayerAbilityComponent->SetAbilityTargetStrategy(PlayerTargetComponent->FocusHoldTargetStrategy);
-	PlayerAbilityComponent->GetAbility()->Target(PlayerTargetComponent);
 }

@@ -7,6 +7,7 @@
 #include "TargetComponent.generated.h"
 
 
+class UPlayerAbility;
 class UTargetStrategy;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTargetSet, UTargetStrategy*, Target);
@@ -30,20 +31,16 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Target")
 	UTargetStrategy* TargetStrategy;
+	UPROPERTY(Instanced, EditAnywhere, BlueprintReadWrite, Category = "Target")
+	TArray<UTargetStrategy*> TargetStrategies;
 public:
 	UPROPERTY(Instanced, EditAnywhere, BlueprintReadWrite, Category = "Target")
 	UTargetStrategy* DefaultTargetStrategy;
-	UPROPERTY(Instanced, EditAnywhere, BlueprintReadWrite, Category = "Target")
-	UTargetStrategy* ProjectileTargetStrategy;
-	UPROPERTY(Instanced, EditAnywhere, BlueprintReadWrite, Category = "Target")
-	UTargetStrategy* AOETargetStrategy;
-	UPROPERTY(Instanced, EditAnywhere, BlueprintReadWrite, Category = "Target")
-	UTargetStrategy* FocusHoldTargetStrategy;
-	UPROPERTY(Instanced, EditAnywhere, BlueprintReadWrite, Category = "Target")
-	UTargetStrategy* SelfTargetStrategy;
 	
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	UFUNCTION(BlueprintCallable, Category = "Target")
+	void StartTargetStrategy(UPlayerAbility* PlayerAbility);
 	UFUNCTION(BlueprintCallable, Category = "Target")
 	void SetTargetStrategy(UTargetStrategy* NewTargetStrategy);
 	UFUNCTION(BlueprintCallable, Category = "Target")
@@ -53,4 +50,6 @@ public:
 	void CancelTargetStrategy();
 	UFUNCTION(BlueprintCallable, Category = "Target")
 	UTargetStrategy* GetTargetStrategy() const {return TargetStrategy;}
+	UFUNCTION(BlueprintPure, Category = "Target")
+	const TArray<UTargetStrategy*>& GetTargetStrategies() const {return TargetStrategies;}
 };

@@ -6,48 +6,42 @@
 #include "TargetSystem/TargetComponent.h"
 #include "TargetSystem/TargetStrategy.h"
 
-void UPlayerAbility::Target_Implementation(UTargetComponent* InTargetComponent)
+void UPlayerAbility::Target_Implementation()
 {
-	if (!CanCastAbility() || !InTargetComponent)
+	if (!CanCastAbility() || !TargetComponent)
 		return;
-	
+
 	if (!TargetStrategy)
 	{
-		TargetStrategy = InTargetComponent->DefaultTargetStrategy;
+		TargetStrategy = TargetComponent->DefaultTargetStrategy;
 	}
 
-	if (TargetStrategy->GetIsStarted())
-	{
-		TargetStrategy->CancelStrategy();
-	}
+	TargetComponent->SetTargetStrategy(TargetStrategy);
+	TargetComponent->StartTargetStrategy(this);
+}
 
-	TargetStrategy->StartStrategy(this, InTargetComponent);
+void UPlayerAbility::InitTargetComponent(UTargetComponent* InTargetComponent)
+{
+	ClearTargetStrategy();
+	
+	TargetComponent = InTargetComponent;
 }
 
 void UPlayerAbility::SetTargetStrategy(UTargetStrategy* NewTargetStrategy)
 {
-	if (!CanCastAbility() || !CanModifyAbility())
+	if (!CanModifyAbility())
 		return;
-	
-	if (TargetStrategy && TargetStrategy->GetIsStarted())
-	{
-		TargetStrategy->CancelStrategy();
-	}
-	
+
 	TargetStrategy = NewTargetStrategy;
 }
 
 void UPlayerAbility::ClearTargetStrategy()
 {
-	if (!CanModifyAbility())
+	if (!TargetComponent || !CanModifyAbility())
 		return;
-	
-	if (TargetStrategy && TargetStrategy->GetIsStarted())
-	{
-		TargetStrategy->CancelStrategy();
-	}
-	
+
 	TargetStrategy = nullptr;
+	TargetComponent->CancelTargetStrategy();
 }
 
 bool UPlayerAbility::CanModifyAbility()
