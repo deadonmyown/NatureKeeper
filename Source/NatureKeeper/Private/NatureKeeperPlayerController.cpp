@@ -15,8 +15,6 @@
 #include "NatureKeeperUtils.h"
 #include "Camera/CameraComponent.h"
 #include "Effects/Ability.h"
-#include "Effects/AbilityComponent.h"
-#include "Effects/PlayerAbility.h"
 #include "Engine/LocalPlayer.h"
 #include "Interfaces/InteractiveActorInterface.h"
 #include "TargetSystem/FocusHoldTargetStrategy.h"
@@ -54,7 +52,6 @@ void ANatureKeeperPlayerController::BeginPlay()
 	{
 		PlayerFocusComponent = NatureKeeperCharacter->GetFocusComponent();
 		PlayerTargetComponent = NatureKeeperCharacter->GetTargetComponent();
-		PlayerAbilityComponent = NatureKeeperCharacter->GetAbilityComponent();
 	}
 }
 
@@ -313,9 +310,9 @@ void ANatureKeeperPlayerController::OnEffectActions(const FInputActionInstance& 
 	if (!SourceAction) return;
 
 	const int32 Index = EffectsActions.IndexOfByKey(SourceAction);
-	PlayerAbilityComponent->AddAbilityEffectByIndex(Index);
+	PlayerTargetComponent->AddAbilityEffectByIndex(Index);
 
-	PlayerAbilityComponent->GetAbility()->Target();
+	PlayerTargetComponent->StartTargetStrategy();
 }
 
 void ANatureKeeperPlayerController::OnEffectTargetStrategiesActions(const FInputActionInstance& Instance)
@@ -329,8 +326,8 @@ void ANatureKeeperPlayerController::OnEffectTargetStrategiesActions(const FInput
 	if (!TargetStrategies.IsValidIndex(Index))
 		return;
 	
-	PlayerAbilityComponent->SetAbilityTargetStrategy(TargetStrategies[Index]);
-	PlayerAbilityComponent->GetAbility()->Target();
+	PlayerTargetComponent->SetTargetStrategy(TargetStrategies[Index]);
+	PlayerTargetComponent->StartTargetStrategy();
 }
 
 void ANatureKeeperPlayerController::OnEffectTargetStrategiesActionsByClass(
@@ -351,13 +348,13 @@ void ANatureKeeperPlayerController::OnEffectTargetStrategiesActionsByClass(
 	if (!FoundedTargetStrategy)
 		return;
 
-	PlayerAbilityComponent->SetAbilityTargetStrategy(FoundedTargetStrategy);
-	PlayerAbilityComponent->GetAbility()->Target();
+	PlayerTargetComponent->SetTargetStrategy(FoundedTargetStrategy);
+	PlayerTargetComponent->StartTargetStrategy();
 }
 
 
 void ANatureKeeperPlayerController::OnEffectClear()
 {
-	PlayerAbilityComponent->ClearAbilityTargetStrategy();
-	PlayerAbilityComponent->ClearAbilityEffects();
+	PlayerTargetComponent->ClearTargetStrategy();
+	PlayerTargetComponent->ClearAbilityEffects();
 }

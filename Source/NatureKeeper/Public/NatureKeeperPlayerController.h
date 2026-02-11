@@ -9,7 +9,6 @@
 
 class UTargetStrategy;
 struct FInputActionValue;
-class UAbilityComponent;
 struct FInputActionInstance;
 class UTargetComponent;
 class UFocusComponent;
@@ -101,14 +100,6 @@ public:
 	TArray<UInputAction*> EffectTargetStrategiesActions;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* EffectClearAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	UInputAction* EffectProjectileAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	UInputAction* EffectAOEAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	UInputAction* EffectFocusAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	UInputAction* EffectSelfAction;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player)
 	float MovementDirectionDegreesAngle;
@@ -125,8 +116,6 @@ protected:
 	UFocusComponent* PlayerFocusComponent;
 	UPROPERTY(BlueprintReadOnly, Category = Player)
 	UTargetComponent* PlayerTargetComponent;
-	UPROPERTY(BlueprintReadOnly, Category = Player)
-	UAbilityComponent* PlayerAbilityComponent;
 	
 	/** True if the controlled character should navigate to the mouse cursor. */
 	uint32 bMoveToMouseCursor : 1;

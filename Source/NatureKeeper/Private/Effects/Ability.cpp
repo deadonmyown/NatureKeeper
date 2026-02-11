@@ -12,9 +12,6 @@ void UAbility::ApplyAbilityEffect_Implementation(const TScriptInterface<UAffecta
 
 void UAbility::ClearEffectDataAssets()
 {
-	if (!CanModifyAbility())
-		return;
-	
 	EffectDataAssets.Empty();
 
 	if (OnEffectDataAssetClear.IsBound())
@@ -25,9 +22,6 @@ void UAbility::ClearEffectDataAssets()
 
 void UAbility::AddEffectDataAssets(UEffectDataAsset* DataAssetToAdd)
 {
-	if (!CanModifyAbility())
-		return;
-
 	UEffectDataAsset* FinalDataAssetToAdd = DataAssetToAdd;
 	
 	if (!EffectDataAssets.IsEmpty() && DataAssetToAdd->BlendingEffectDataAsset)
@@ -56,9 +50,6 @@ void UAbility::AddEffectDataAssets(UEffectDataAsset* DataAssetToAdd)
 
 void UAbility::RemoveEffectDataAssets(UEffectDataAsset* DataAssetToRemove)
 {
-	if (!CanModifyAbility())
-		return;
-	
 	if (!EffectDataAssets.Contains(DataAssetToRemove))
 		return;
 
@@ -80,9 +71,6 @@ void UAbility::RemoveEffectDataAssets(UEffectDataAsset* DataAssetToRemove)
 
 void UAbility::SetEffectDataAssets(const TArray<UEffectDataAsset*>& NewDataAssets)
 {
-	if (!CanModifyAbility())
-		return;
-	
 	if (NewDataAssets.Num() > MaxEffectsAmount)
 		return;
 	
@@ -116,6 +104,17 @@ void UAbility::InitManaComponent(UManaComponent* InManaComponent)
 	ManaComponent = InManaComponent;
 }
 
+void UAbility::ChangeExtraManaCost(int32 DeltaCost)
+{
+	if (DeltaCost == 0)
+		return;
+
+	const int32 OldManaCost = ExtraManaCost;
+	const int32 NewManaCost = FMath::Max(0,OldManaCost + DeltaCost);
+	ExtraManaCost = NewManaCost;
+}
+
+
 bool UAbility::CanCastAbility()
 {
 	//Can't cast ability if mana cost greater than zero and we didn't have enough mana or mana component is invalid
@@ -125,17 +124,12 @@ bool UAbility::CanCastAbility()
 	return true;
 }
 
-bool UAbility::CanModifyAbility()
-{
-	return true;
-}
-
 int32 UAbility::GetManaCost()
 {
 	if (EffectDataAssets.IsEmpty())
 		return 0;
 	
-	int32 CurrManaCost = 0;
+	int32 CurrManaCost = ExtraManaCost;
 	for (int i = 0; i < EffectDataAssets.Num(); i++)
 	{
 		CurrManaCost += EffectDataAssets[i]->EffectManaCost;

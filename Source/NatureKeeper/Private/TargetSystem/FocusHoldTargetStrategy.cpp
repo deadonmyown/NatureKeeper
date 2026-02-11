@@ -6,11 +6,11 @@
 #include "FocusComponent.h"
 #include "NatureKeeperCharacter.h"
 #include "NatureKeeperPlayerController.h"
-#include "Effects/PlayerAbility.h"
+#include "Effects/Ability.h"
 #include "Interfaces/Affectable.h"
 #include "TargetSystem/TargetComponent.h"
 
-bool UFocusHoldTargetStrategy::StartStrategy(UPlayerAbility* InAbility, UTargetComponent* InTargetComponent)
+bool UFocusHoldTargetStrategy::StartStrategy(UAbility* InAbility, UTargetComponent* InTargetComponent)
 {
 	if (ANatureKeeperCharacter* Player = Cast<ANatureKeeperCharacter>(InTargetComponent->GetOwner()))
 	{
@@ -42,7 +42,7 @@ void UFocusHoldTargetStrategy::UpdateStrategy(float DeltaTime)
 {
 	if (!Ability->CanCastAbility())
 	{
-		CancelStrategy(true);
+		TargetComponent->CancelTargetStrategy();
 		return;
 	}
 
@@ -50,7 +50,7 @@ void UFocusHoldTargetStrategy::UpdateStrategy(float DeltaTime)
 
 	if (TargetStrategyAffectDistance > 0.0f && FVector::Distance(FocusComponent->GetOwner()->GetActorLocation(), TraceLocation) > TargetStrategyAffectDistance)
 	{
-		CancelStrategy(true);
+		TargetComponent->CancelTargetStrategy();
 		return;
 	}
 
@@ -90,7 +90,7 @@ void UFocusHoldTargetStrategy::UpdateStrategy(float DeltaTime)
 	}
 }
 
-void UFocusHoldTargetStrategy::CancelStrategy(bool bClearAbility)
+void UFocusHoldTargetStrategy::CancelStrategy()
 {
 	PlayerController->OnPlayerSecondaryClickStarted.RemoveDynamic(this, &UFocusHoldTargetStrategy::OnPlayerClickStarted);
 	PlayerController->OnPlayerSecondaryClickStopped.RemoveDynamic(this, &UFocusHoldTargetStrategy::OnPlayerClickStopped);
@@ -104,7 +104,7 @@ void UFocusHoldTargetStrategy::CancelStrategy(bool bClearAbility)
 	PlayerController = nullptr;
 
 	CachedFocusActor = nullptr;
-	UTargetStrategy::CancelStrategy(bClearAbility);
+	UTargetStrategy::CancelStrategy();
 }
 
 void UFocusHoldTargetStrategy::OnPlayerClickStarted()
@@ -114,5 +114,5 @@ void UFocusHoldTargetStrategy::OnPlayerClickStarted()
 
 void UFocusHoldTargetStrategy::OnPlayerClickStopped(float StopTriggerTime)
 {
-	CancelStrategy(true);
+	TargetComponent->CancelTargetStrategy();
 }

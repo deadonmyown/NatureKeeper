@@ -5,14 +5,14 @@
 
 #include "FocusComponent.h"
 #include "NatureKeeperCharacter.h"
-#include "Effects/PlayerAbility.h"
+#include "Effects/Ability.h"
 #include "Projectiles/AbilityProjectile.h"
 #include "Projectiles/Projectile.h"
 #include "TargetSystem/TargetComponent.h"
 
 class ANatureKeeperCharacter;
 
-bool UProjectileTargetStrategy::StartStrategy(UPlayerAbility* InAbility, UTargetComponent* InTargetComponent)
+bool UProjectileTargetStrategy::StartStrategy(UAbility* InAbility, UTargetComponent* InTargetComponent)
 {
 	if (ANatureKeeperCharacter* Player = Cast<ANatureKeeperCharacter>(InTargetComponent->GetOwner()))
 	{
@@ -23,8 +23,7 @@ bool UProjectileTargetStrategy::StartStrategy(UPlayerAbility* InAbility, UTarget
 		PlayerController = Player->GetNatureKeeperController();
 		MuzzleComponent = FocusComponent->GetPlayerMuzzleComponent();
 
-		bIsTargeting = true;
-		
+		PlayerController->OnPlayerMainClickStarted.AddDynamic(this, &UProjectileTargetStrategy::OnPlayerClickStarted);
 		PlayerController->OnPlayerMainClickStopped.AddDynamic(this, &UProjectileTargetStrategy::OnPlayerClickStopped);
 
 		return true;
@@ -38,15 +37,21 @@ void UProjectileTargetStrategy::UpdateStrategy(float DeltaTime)
 	
 }
 
-void UProjectileTargetStrategy::CancelStrategy(bool bClearAbility)
+void UProjectileTargetStrategy::CancelStrategy()
 {
+	PlayerController->OnPlayerMainClickStarted.RemoveDynamic(this, &UProjectileTargetStrategy::OnPlayerClickStarted);
 	PlayerController->OnPlayerMainClickStopped.RemoveDynamic(this, &UProjectileTargetStrategy::OnPlayerClickStopped);
 
 	FocusComponent = nullptr;
 	PlayerController = nullptr;
 	MuzzleComponent = nullptr;
 
-	UTargetStrategy::CancelStrategy(bClearAbility);
+	UTargetStrategy::CancelStrategy();
+}
+
+void UProjectileTargetStrategy::OnPlayerClickStarted()
+{
+	bIsTargeting = true;
 }
 
 void UProjectileTargetStrategy::OnPlayerClickStopped(float StopTriggerTime)
@@ -66,5 +71,5 @@ void UProjectileTargetStrategy::OnPlayerClickStopped(float StopTriggerTime)
 		Projectile->InitAbilityProjectile(Ability->GetEffectDataAssets());
 	}
 	
-	CancelStrategy(true);
+	TargetComponent->CancelTargetStrategy();
 }

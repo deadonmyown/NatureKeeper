@@ -1,6 +1,8 @@
 #include "TargetSystem/TargetComponent.h"
 
+#include "Effects/Ability.h"
 #include "TargetSystem/TargetStrategy.h"
+#include "ResourceSystem/ManaComponent.h"
 
 UTargetComponent::UTargetComponent()
 {
@@ -15,6 +17,13 @@ void UTargetComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (UManaComponent* InManaComponent = GetOwner()->GetComponentByClass<UManaComponent>())
+	{
+		ManaComponent = InManaComponent;
+
+		if (Ability)
+			Ability->InitManaComponent(ManaComponent);
+	}
 }
 
 void UTargetComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -27,8 +36,14 @@ void UTargetComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, 
 	}
 }
 
-void UTargetComponent::StartTargetStrategy(UPlayerAbility* PlayerAbility)
+void UTargetComponent::StartTargetStrategy()
 {
+	if (!Ability)
+		return;
+	
+	if (!Ability->CanCastAbility())
+		return;
+	
 	if (!TargetStrategy)
 	{
 		TargetStrategy = DefaultTargetStrategy;
@@ -39,13 +54,16 @@ void UTargetComponent::StartTargetStrategy(UPlayerAbility* PlayerAbility)
 		TargetStrategy->CancelStrategy();
 	}
 
-	TargetStrategy->StartStrategy(PlayerAbility, this);
+	TargetStrategy->StartStrategy(Ability, this);
 }
 
 void UTargetComponent::SetTargetStrategy(UTargetStrategy* NewTargetStrategy)
 {
-	if (TargetStrategy)
-		CancelTargetStrategy();
+	if (IsTargeting())
+		return;
+	
+	if (TargetStrategy && TargetStrategy->GetIsStarted())
+		ClearTargetStrategy();
 	
 	TargetStrategy = NewTargetStrategy;
 	
@@ -55,18 +73,95 @@ void UTargetComponent::SetTargetStrategy(UTargetStrategy* NewTargetStrategy)
 
 void UTargetComponent::ClearTargetStrategy()
 {
+	if (!TargetStrategy)
+		return;
+
+	if (IsTargeting())
+		return;
+
+	TargetStrategy->CancelStrategy();
 	TargetStrategy = nullptr;
-	if(OnTargetClear.IsBound())
-		OnTargetClear.Broadcast();
+
+	if(OnTargetCancel.IsBound())
+		OnTargetCancel.Broadcast();
 }
 
 void UTargetComponent::CancelTargetStrategy()
 {
-	if (TargetStrategy)
+	if (!TargetStrategy)
+		return;
+	
+	TargetStrategy->CancelStrategy();
+	TargetStrategy = nullptr;
+	
+	ClearAbilityEffects();
+	
+	if(OnTargetCancel.IsBound())
+		OnTargetCancel.Broadcast();
+}
+
+bool UTargetComponent::IsTargeting() const
+{
+	return TargetStrategy ? TargetStrategy->GetIsTargeting() : false;
+}
+
+void UTargetComponent::ClearAbilityEffects()
+{
+	if (!Ability)
 	{
-		TargetStrategy->CancelStrategy();
-		TargetStrategy = nullptr;
+		UE_LOG(LogTemp, Warning, TEXT("Ability is nullptr"));
+		return;
 	}
+
+	if (IsTargeting())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Can't modify ability because target strategy is targeting"));
+		return;
+	}
+
+	Ability->ClearEffectDataAssets();
+}
+
+void UTargetComponent::AddAbilityEffect(UEffectDataAsset* DataAssetToAdd)
+{
+	if (!Ability)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Ability is nullptr"));
+		return;
+	}
+
+	if (IsTargeting())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Can't modify ability because target strategy is targeting"));
+		return;
+	}
+	
+	if (!AvailableEffectDataAssets.Contains(DataAssetToAdd))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No such available effect data asset"));
+		return;
+	}
+
+	Ability->AddEffectDataAssets(DataAssetToAdd);
+}
+
+void UTargetComponent::AddAbilityEffectByIndex(int32 EffectIndex)
+{
+	if (!AvailableEffectDataAssets.IsValidIndex(EffectIndex))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Effect index is not valid %d"), EffectIndex);
+		return;
+	}
+
+	UEffectDataAsset* DataAsset = AvailableEffectDataAssets[EffectIndex];
+
+	if (!DataAsset)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Effect data asset is nullptr"));
+		return;
+	}
+
+	AddAbilityEffect(DataAsset);
 }
 
 

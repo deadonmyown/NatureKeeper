@@ -13,7 +13,6 @@
 class ANatureKeeperPlayerController;
 class UFocusComponent;
 class UTargetComponent;
-class UAbilityComponent;
 class UEvilComponent;
 class UManaComponent;
 class AAuraManager;
@@ -40,8 +39,6 @@ public:
 	FORCEINLINE USceneComponent* GetMuzzleComponent() const { return MuzzleComponent; }
 
 protected:
-	UPROPERTY(Category = Components, EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true, NoEditInline))
-	UAbilityComponent* AbilityComponent;
 	UPROPERTY(Category = Components, EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true, NoEditInline))
 	UTargetComponent* TargetComponent;
 	UPROPERTY(Category = Components, EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true, NoEditInline))
@@ -76,8 +73,6 @@ public:
 	UFUNCTION()
 	void OnMinHP(int MinHP);
 	
-	UFUNCTION(BlueprintCallable, Category = "Player")
-	UAbilityComponent* GetAbilityComponent() const { return AbilityComponent; }
 	UFUNCTION(BlueprintCallable, Category = "Player")
 	UTargetComponent* GetTargetComponent() const {return TargetComponent;}
 	UFUNCTION(BlueprintCallable, Category = "Player")

@@ -30,10 +30,12 @@ protected:
 	TSubclassOf<AAbilityProjectile> ProjectileClass;
 	
 public:
-	virtual bool StartStrategy(UPlayerAbility* InAbility, UTargetComponent* InTargetComponent) override;
+	virtual bool StartStrategy(UAbility* InAbility, UTargetComponent* InTargetComponent) override;
 	virtual void UpdateStrategy(float DeltaTime) override;
-	virtual void CancelStrategy(bool bClearAbility = false) override;
+	virtual void CancelStrategy() override;
 
+	UFUNCTION()
+	void OnPlayerClickStarted();
 	UFUNCTION()
 	void OnPlayerClickStopped(float StopTriggerTime);
 };

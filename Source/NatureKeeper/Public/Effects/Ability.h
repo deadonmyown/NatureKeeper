@@ -43,9 +43,15 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Ability")
 	UManaComponent* ManaComponent;
+	/** Extra mana cost on ability cast, can be used by other systems*/
+	UPROPERTY(BlueprintReadWrite, Category = "Ability")
+	int32 ExtraManaCost = 0;
 public:
 	UFUNCTION(BlueprintCallable, Category = "Ability")
 	void InitManaComponent(UManaComponent* InManaComponent);
+
+	UFUNCTION(BlueprintCallable, Category = "Ability")
+	void ChangeExtraManaCost(int32 DeltaCost);
 
 	UFUNCTION(BlueprintCallable, Category = "Ability")
 	void ClearEffectDataAssets();
@@ -58,8 +64,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Ability")
 	bool CanCastAbility();
-	UFUNCTION(BlueprintCallable, Category = "Ability")
-	virtual bool CanModifyAbility();
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Ability")
 	void ApplyAbilityEffect(const TScriptInterface<UAffectable>& InAffectedObject);

@@ -6,10 +6,10 @@
 #include "FocusComponent.h"
 #include "GameCollisionChannels.h"
 #include "NatureKeeperCharacter.h"
-#include "Effects/PlayerAbility.h"
+#include "Effects/Ability.h"
 #include "TargetSystem/TargetComponent.h"
 
-bool UAOETargetStrategy::StartStrategy(UPlayerAbility* InAbility, UTargetComponent* InTargetComponent)
+bool UAOETargetStrategy::StartStrategy(UAbility* InAbility, UTargetComponent* InTargetComponent)
 {
 	if (ANatureKeeperCharacter* Player = Cast<ANatureKeeperCharacter>(InTargetComponent->GetOwner()))
 	{
@@ -19,8 +19,7 @@ bool UAOETargetStrategy::StartStrategy(UPlayerAbility* InAbility, UTargetCompone
 		FocusComponent = Player->GetFocusComponent();
 		PlayerController = Player->GetNatureKeeperController();
 
-		bIsTargeting = true;
-		
+		PlayerController->OnPlayerMainClickStarted.AddDynamic(this, &UAOETargetStrategy::OnPlayerClickStarted);
 		PlayerController->OnPlayerMainClickStopped.AddDynamic(this, &UAOETargetStrategy::OnPlayerClickStopped);
 
 		return true;
@@ -29,21 +28,27 @@ bool UAOETargetStrategy::StartStrategy(UPlayerAbility* InAbility, UTargetCompone
 	return false;
 }
 
-void UAOETargetStrategy::CancelStrategy(bool bClearAbility)
+void UAOETargetStrategy::CancelStrategy()
 {
+	PlayerController->OnPlayerMainClickStarted.RemoveDynamic(this, &UAOETargetStrategy::OnPlayerClickStarted);
 	PlayerController->OnPlayerMainClickStopped.RemoveDynamic(this, &UAOETargetStrategy::OnPlayerClickStopped);
 
 	FocusComponent = nullptr;
 	PlayerController = nullptr;
 	
-	UTargetStrategy::CancelStrategy(bClearAbility);
+	UTargetStrategy::CancelStrategy();
+}
+
+void UAOETargetStrategy::OnPlayerClickStarted()
+{
+	bIsTargeting = true;
 }
 
 void UAOETargetStrategy::OnPlayerClickStopped(float StopTriggerTime)
 {
 	if (!Ability || !Ability->TrySpendMana())
 	{
-		CancelStrategy(true);
+		TargetComponent->CancelTargetStrategy();
 		return;
 	}
 
@@ -51,7 +56,7 @@ void UAOETargetStrategy::OnPlayerClickStopped(float StopTriggerTime)
 
 	if (TargetStrategyAffectDistance > 0.0f && FVector::Distance(FocusComponent->GetOwner()->GetActorLocation(), TraceLocation) > TargetStrategyAffectDistance)
 	{
-		CancelStrategy(true);
+		TargetComponent->CancelTargetStrategy();
 		return;
 	}
 	
@@ -89,5 +94,5 @@ void UAOETargetStrategy::OnPlayerClickStopped(float StopTriggerTime)
 		}
 	}
 
-	CancelStrategy(true);
+	TargetComponent->CancelTargetStrategy();
 }

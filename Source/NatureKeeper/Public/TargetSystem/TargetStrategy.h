@@ -6,7 +6,7 @@
 #include "UObject/Object.h"
 #include "TargetStrategy.generated.h"
 
-class UPlayerAbility;
+class UAbility;
 class UTargetComponent;
 /**
  * 
@@ -17,7 +17,7 @@ class NATUREKEEPER_API UTargetStrategy : public UObject
 	GENERATED_BODY()
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Target")
-	UPlayerAbility* Ability;
+	UAbility* Ability;
 	UPROPERTY(BlueprintReadOnly, Category = "Target")
 	UTargetComponent* TargetComponent;
 	UPROPERTY(BlueprintReadOnly, Category = "Target")
@@ -39,11 +39,11 @@ public:
 	FName TargetStrategyName;
 	
 	UFUNCTION(BlueprintCallable, Category = "Target")
-	virtual bool StartStrategy(UPlayerAbility* InAbility, UTargetComponent* InTargetComponent);
+	virtual bool StartStrategy(UAbility* InAbility, UTargetComponent* InTargetComponent);
 	UFUNCTION(BlueprintCallable, Category = "Target")
 	virtual void UpdateStrategy(float DeltaTime);
 	UFUNCTION(BlueprintCallable, Category = "Target")
-	virtual void CancelStrategy(bool bClearAbility = false);
+	virtual void CancelStrategy();
 
 	UFUNCTION(BlueprintCallable, Category = "Target")
 	bool GetIsTargeting() const {return bIsTargeting;}
@@ -51,7 +51,7 @@ public:
 	bool GetIsStarted() const {return bIsStarted;}
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Target")
-	UPlayerAbility* GetAbility() const {return Ability;}
+	UAbility* GetAbility() const {return Ability;}
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Target")
 	int32 GetTargetStrategyManaCost() const {return TargetStrategyManaCost;}
 };

@@ -10,13 +10,13 @@
 #include "NiagaraFunctionLibrary.h"
 #include "TargetSystem/TargetComponent.h"
 #include "NiagaraComponent.h"
-#include "Effects/PlayerAbility.h"
+#include "Effects/Ability.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 
 
-bool UFlowTargetStrategy::StartStrategy(UPlayerAbility* InAbility, UTargetComponent* InTargetComponent)
+bool UFlowTargetStrategy::StartStrategy(UAbility* InAbility, UTargetComponent* InTargetComponent)
 {
 	if (ANatureKeeperCharacter* Player = Cast<ANatureKeeperCharacter>(InTargetComponent->GetOwner()))
 	{
@@ -26,8 +26,6 @@ bool UFlowTargetStrategy::StartStrategy(UPlayerAbility* InAbility, UTargetCompon
 		FocusComponent = Player->GetFocusComponent();
 		PlayerController = Player->GetNatureKeeperController();
 		MuzzleComponent = FocusComponent->GetPlayerMuzzleComponent();
-		
-		bIsTargeting = false;
 
 		if (OverrideFlowUpdateTimeInSec >= 0.0f)
 		{
@@ -53,7 +51,7 @@ void UFlowTargetStrategy::UpdateStrategy(float DeltaTime)
 {
 	if (!Ability->CanCastAbility())
 	{
-		CancelStrategy(true);
+		TargetComponent->CancelTargetStrategy();
 		return;
 	}
 	
@@ -147,7 +145,7 @@ void UFlowTargetStrategy::UpdateStrategy(float DeltaTime)
 	}
 }
 
-void UFlowTargetStrategy::CancelStrategy(bool bClearAbility)
+void UFlowTargetStrategy::CancelStrategy()
 {
 	PlayerController->OnPlayerMainClickStarted.RemoveDynamic(this, &UFlowTargetStrategy::OnPlayerClickStarted);
 	PlayerController->OnPlayerMainClickStopped.RemoveDynamic(this, &UFlowTargetStrategy::OnPlayerClickStopped);
@@ -162,7 +160,7 @@ void UFlowTargetStrategy::CancelStrategy(bool bClearAbility)
 	PlayerController = nullptr;
 	MuzzleComponent = nullptr;
 
-	UTargetStrategy::CancelStrategy(bClearAbility);
+	UTargetStrategy::CancelStrategy();
 }
 
 void UFlowTargetStrategy::OnPlayerClickStarted()
@@ -186,5 +184,5 @@ void UFlowTargetStrategy::OnPlayerClickStarted()
 
 void UFlowTargetStrategy::OnPlayerClickStopped(float StopTriggerTime)
 {
-	CancelStrategy(true);
+	TargetComponent->CancelTargetStrategy();
 }
