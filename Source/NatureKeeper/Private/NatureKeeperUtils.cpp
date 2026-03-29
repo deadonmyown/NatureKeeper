@@ -7,6 +7,7 @@
 #include "Effects/EffectBase.h"
 #include "Effects/Data/EffectDataAsset.h"
 #include "Kismet/GameplayStatics.h"
+#include "Managers/PhysicsManager.h"
 #include "Managers/TargetFollowManager.h"
 
 class ANatureKeeperGameMode;
@@ -47,7 +48,7 @@ void UNatureKeeperUtils::SetPlayerFocusComponentAsTarget(const TScriptInterface<
 	ANatureKeeperGameMode* GM = World->GetAuthGameMode<ANatureKeeperGameMode>();
 	if (!GM) return;
 
-	ATargetFollowManager* Manager = GM->GetTargetFollowManager();
+	APhysicsManager* Manager = GM->GetPhysicsManager();
 	if (!Manager) return;
 
 	ANatureKeeperCharacter* Player = GetNatureKeeperCharacter(FollowActor.GetObject());
@@ -56,7 +57,7 @@ void UNatureKeeperUtils::SetPlayerFocusComponentAsTarget(const TScriptInterface<
 	Manager->AddTargetFollowMap(FollowActor, Player->GetFocusComponent());
 }
 
-void UNatureKeeperUtils::RemoveElementFromTargetFollowManager(const TScriptInterface<UFollow>& FollowActor)
+void UNatureKeeperUtils::RemoveElementFromTargetFollowMap(const TScriptInterface<UFollow>& FollowActor)
 {
 	if (!FollowActor.GetObject()) return;
 
@@ -66,7 +67,7 @@ void UNatureKeeperUtils::RemoveElementFromTargetFollowManager(const TScriptInter
 	ANatureKeeperGameMode* GM = World->GetAuthGameMode<ANatureKeeperGameMode>();
 	if (!GM) return;
 
-	ATargetFollowManager* Manager = GM->GetTargetFollowManager();
+	APhysicsManager* Manager = GM->GetPhysicsManager();
 	if (!Manager) return;
 
 	Manager->RemoveTargetFollowMap(FollowActor);

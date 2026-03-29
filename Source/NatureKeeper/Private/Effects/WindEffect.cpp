@@ -45,7 +45,7 @@ bool UWindEffect::CancelEffect()
 
 	if (AffectedObject.GetObject()->Implements<UFollow>())
 	{
-		UNatureKeeperUtils::RemoveElementFromTargetFollowManager(AffectedObject.GetObject());
+		UNatureKeeperUtils::RemoveElementFromTargetFollowMap(AffectedObject.GetObject());
 	}
 
 	GetWorld()->GetTimerManager().ClearTimer(DamageTimerHandle);

@@ -31,7 +31,7 @@ class NATUREKEEPER_API UNatureKeeperUtils : public UBlueprintFunctionLibrary
 	UFUNCTION(BlueprintCallable, Category="Nature Keeper Util")
 	static void SetPlayerFocusComponentAsTarget(const TScriptInterface<UFollow>& FollowActor);
 	UFUNCTION(BlueprintCallable, Category="Nature Keeper Util")
-	static void RemoveElementFromTargetFollowManager(const TScriptInterface<UFollow>& FollowActor);
+	static void RemoveElementFromTargetFollowMap(const TScriptInterface<UFollow>& FollowActor);
 	UFUNCTION(BlueprintCallable, Category="Nature Keeper Util")
 	static ANatureKeeperCharacter* GetNatureKeeperCharacter(const UObject* WorldContextObject, int32 PlayerIndex = 0);
 	UFUNCTION(BlueprintCallable, Category="Nature Keeper Util")

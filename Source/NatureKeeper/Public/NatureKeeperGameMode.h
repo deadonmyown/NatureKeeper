@@ -6,6 +6,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "NatureKeeperGameMode.generated.h"
 
+class APhysicsManager;
 class ADamageCollisionSpawner;
 class ALevelManager;
 class ATargetFollowManager;
@@ -20,9 +21,9 @@ class ANatureKeeperGameMode : public AGameModeBase
 	UPROPERTY(EditAnywhere, Category = "GameMode")
 	TSubclassOf<ALevelManager> LevelManagerClass;
 	UPROPERTY()
-	ATargetFollowManager* TargetFollowManager;
+	APhysicsManager* PhysicsManager;
 	UPROPERTY(EditAnywhere, Category = "GameMode")
-	TSubclassOf<ATargetFollowManager> TargetFollowManagerClass;
+	TSubclassOf<APhysicsManager> PhysicsManagerClass;
 	UPROPERTY()
 	ADamageCollisionSpawner* DamageCollisionSpawner;
 	UPROPERTY(EditAnywhere, Category = "GameMode")
@@ -36,7 +37,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "GameMode")
 	ALevelManager* GetLevelManager() const {return LevelManager;}
 	UFUNCTION(BlueprintCallable, Category = "GameMode")
-	ATargetFollowManager* GetTargetFollowManager() const {return TargetFollowManager;}
+	APhysicsManager* GetPhysicsManager() const {return PhysicsManager;}
 	UFUNCTION(BlueprintCallable, Category = "GameMode")
 	ADamageCollisionSpawner* GetDamageCollisionSpawner() const {return DamageCollisionSpawner;}
 };
