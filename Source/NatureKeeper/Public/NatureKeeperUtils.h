@@ -3,9 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Effects/Data/EffectData.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "NatureKeeperUtils.generated.h"
 
+class APhysicsManager;
 class UAffectable;
 class UEffectFactory;
 class UEffectBase;
@@ -25,17 +27,19 @@ class NATUREKEEPER_API UNatureKeeperUtils : public UBlueprintFunctionLibrary
 	public:
 	//Lightweight method to create effects and don't store effect factory
 	UFUNCTION(BlueprintCallable, Category="Nature Keeper Util")
-	static UEffectBase* CreateEffect(UObject* Outer, UEffectDataAsset* EffectDataAsset);
+	static UEffectBase* CreateEffect(UObject* Outer, const FEffectData& EffectData);
 	UFUNCTION(BlueprintCallable, Category="Nature Keeper Util")
-	static void TryCreateAndApplyEffects(UObject* Outer, TArray<UEffectDataAsset*>& InEffectDataAssets, const TScriptInterface<UAffectable>& InAffectedObject);
+	static void TryCreateAndApplyEffects(UObject* Outer, TArray<UEffectDataAsset*>& InEffectDataAssets, const TScriptInterface<UAffectable>& InAffectedObject, const FEffectHitData& InEffectHitData = FEffectHitData());
 	UFUNCTION(BlueprintCallable, Category="Nature Keeper Util")
-	static void SetPlayerFocusComponentAsTarget(const TScriptInterface<UFollow>& FollowActor);
+	static void SetPlayerFocusComponentAsTarget(UObject* FollowActor);
 	UFUNCTION(BlueprintCallable, Category="Nature Keeper Util")
-	static void RemoveElementFromTargetFollowMap(const TScriptInterface<UFollow>& FollowActor);
+	static void RemoveElementFromTargetFollowMap(UObject* FollowActor);
 	UFUNCTION(BlueprintCallable, Category="Nature Keeper Util")
 	static ANatureKeeperCharacter* GetNatureKeeperCharacter(const UObject* WorldContextObject, int32 PlayerIndex = 0);
 	UFUNCTION(BlueprintCallable, Category="Nature Keeper Util")
 	static ANatureKeeperGameMode* GetNatureKeeperGameMode(const UObject* WorldContextObject);
+	UFUNCTION(BlueprintCallable, Category="Nature Keeper Util")
+	static APhysicsManager* GetPhysicsManager(const UObject* WorldContextObject);
 	UFUNCTION(BlueprintCallable, Category="Nature Keeper Util")
 	static FVector GetRandomNavigableLocationInRadius(UObject* WorldContextObject, const FVector& Origin, const float Radius);
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category="Nature Keeper Util")

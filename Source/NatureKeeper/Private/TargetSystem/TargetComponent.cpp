@@ -17,13 +17,8 @@ void UTargetComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (UManaComponent* InManaComponent = GetOwner()->GetComponentByClass<UManaComponent>())
-	{
-		ManaComponent = InManaComponent;
-
-		if (Ability)
-			Ability->InitManaComponent(ManaComponent);
-	}
+	if (Ability)
+		Ability->InitAbility(GetOwner());
 }
 
 void UTargetComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)

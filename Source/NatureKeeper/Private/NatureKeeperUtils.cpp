@@ -12,25 +12,25 @@
 
 class ANatureKeeperGameMode;
 
-UEffectBase* UNatureKeeperUtils::CreateEffect(UObject* Outer, UEffectDataAsset* EffectDataAsset)
+UEffectBase* UNatureKeeperUtils::CreateEffect(UObject* Outer, const FEffectData& EffectData)
 {
-	if (!Outer || !EffectDataAsset) return nullptr;
+	if (!Outer || !EffectData.EffectDataAsset) return nullptr;
 	
-	UEffectBase* NewEffect = NewObject<UEffectBase>(Outer, EffectDataAsset->EffectClass);
+	UEffectBase* NewEffect = NewObject<UEffectBase>(Outer, EffectData.EffectDataAsset->EffectClass);
 
-	if (!NewEffect->InitEffect(EffectDataAsset)) return nullptr;
+	if (!NewEffect->InitEffect(EffectData)) return nullptr;
 	
 	return NewEffect;
 }
 
 void UNatureKeeperUtils::TryCreateAndApplyEffects(UObject* Outer, TArray<UEffectDataAsset*>& InEffectDataAssets,
-	const TScriptInterface<UAffectable>& InAffectedObject)
+	const TScriptInterface<UAffectable>& InAffectedObject, const FEffectHitData& InEffectHitData)
 {
 	if (!Outer || InEffectDataAssets.IsEmpty() || !InAffectedObject.GetObject()) return;
 	
 	for (int i = 0; i < InEffectDataAssets.Num(); i++)
 	{
-		UEffectBase* NewEffect = CreateEffect(Outer, InEffectDataAssets[i]);
+		UEffectBase* NewEffect = CreateEffect(Outer, FEffectData(InEffectHitData, InEffectDataAssets[i]));
 
 		if (!NewEffect) continue;
 		
@@ -38,11 +38,11 @@ void UNatureKeeperUtils::TryCreateAndApplyEffects(UObject* Outer, TArray<UEffect
 	}
 }
 
-void UNatureKeeperUtils::SetPlayerFocusComponentAsTarget(const TScriptInterface<UFollow>& FollowActor)
+void UNatureKeeperUtils::SetPlayerFocusComponentAsTarget(UObject* FollowActor)
 {
-	if (!FollowActor.GetObject()) return;
+	if (!FollowActor) return;
 
-	UWorld* World = FollowActor.GetObject()->GetWorld();
+	UWorld* World = FollowActor->GetWorld();
 	if (!World) return;
 
 	ANatureKeeperGameMode* GM = World->GetAuthGameMode<ANatureKeeperGameMode>();
@@ -51,17 +51,17 @@ void UNatureKeeperUtils::SetPlayerFocusComponentAsTarget(const TScriptInterface<
 	APhysicsManager* Manager = GM->GetPhysicsManager();
 	if (!Manager) return;
 
-	ANatureKeeperCharacter* Player = GetNatureKeeperCharacter(FollowActor.GetObject());
+	ANatureKeeperCharacter* Player = GetNatureKeeperCharacter(FollowActor);
 	if (!Player) return;
 
 	Manager->AddTargetFollowMap(FollowActor, Player->GetFocusComponent());
 }
 
-void UNatureKeeperUtils::RemoveElementFromTargetFollowMap(const TScriptInterface<UFollow>& FollowActor)
+void UNatureKeeperUtils::RemoveElementFromTargetFollowMap(UObject* FollowActor)
 {
-	if (!FollowActor.GetObject()) return;
+	if (!FollowActor) return;
 
-	UWorld* World = FollowActor.GetObject()->GetWorld();
+	UWorld* World = FollowActor->GetWorld();
 	if (!World) return;
 
 	ANatureKeeperGameMode* GM = World->GetAuthGameMode<ANatureKeeperGameMode>();
@@ -81,7 +81,24 @@ ANatureKeeperCharacter* UNatureKeeperUtils::GetNatureKeeperCharacter(const UObje
 
 ANatureKeeperGameMode* UNatureKeeperUtils::GetNatureKeeperGameMode(const UObject* WorldContextObject)
 {
-	return WorldContextObject->GetWorld()->GetAuthGameMode<ANatureKeeperGameMode>();
+	if (UWorld* World = WorldContextObject->GetWorld())
+	{
+		return World->GetAuthGameMode<ANatureKeeperGameMode>();
+	}
+	return nullptr;
+}
+
+APhysicsManager* UNatureKeeperUtils::GetPhysicsManager(const UObject* WorldContextObject)
+{
+	if (UWorld* World = WorldContextObject->GetWorld())
+	{
+		if (ANatureKeeperGameMode* GM = World->GetAuthGameMode<ANatureKeeperGameMode>())
+		{
+			return GM->GetPhysicsManager();
+		}
+	}
+
+	return nullptr;
 }
 
 FVector UNatureKeeperUtils::GetRandomNavigableLocationInRadius(UObject* WorldContextObject, const FVector& Origin,

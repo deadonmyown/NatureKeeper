@@ -14,10 +14,12 @@ struct FTargetFollowMap
 {
 	GENERATED_BODY()
 
+	//UFollow Interface
 	UPROPERTY(BlueprintReadWrite)
-	TScriptInterface<UFollow> FollowActor;
+	UObject* FollowActor;
+	//UTarget Interface
 	UPROPERTY(BlueprintReadWrite)
-	TScriptInterface<UTarget> TargetActor;
+	UObject* TargetActor;
 	UPROPERTY(BlueprintReadWrite)
 	int32 AssignCount;
 };
@@ -26,9 +28,10 @@ USTRUCT(BlueprintType)
 struct FFreezeData
 {
 	GENERATED_BODY()
-	
+
+	//UFreezable Interface
 	UPROPERTY(BlueprintReadWrite)
-	TScriptInterface<UFreezable> FreezeActor;
+	UObject*  FreezeActor;
 	UPROPERTY(BlueprintReadWrite)
 	int AssignCount;
 };
@@ -37,9 +40,10 @@ USTRUCT(BlueprintType)
 struct FSlowData
 {
 	GENERATED_BODY()
-	
+
+	//UMovable Interface
 	UPROPERTY(BlueprintReadWrite)
-	TScriptInterface<UMovable> MovableActor;
+	UObject* MovableActor;
 	UPROPERTY(BlueprintReadWrite)
 	float SlowPercent = 0.0f; //[0..1] if == 1 => stun
 	UPROPERTY(BlueprintReadWrite)
@@ -51,8 +55,10 @@ USTRUCT(BlueprintType)
 struct FIceSlowData
 {
 	GENERATED_BODY()
+
+	//UMovable Interface
 	UPROPERTY(BlueprintReadWrite)
-	TScriptInterface<UMovable> MovableActor;
+	UObject* MovableActor;
 	UPROPERTY(BlueprintReadWrite)
 	float SlowPercent = 0.0f; //[0..1]
 	UPROPERTY(BlueprintReadWrite)
@@ -63,8 +69,9 @@ USTRUCT(BlueprintType)
 struct FStunData
 {
 	GENERATED_BODY()
+	//UMovable Interface
 	UPROPERTY(BlueprintReadWrite)
-	TScriptInterface<UMovable> MovableActor;
+	UObject* MovableActor;
 	UPROPERTY(BlueprintReadWrite)
 	float StunTime = 0.0f;
 };
@@ -93,17 +100,20 @@ protected:
 	
 public:
 	UFUNCTION(BlueprintCallable, Category="Physics Manager")
-	void AddTargetFollowMap(const TScriptInterface<UFollow>& FollowActor, const TScriptInterface<UTarget>& TargetActor);
+	void AddTargetFollowMap(UObject* FollowActor, UObject* TargetActor);
 	UFUNCTION(BlueprintCallable, Category="Physics Manager")
-	bool RemoveTargetFollowMap(const TScriptInterface<UFollow>& FollowActor, bool bForceDelete = false);
-	void StartFreezeActor(const TScriptInterface<UFreezable>& InFreezeActor);
-	bool StopFreezeActor(const TScriptInterface<UFreezable>& InFreezeActor, bool bForceDelete = false);
-	void StartSlowActor(const TScriptInterface<UMovable>& InMovableActor, const float InSlowPercent, const float InSlowTime, const float InStunTime);
-	bool StopSlowActor(const TScriptInterface<UMovable>& InMovableActor, float InSlowPercent, bool bForceStop = false);
-	void StartIceSlowActor(const TScriptInterface<UMovable>& InMovableActor, float InSlowPercent);
-	bool StopIceSlowActor(const TScriptInterface<UMovable>& InMovableActor, float InSlowPercent, bool bForceStop = false);
-	void StartStunActor(const TScriptInterface<UMovable>& InMovableActor, float InStunTime);
-	bool StopStunActor(const TScriptInterface<UMovable>& InMovableActor, bool bForceStop = false);
+	bool RemoveTargetFollowMap(UObject* FollowActor, bool bForceDelete = false);
+	void StartFreezeActor(UObject* InFreezeActor);
+	bool StopFreezeActor(UObject* InFreezeActor, bool bForceDelete = false);
+	void StartSlowActor(UObject* InMovableActor, const float InSlowPercent, const float InSlowTime, const float InStunTime);
+	bool StopSlowActor(UObject* InMovableActor, float InSlowPercent, bool bForceStop = false);
+	bool StopSlowActorByID(int32 InSlowActorID, bool bForceStop = false);
+	void StartIceSlowActor(UObject* InMovableActor, float InSlowPercent);
+	bool StopIceSlowActor(UObject* InMovableActor, float InSlowPercent, bool bForceStop = false);
+	void StartStunActor(UObject* InMovableActor, float InStunTime);
+	bool StopStunActor(UObject* InMovableActor, bool bForceStop = false);
+	bool StopStunActorByID(int32 InStunActorID, bool bForceStop = false);
+	void ThrowActor(UObject* InThrowableActor, UPrimitiveComponent* ThrowPrimitiveComponent, const FVector& InThrowNormal, const float InThrowForce);
 
 	virtual void Tick(float DeltaTime) override;
 };

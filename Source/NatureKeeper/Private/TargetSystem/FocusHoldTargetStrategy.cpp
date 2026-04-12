@@ -69,7 +69,10 @@ void UFocusHoldTargetStrategy::UpdateStrategy(float DeltaTime)
 		{
 			if (Ability && Ability->TrySpendMana())
 			{
-				Ability->ApplyAbilityEffect(CachedFocusActor);
+				const FVector HitNormal = bUsePlayerHitNormal ? (PlayerController->GetPawn()->GetActorLocation() - CachedFocusActor->GetActorLocation()).GetSafeNormal()
+				: CachedFocusActor->GetTransform().InverseTransformVector(HitNormal);
+				const FEffectHitData HitData = FEffectHitData(HitNormal, FocusComponent->CursorFocusHitCacheLocation, FocusComponent->CursorFocusedComponent);
+				Ability->ApplyAbilityEffect(CachedFocusActor, HitData);
 
 				CurrentFocusCooldown = FocusUpdateTimeInSec;
 			}
@@ -82,7 +85,10 @@ void UFocusHoldTargetStrategy::UpdateStrategy(float DeltaTime)
 				&& Ability && Ability->TrySpendMana())
 			{
 				CachedFocusActor = FocusComponent->CursorFocusedActor;
-				Ability->ApplyAbilityEffect(FocusComponent->CursorFocusedActor);
+				const FVector HitNormal = bUsePlayerHitNormal ? (PlayerController->GetPawn()->GetActorLocation() - CachedFocusActor->GetActorLocation()).GetSafeNormal()
+				: CachedFocusActor->GetTransform().InverseTransformVector(HitNormal);
+				const FEffectHitData HitData = FEffectHitData(HitNormal, FocusComponent->CursorFocusHitCacheLocation, FocusComponent->CursorFocusedComponent);
+				Ability->ApplyAbilityEffect(FocusComponent->CursorFocusedActor, HitData);
 
 				CurrentFocusCooldown = FocusUpdateTimeInSec;
 			}

@@ -4,6 +4,7 @@
 #include "Interfaces/Freezable.h"
 #include "Interfaces/Movable.h"
 #include "Interfaces/Target.h"
+#include "Interfaces/Throwable.h"
 #include "Kismet/KismetMathLibrary.h"
 
 APhysicsManager::APhysicsManager()
@@ -11,15 +12,15 @@ APhysicsManager::APhysicsManager()
 	PrimaryActorTick.bCanEverTick = true;
 }
 
-void APhysicsManager::AddTargetFollowMap(const TScriptInterface<UFollow>& FollowActor, const TScriptInterface<UTarget>& TargetActor)
+void APhysicsManager::AddTargetFollowMap(UObject* FollowActor, UObject* TargetActor)
 {
-	if (!FollowActor.GetObject() || !TargetActor.GetObject()) return;
+	if (!FollowActor || !TargetActor) return;
 
 	for (int i = 0; i < TargetFollowMap.Num(); i++)
 	{
-		if (TargetFollowMap[i].FollowActor.GetObject() == FollowActor.GetObject())
+		if (TargetFollowMap[i].FollowActor == FollowActor)
 		{
-			if (TargetFollowMap[i].TargetActor.GetObject() == TargetActor.GetObject())
+			if (TargetFollowMap[i].TargetActor == TargetActor)
 			{
 				TargetFollowMap[i].AssignCount += 1;
 				UE_LOG(LogTemp, Display, TEXT("Increment Follow Assign"));
@@ -40,11 +41,11 @@ void APhysicsManager::AddTargetFollowMap(const TScriptInterface<UFollow>& Follow
 	UE_LOG(LogTemp, Display, TEXT("Add New Follow Element"));
 }
 
-bool APhysicsManager::RemoveTargetFollowMap(const TScriptInterface<UFollow>& FollowActor, bool bForceDelete)
+bool APhysicsManager::RemoveTargetFollowMap(UObject* FollowActor, bool bForceDelete)
 {
 	for (int i = 0; i < TargetFollowMap.Num(); i++)
 	{
-		if (TargetFollowMap[i].FollowActor.GetObject() == FollowActor.GetObject())
+		if (TargetFollowMap[i].FollowActor == FollowActor)
 		{
 			TargetFollowMap[i].AssignCount -= 1;
 			UE_LOG(LogTemp, Display, TEXT("Decrease Follow Assign"));
@@ -60,14 +61,14 @@ bool APhysicsManager::RemoveTargetFollowMap(const TScriptInterface<UFollow>& Fol
 	return false;
 }
 
-void APhysicsManager::StartFreezeActor(const TScriptInterface<UFreezable>& InFreezeActor)
+void APhysicsManager::StartFreezeActor(UObject* InFreezeActor)
 {
-	if (!InFreezeActor.GetObject())
+	if (!InFreezeActor)
 		return;
 
 	for (int i = 0; i < FreezedActors.Num(); i++)
 	{
-		if (FreezedActors[i].FreezeActor.GetObject() == InFreezeActor.GetObject())
+		if (FreezedActors[i].FreezeActor == InFreezeActor)
 		{
 			FreezedActors[i].AssignCount += 1;
 			UE_LOG(LogTemp, Display, TEXT("Increment Freeze Assign"));
@@ -79,21 +80,21 @@ void APhysicsManager::StartFreezeActor(const TScriptInterface<UFreezable>& InFre
 	NewFreezeElement.FreezeActor = InFreezeActor;
 	NewFreezeElement.AssignCount = 1;
 	FreezedActors.Add(NewFreezeElement);
-	IFreezable::Execute_StartFreeze(InFreezeActor.GetObject());
+	IFreezable::Execute_StartFreeze(InFreezeActor);
 	UE_LOG(LogTemp, Display, TEXT("Add New Freeze Element"));
 }
 
-bool APhysicsManager::StopFreezeActor(const TScriptInterface<UFreezable>& InFreezeActor, bool bForceDelete)
+bool APhysicsManager::StopFreezeActor(UObject* InFreezeActor, bool bForceDelete)
 {
 	for (int i = 0; i < FreezedActors.Num(); i++)
 	{
-		if (FreezedActors[i].FreezeActor.GetObject() == InFreezeActor.GetObject())
+		if (FreezedActors[i].FreezeActor == InFreezeActor)
 		{
 			FreezedActors[i].AssignCount -= 1;
 			UE_LOG(LogTemp, Display, TEXT("Decrease Freeze Assign"));
 			if (bForceDelete || FreezedActors[i].AssignCount == 0)
 			{
-				IFreezable::Execute_StopFreeze(InFreezeActor.GetObject());
+				IFreezable::Execute_StopFreeze(InFreezeActor);
 				FreezedActors.RemoveAt(i);
 				UE_LOG(LogTemp, Display, TEXT("Remove Freeze Actor From Array"));
 			}
@@ -104,26 +105,26 @@ bool APhysicsManager::StopFreezeActor(const TScriptInterface<UFreezable>& InFree
 	return false;
 }
 
-void APhysicsManager::StartSlowActor(const TScriptInterface<UMovable>& InMovableActor, const float InSlowPercent,
+void APhysicsManager::StartSlowActor(UObject* InMovableActor, const float InSlowPercent,
 	const float InSlowTime, const float InStunTime)
 {
-	if (!InMovableActor.GetObject())
+	if (!InMovableActor)
 		return;
 	
 	for (int i = 0; i < SlowedActors.Num(); i++)
 	{
-		if (SlowedActors[i].MovableActor.GetObject() == InMovableActor.GetObject())
+		if (SlowedActors[i].MovableActor == InMovableActor)
 		{
 			SlowedActors[i].SlowPercent = FMath::Max(SlowedActors[i].SlowPercent, InSlowPercent);
 			SlowedActors[i].SlowTime = FMath::Max(SlowedActors[i].SlowTime, InSlowTime);
 			if (SlowedActors[i].SlowPercent >= 1.0f)
 			{
+				StopSlowActorByID(i, true);
 				StartStunActor(InMovableActor, InStunTime);
-				SlowedActors.RemoveAt(i);
 			}
 			else
 			{
-				IMovable::Execute_StartSlow(InMovableActor.GetObject(), SlowedActors[i].SlowPercent);
+				IMovable::Execute_StartSlow(InMovableActor, SlowedActors[i].SlowPercent);
 			}
 
 			return;
@@ -137,27 +138,41 @@ void APhysicsManager::StartSlowActor(const TScriptInterface<UMovable>& InMovable
 	else
 	{
 		FSlowData NewSlowData;
-		NewSlowData.MovableActor = InMovableActor.GetObject();
+		NewSlowData.MovableActor = InMovableActor;
 		NewSlowData.SlowPercent = InSlowPercent;
 		NewSlowData.SlowTime = InSlowTime;
-		IMovable::Execute_StartSlow(InMovableActor.GetObject(), InSlowPercent);
+		IMovable::Execute_StartSlow(InMovableActor, InSlowPercent);
 		SlowedActors.Add(NewSlowData);
 	}
 }
 
-bool APhysicsManager::StopSlowActor(const TScriptInterface<UMovable>& InMovableActor, float InSlowPercent,
+bool APhysicsManager::StopSlowActor(UObject* InMovableActor, float InSlowPercent,
 	bool bForceStop)
 {
-	if (!InMovableActor.GetObject())
+	if (!InMovableActor)
 		return false;
 	
 	for (int i = 0; i < SlowedActors.Num(); i++)
 	{
-		if (SlowedActors[i].MovableActor.GetObject() == InMovableActor.GetObject())
+		if (SlowedActors[i].MovableActor == InMovableActor)
 		{
 			SlowedActors[i].SlowPercent -= InSlowPercent;
 			if (bForceStop || SlowedActors[i].SlowPercent <= 0)
 			{
+				bool bHasOtherSlowEffect = false;
+				for (int j = 0; j < IceSlowedActors.Num(); j++)
+				{
+					if (IceSlowedActors[j].MovableActor == InMovableActor)
+					{
+						bHasOtherSlowEffect = true;
+						break;
+					}
+				}
+		
+				if (!bHasOtherSlowEffect)
+				{
+					IMovable::Execute_StopSlow(InMovableActor);
+				}
 				SlowedActors.RemoveAt(i);
 			}
 			return true;
@@ -167,44 +182,157 @@ bool APhysicsManager::StopSlowActor(const TScriptInterface<UMovable>& InMovableA
 	return false;
 }
 
-void APhysicsManager::StartIceSlowActor(const TScriptInterface<UMovable>& InMovableActor, float InSlowPercent)
+bool APhysicsManager::StopSlowActorByID(int32 InSlowActorID, bool bForceStop)
 {
-	if (!InMovableActor.GetObject())
+	if (!SlowedActors.IsValidIndex(InSlowActorID))
+		return false;
+
+	if (bForceStop || SlowedActors[InSlowActorID].SlowTime <= 0 || SlowedActors[InSlowActorID].SlowPercent <= 0)
+	{
+		bool bHasOtherSlowEffect = false;
+		for (int i = 0; i < IceSlowedActors.Num(); i++)
+		{
+			if (IceSlowedActors[i].MovableActor == SlowedActors[InSlowActorID].MovableActor)
+			{
+				bHasOtherSlowEffect = true;
+				break;
+			}
+		}
+		
+		if (!bHasOtherSlowEffect)
+		{
+			IMovable::Execute_StopSlow(SlowedActors[InSlowActorID].MovableActor);
+		}
+		SlowedActors.RemoveAt(InSlowActorID);
+		return true;
+	}
+	return false;
+}
+
+void APhysicsManager::StartIceSlowActor(UObject* InMovableActor, float InSlowPercent)
+{
+	if (!InMovableActor)
 		return;
 	
 	for (int i = 0; i < IceSlowedActors.Num(); i++)
 	{
-		if (IceSlowedActors[i].MovableActor.GetObject() == InMovableActor.GetObject())
+		if (IceSlowedActors[i].MovableActor == InMovableActor)
 		{
 			IceSlowedActors[i].AssignCount++;
 			IceSlowedActors[i].SlowPercent = FMath::Max(IceSlowedActors[i].SlowPercent, InSlowPercent);
 			
-			IMovable::Execute_StartSlow(InMovableActor.GetObject(), SlowedActors[i].SlowPercent);
+			IMovable::Execute_StartSlow(InMovableActor, IceSlowedActors[i].SlowPercent);
 			
 			return;
 		}
 	}
 	
 	FIceSlowData NewSlowData;
-	NewSlowData.MovableActor = InMovableActor.GetObject();
+	NewSlowData.MovableActor = InMovableActor;
 	NewSlowData.SlowPercent = InSlowPercent;
 	NewSlowData.AssignCount = 1;
-	IMovable::Execute_StartSlow(InMovableActor.GetObject(), InSlowPercent);
+	IMovable::Execute_StartSlow(InMovableActor, InSlowPercent);
 	IceSlowedActors.Add(NewSlowData);
 }
 
-bool APhysicsManager::StopIceSlowActor(const TScriptInterface<UMovable>& InMovableActor, float InSlowPercent,
+bool APhysicsManager::StopIceSlowActor(UObject* InMovableActor, float InSlowPercent,
 	bool bForceStop)
 {
+	if (!InMovableActor)
+		return false;
+
+	for (int i = 0; i < IceSlowedActors.Num(); i++)
+	{
+		if (IceSlowedActors[i].MovableActor == InMovableActor)
+		{
+			IceSlowedActors[i].AssignCount--;
+			IceSlowedActors[i].SlowPercent -= InSlowPercent;
+			if (bForceStop || IceSlowedActors[i].AssignCount <= 0 || IceSlowedActors[i].SlowPercent <= 0)
+			{
+				bool bHasOtherSlowEffect = false;
+				for (int j = 0; j < SlowedActors.Num(); j++)
+				{
+					if (SlowedActors[j].MovableActor == InMovableActor)
+					{
+						bHasOtherSlowEffect = true;
+						break;
+					}
+				}
+				if (!bHasOtherSlowEffect)
+				{
+					IMovable::Execute_StopSlow(InMovableActor);
+				}
+				IceSlowedActors.RemoveAt(i);
+			}
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void APhysicsManager::StartStunActor(UObject* InMovableActor, float InStunTime)
+{
+	if (!InMovableActor)
+		return;
+
+	for (int i = 0; i < StunnedActors.Num(); i++)
+	{
+		if (StunnedActors[i].MovableActor == InMovableActor)
+		{
+			StunnedActors[i].StunTime += InStunTime;
+			return;
+		}
+	}
+
+	FStunData NewStunData;
+	NewStunData.MovableActor = InMovableActor;
+	NewStunData.StunTime = InStunTime;
+	IMovable::Execute_StartStun(InMovableActor);
+	StunnedActors.Add(NewStunData);
+}
+
+bool APhysicsManager::StopStunActor(UObject* InMovableActor, bool bForceStop)
+{
+	if (!InMovableActor)
+		return false;
+
+	for (int i = 0; i < StunnedActors.Num(); i++)
+	{
+		if (StunnedActors[i].MovableActor == InMovableActor)
+		{
+			if (bForceStop || StunnedActors[i].StunTime <= 0)
+			{
+				IMovable::Execute_StopStun(InMovableActor);
+				StunnedActors.RemoveAt(i);
+			}
+			return true;
+		}
+	}
+	return false;
+}
+
+bool APhysicsManager::StopStunActorByID(int32 InStunActorID, bool bForceStop)
+{
+	if (!StunnedActors.IsValidIndex(InStunActorID))
+		return false;
+
+	if (bForceStop || StunnedActors[InStunActorID].StunTime <= 0)
+	{
+		IMovable::Execute_StopStun(StunnedActors[InStunActorID].MovableActor);
+		StunnedActors.RemoveAt(InStunActorID);
+		return true;
+	}
 	
+	return false;
 }
 
-void APhysicsManager::StartStunActor(const TScriptInterface<UMovable>& InMovableActor, float InStunTime)
+void APhysicsManager::ThrowActor(UObject* InThrowableActor, UPrimitiveComponent* ThrowPrimitiveComponent, const FVector& InThrowNormal, const float InThrowForce)
 {
-}
+	if (!InThrowableActor)
+		return;
 
-bool APhysicsManager::StopStunActor(const TScriptInterface<UMovable>& InMovableActor, bool bForceStop)
-{
+	IThrowable::Execute_AddThrowImpulse(InThrowableActor, ThrowPrimitiveComponent, InThrowNormal * InThrowForce);
 }
 
 void APhysicsManager::Tick(float DeltaTime)
@@ -215,14 +343,14 @@ void APhysicsManager::Tick(float DeltaTime)
 	{
 		for (int i = TargetFollowMap.Num() - 1; i >= 0; i--)
 		{
-			if (!IsValid(TargetFollowMap[i].FollowActor.GetObject()) || !IsValid(TargetFollowMap[i].TargetActor.GetObject()))
+			if (!IsValid(TargetFollowMap[i].FollowActor) || !IsValid(TargetFollowMap[i].TargetActor))
 			{
 				TargetFollowMap.RemoveAt(i);
 				UE_LOG(LogTemp, Display, TEXT("Force remove"));
 				continue;
 			};
 
-			AActor* FollowActorRef = IFollow::Execute_GetFollowActor(TargetFollowMap[i].FollowActor.GetObject());
+			AActor* FollowActorRef = IFollow::Execute_GetFollowActor(TargetFollowMap[i].FollowActor);
 
 			if (!IsValid(FollowActorRef))
 			{
@@ -233,9 +361,33 @@ void APhysicsManager::Tick(float DeltaTime)
 
 			//Right now just simple interpolation, later will include gravitation and physics in computation etc.
 			FVector ActorLocation = FollowActorRef->GetActorLocation();
-			FVector TargetLocation = ITarget::Execute_GetTargetLocation(TargetFollowMap[i].TargetActor.GetObject());
+			FVector TargetLocation = ITarget::Execute_GetTargetLocation(TargetFollowMap[i].TargetActor);
 			FVector GoalLocation = UKismetMathLibrary::VInterpTo(ActorLocation, TargetLocation, DeltaTime, TargetFollowInterpSpeed);
 			FollowActorRef->SetActorLocation(GoalLocation);
+		}
+	}
+
+	if (!SlowedActors.IsEmpty())
+	{
+		for (int i = SlowedActors.Num() - 1; i >= 0; i--)
+		{
+			SlowedActors[i].SlowTime -= DeltaTime;
+			if (SlowedActors[i].SlowTime <= 0)
+			{
+				StopSlowActorByID(i, true);
+			}
+		}
+	}
+
+	if (!StunnedActors.IsEmpty())
+	{
+		for (int i = StunnedActors.Num() - 1; i >= 0; i--)
+		{
+			StunnedActors[i].StunTime -= DeltaTime;
+			if (StunnedActors[i].StunTime <= 0)
+			{
+				StopStunActorByID(i, true);
+			}
 		}
 	}
 }

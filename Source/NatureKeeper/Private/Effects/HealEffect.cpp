@@ -5,17 +5,16 @@
 
 #include "Effects/Data/HealEffectDataAsset.h"
 
-bool UHealEffect::InitEffect(UEffectDataAsset* InEffectDataAsset)
+bool UHealEffect::InitEffect(const FEffectData& InEffectData)
 {
-	UHealEffectDataAsset* HealDataAsset = Cast<UHealEffectDataAsset>(InEffectDataAsset);
+	const UHealEffectDataAsset* HealDataAsset = Cast<UHealEffectDataAsset>(InEffectData.EffectDataAsset);
 
 	if (!HealDataAsset)
 		return false;
 	
 	EffectVFX = HealDataAsset->EffectVFX;
 	EffectElementType = HealDataAsset->EffectElementType;
-	BlendingEffectDataAsset = InEffectDataAsset->BlendingEffectDataAsset;
-	BlendingEffectElementType = InEffectDataAsset->BlendingEffectElementType;
+	BlendingEffectDataMap = HealDataAsset->BlendingEffectDataMap;
 	HealAmount = HealDataAsset->HealAmount;
 	return true;
 }

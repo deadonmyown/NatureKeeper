@@ -6,12 +6,15 @@
 #include "InteractiveActor.h"
 #include "Interfaces/Affectable.h"
 #include "Interfaces/Damageable.h"
+#include "Interfaces/Freezable.h"
+#include "Interfaces/Movable.h"
+#include "Interfaces/Throwable.h"
 #include "DamageableInteractiveActor.generated.h"
 
 class UHealthComponent;
 
 UCLASS()
-class NATUREKEEPER_API ADamageableInteractiveActor : public AInteractiveActor, public IAffectable, public IDamageable
+class NATUREKEEPER_API ADamageableInteractiveActor : public AInteractiveActor, public IAffectable, public IDamageable, public IThrowable, public IFreezable
 {
 	GENERATED_BODY()
 
@@ -32,6 +35,8 @@ protected:
 	TArray<EEffectElement> ResistElements;
 
 	virtual void BeginPlay() override;
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Enemy")
+	UPrimitiveComponent* GetMainPrimitiveComponent();
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Damageable")
 	void Revive(int MaxValue);
@@ -52,4 +57,11 @@ public:
 	virtual TArray<EEffectElement> GetWeaknessEffectElements_Implementation() override {return {};}
 	virtual TArray<EEffectElement> GetResistEffectElements_Implementation() override {return ResistElements;}
 	virtual TArray<UEffectBase*> GetEffects_Implementation() override {return Effects; }
+
+	//Throwable Inteface
+	virtual void AddThrowImpulse_Implementation(UPrimitiveComponent* ThrowPrimitiveComponent, const FVector& InThrowVector) override;
+	
+	//Freezable Interface
+	virtual void StartFreeze_Implementation() override;
+	virtual void StopFreeze_Implementation() override;
 };

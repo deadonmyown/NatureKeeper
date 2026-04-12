@@ -13,4 +13,12 @@ UCLASS()
 class NATUREKEEPER_API UWaterEffectDataAsset : public UTickableDamageableEffectDataAsset
 {
 	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	float SlowPercent = 0.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	float SlowTime = 0.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	float StunTime = 0.0f;
 };

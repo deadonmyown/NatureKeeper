@@ -20,7 +20,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Effects")
 	int DamageAmount = 0;
 
-	virtual bool InitEffect(UEffectDataAsset* InEffectDataAsset) override;
+	virtual bool InitEffect(const FEffectData& InEffectData) override;
 	virtual bool ApplyEffect(const TScriptInterface<UAffectable>& InAffectedObject) override;
 	
 };

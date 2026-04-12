@@ -16,6 +16,8 @@ enum class EEffectElement : uint8
 	EE_Water UMETA(DisplayName = "Water"),
 	EE_Wind UMETA(DisplayName = "Wind"),
 	EE_Steam UMETA(DisplayName = "Steam"),
+	EE_Ice UMETA(DisplayName = "Ice"),
+	EE_Freeze UMETA(DisplayName = "Freeze"),
 	EE_Poison UMETA(DisplayName = "Poison"),
 	EE_Evil UMETA(DisplayName = "Evil"),
 };

@@ -31,9 +31,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
 	int32 EffectManaCost;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
-	UEffectDataAsset* BlendingEffectDataAsset;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
-	EEffectElement BlendingEffectElementType;
+	TMap<EEffectElement, UEffectDataAsset*> BlendingEffectDataMap;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
 	UTexture2D* EffectIcon;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")

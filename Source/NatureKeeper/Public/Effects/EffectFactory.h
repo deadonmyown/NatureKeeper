@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Data/EffectData.h"
 #include "UObject/Object.h"
 #include "EffectFactory.generated.h"
 
@@ -20,6 +21,8 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Effects")
 	TArray<UEffectBase*> Effects;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	FEffectData EffectData;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
 	UEffectDataAsset* EffectDataAsset;
 public:

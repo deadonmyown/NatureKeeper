@@ -1,7 +1,10 @@
 #include "InteractionSystem/EnemyBaseCharacter.h"
 
+#include "AIController.h"
+#include "BrainComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "ResourceSystem/HealthComponent.h"
 
@@ -24,7 +27,14 @@ void AEnemyBaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	GetCharacterMovement()->MaxWalkSpeed = DefaultMaxWalkSpeed;
+
 	HealthComponent->OnResourceValueReachMin.AddDynamic(this, &AEnemyBaseCharacter::Death);
+}
+
+UPrimitiveComponent* AEnemyBaseCharacter::GetMainPrimitiveComponent_Implementation()
+{
+	return GetComponentByClass<UPrimitiveComponent>();
 }
 
 void AEnemyBaseCharacter::Revive_Implementation(int MaxValue)
@@ -122,4 +132,77 @@ bool AEnemyBaseCharacter::UnregisterEffect_Implementation(UEffectBase* EffectToR
 USceneComponent* AEnemyBaseCharacter::GetEffectLocation_Implementation()
 {
 	return GetRootComponent();
+}
+
+void AEnemyBaseCharacter::StartSlow_Implementation(float InSlowPercent)
+{
+	GetCharacterMovement()->MaxWalkSpeed = DefaultMaxWalkSpeed * (1 - InSlowPercent);
+}
+
+void AEnemyBaseCharacter::StartStun_Implementation()
+{
+	StunCount++;
+	
+	StopCharacterLogic();
+}
+
+void AEnemyBaseCharacter::StopSlow_Implementation()
+{
+	GetCharacterMovement()->MaxWalkSpeed = DefaultMaxWalkSpeed;
+}
+
+void AEnemyBaseCharacter::StopStun_Implementation()
+{
+	StunCount--;
+	if (FreezeCount > 0 || StunCount > 0)
+		return;
+	
+	StartCharacterLogic();
+}
+
+void AEnemyBaseCharacter::AddThrowImpulse_Implementation(UPrimitiveComponent* ThrowPrimitiveComponent, const FVector& InThrowVector)
+{
+	UE_LOG(LogTemp, Display, TEXT("Add Throw Impulse %s"), *InThrowVector.ToString())
+	GetCharacterMovement()->StopActiveMovement();
+	GetCharacterMovement()->AddImpulse(InThrowVector);
+}
+
+void AEnemyBaseCharacter::StartFreeze_Implementation()
+{
+	FreezeCount++;
+	
+	StopCharacterLogic();
+}
+
+void AEnemyBaseCharacter::StopFreeze_Implementation()
+{
+	FreezeCount--;
+	if (FreezeCount > 0 || StunCount > 0)
+		return;
+	
+	StartCharacterLogic();
+}
+
+void AEnemyBaseCharacter::StartCharacterLogic()
+{
+	AAIController* AIC = Cast<AAIController>(GetController());
+	if (AIC)
+	{
+		if (AIC->GetBrainComponent()->IsPaused())
+			AIC->GetBrainComponent()->ResumeLogic("Stop stun/freeze");
+		if (!AIC->GetBrainComponent()->IsRunning())
+			AIC->GetBrainComponent()->StartLogic();
+	}
+}
+
+void AEnemyBaseCharacter::StopCharacterLogic()
+{
+	GetCharacterMovement()->StopActiveMovement();
+	GetCharacterMovement()->StopMovementImmediately();
+	GetController()->StopMovement();
+	AAIController* AIC = Cast<AAIController>(GetController());
+	if (AIC)
+	{
+		AIC->GetBrainComponent()->StopLogic("Start stun/freeze");
+	}
 }

@@ -7,17 +7,16 @@
 #include "Effects/Data/DamageableEffectDataAsset.h"
 #include "Interfaces/Affectable.h"
 
-bool UDamageableEffect::InitEffect(UEffectDataAsset* InEffectDataAsset)
+bool UDamageableEffect::InitEffect(const FEffectData& EffectData)
 {
-	UDamageableEffectDataAsset* DamageableDataAsset = Cast<UDamageableEffectDataAsset>(InEffectDataAsset);
+	const UDamageableEffectDataAsset* DamageableDataAsset = Cast<UDamageableEffectDataAsset>(EffectData.EffectDataAsset);
 
 	if (!DamageableDataAsset)
 		return false;
 	
 	EffectVFX = DamageableDataAsset->EffectVFX;
 	EffectElementType = DamageableDataAsset->EffectElementType;
-	BlendingEffectDataAsset = InEffectDataAsset->BlendingEffectDataAsset;
-	BlendingEffectElementType = InEffectDataAsset->BlendingEffectElementType;
+	BlendingEffectDataMap = DamageableDataAsset->BlendingEffectDataMap;
 	DamageAmount = DamageableDataAsset->DamageAmount;
 	return true;
 }

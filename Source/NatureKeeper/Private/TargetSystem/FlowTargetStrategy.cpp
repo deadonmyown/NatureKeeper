@@ -90,7 +90,7 @@ void UFlowTargetStrategy::UpdateStrategy(float DeltaTime)
 
 		if (HitResult.GetActor() && !CachedActors.Contains(HitResult.GetActor()) && HitResult.GetActor()->Implements<UAffectable>())
 		{
-			Ability->ApplyAbilityEffect(HitResult.GetActor());
+			Ability->ApplyAbilityEffect(HitResult.GetActor(), FEffectHitData(HitResult.Normal, HitResult.Location, HitResult.GetComponent()));
 			CachedActors.Add(FFlowUpdateData(HitResult.GetActor(), FlowUpdateTimeInSec));
 		}
 	}
@@ -112,7 +112,7 @@ void UFlowTargetStrategy::UpdateStrategy(float DeltaTime)
 		{
 			if (HitResults[i].GetActor() && !CachedActors.Contains(HitResults[i].GetActor()) && HitResults[i].GetActor()->Implements<UAffectable>())
 			{
-				Ability->ApplyAbilityEffect(HitResults[i].GetActor());
+				Ability->ApplyAbilityEffect(HitResults[i].GetActor(), FEffectHitData(HitResults[i].Normal, HitResults[i].Location, HitResults[i].GetComponent()));
 				CachedActors.Add(FFlowUpdateData(HitResults[i].GetActor(), FlowUpdateTimeInSec));
 			}
 		}

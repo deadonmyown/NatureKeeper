@@ -8,17 +8,16 @@
 #include "Interfaces/Affectable.h"
 #include "Interfaces/Damageable.h"
 
-bool UTickableDamageableEffect::InitEffect(UEffectDataAsset* InEffectDataAsset)
+bool UTickableDamageableEffect::InitEffect(const FEffectData& InEffectData)
 {
-	UTickableDamageableEffectDataAsset* TickableDataAsset = Cast<UTickableDamageableEffectDataAsset>(InEffectDataAsset);
+	const UTickableDamageableEffectDataAsset* TickableDataAsset = Cast<UTickableDamageableEffectDataAsset>(InEffectData.EffectDataAsset);
 
 	if (!TickableDataAsset)
 		return false;
 	
 	EffectVFX = TickableDataAsset->EffectVFX;
 	EffectElementType = TickableDataAsset->EffectElementType;
-	BlendingEffectDataAsset = InEffectDataAsset->BlendingEffectDataAsset;
-	BlendingEffectElementType = InEffectDataAsset->BlendingEffectElementType;
+	BlendingEffectDataMap = TickableDataAsset->BlendingEffectDataMap;
 	InitialDamageAmount = TickableDataAsset->InitialDamageAmount;
 	TickDamageAmount = TickableDataAsset->TickDamageAmount;
 	TicksCount = TickableDataAsset->TicksCount;

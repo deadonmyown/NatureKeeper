@@ -45,7 +45,8 @@ void USelfTargetStrategy::OnPlayerClickStopped(float StopTriggerTime)
 {
 	if (TargetComponent->GetOwner()->Implements<UAffectable>() && Ability && Ability->TrySpendMana())
 	{
-		Ability->ApplyAbilityEffect(TargetComponent->GetOwner());
+		const FEffectHitData& HitData = FEffectHitData(TargetComponent->GetOwner()->GetTransform().InverseTransformVector(HitNormal));
+		Ability->ApplyAbilityEffect(TargetComponent->GetOwner(), HitData);
 	}
 
 	TargetComponent->CancelTargetStrategy();

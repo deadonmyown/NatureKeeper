@@ -16,8 +16,5 @@ class NATUREKEEPER_API UFreezeEffectDataAsset : public UTickableDamageableEffect
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
-	float FreezeTime = 0.0f;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
 	UNiagaraSystem* FreezeEffectVFX;
 };

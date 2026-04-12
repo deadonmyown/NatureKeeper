@@ -24,6 +24,10 @@ protected:
 	UPROPERTY()
 	AActor* CachedFocusActor;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Target")
+	bool bUsePlayerHitNormal;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Target")
+	FVector OverrideHitNormal;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Target")
 	float OverrideFocusUpdateTimeInSec = -1.0f;
 	/*UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Target")

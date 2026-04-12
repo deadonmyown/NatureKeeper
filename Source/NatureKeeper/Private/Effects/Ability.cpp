@@ -5,9 +5,9 @@
 #include "Effects/Data/TickableDamageableEffectDataAsset.h"
 #include "ResourceSystem/ManaComponent.h"
 
-void UAbility::ApplyAbilityEffect_Implementation(const TScriptInterface<UAffectable>& InAffectedObject)
+void UAbility::ApplyAbilityEffect_Implementation(const TScriptInterface<UAffectable>& InAffectedObject, const FEffectHitData& InEffectHitData)
 {
-	UNatureKeeperUtils::TryCreateAndApplyEffects(this, EffectDataAssets, InAffectedObject);
+	UNatureKeeperUtils::TryCreateAndApplyEffects(this, EffectDataAssets, InAffectedObject, InEffectHitData);
 }
 
 void UAbility::ClearEffectDataAssets()
@@ -24,13 +24,13 @@ void UAbility::AddEffectDataAssets(UEffectDataAsset* DataAssetToAdd)
 {
 	UEffectDataAsset* FinalDataAssetToAdd = DataAssetToAdd;
 	
-	if (!EffectDataAssets.IsEmpty() && DataAssetToAdd->BlendingEffectDataAsset)
+	if (!EffectDataAssets.IsEmpty() && !DataAssetToAdd->BlendingEffectDataMap.IsEmpty())
 	{
 		for (int i = EffectDataAssets.Num() - 1; i >= 0; i--)
 		{
-			if (EffectDataAssets[i]->EffectElementType == DataAssetToAdd->BlendingEffectElementType)
+			if (DataAssetToAdd->BlendingEffectDataMap.Contains(EffectDataAssets[i]->EffectElementType))
 			{
-				FinalDataAssetToAdd = DataAssetToAdd->BlendingEffectDataAsset;
+				FinalDataAssetToAdd = DataAssetToAdd->BlendingEffectDataMap[EffectDataAssets[i]->EffectElementType];
 				EffectDataAssets.RemoveAt(i);
 				break;
 			}
@@ -99,9 +99,16 @@ float UAbility::GetAbilityCompletionTime_Implementation()
 	return CompletionTime;
 }
 
-void UAbility::InitManaComponent(UManaComponent* InManaComponent)
+void UAbility::InitAbility(AActor* InAbilityOwner)
 {
-	ManaComponent = InManaComponent;
+	if (!InAbilityOwner)
+		return;
+	
+	AbilityOwner = InAbilityOwner;
+	if (UManaComponent* InManaComponent = AbilityOwner->GetComponentByClass<UManaComponent>())
+	{
+		ManaComponent = InManaComponent;
+	}
 }
 
 void UAbility::ChangeExtraManaCost(int32 DeltaCost)

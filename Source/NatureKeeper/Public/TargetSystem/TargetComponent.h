@@ -33,9 +33,6 @@ protected:
 	UAbility* Ability;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Target")
 	TArray<UEffectDataAsset*> AvailableEffectDataAssets;
-
-	UPROPERTY(BlueprintReadWrite, Category = "Target")
-	UManaComponent* ManaComponent;
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Target")
 	UTargetStrategy* TargetStrategy;

@@ -90,7 +90,7 @@ void UAOETargetStrategy::OnPlayerClickStopped(float StopTriggerTime)
 	{
 		if (HitResults[i].GetActor() && HitResults[i].GetActor()->Implements<UAffectable>())
 		{
-			Ability->ApplyAbilityEffect(HitResults[i].GetActor());
+			Ability->ApplyAbilityEffect(HitResults[i].GetActor(), FEffectHitData(HitResults[i].Normal, HitResults[i].Location, HitResults[i].GetComponent()));
 		}
 	}
 

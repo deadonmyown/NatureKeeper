@@ -8,7 +8,32 @@
 #include "Interfaces/Affectable.h"
 #include "Interfaces/Damageable.h"
 #include "Interfaces/Follow.h"
+#include "Interfaces/Throwable.h"
+#include "Managers/PhysicsManager.h"
 #include "Managers/TargetFollowManager.h"
+
+bool UWindEffect::InitEffect(const FEffectData& InEffectData)
+{
+	const UWindEffectDataAsset* WindEffectDataAsset = Cast<UWindEffectDataAsset>(InEffectData.EffectDataAsset);
+
+	if (!WindEffectDataAsset)
+		return false;
+	
+	EffectVFX = WindEffectDataAsset->EffectVFX;
+	EffectElementType = WindEffectDataAsset->EffectElementType;
+	BlendingEffectDataMap = WindEffectDataAsset->BlendingEffectDataMap;
+	InitialDamageAmount = WindEffectDataAsset->InitialDamageAmount;
+	TickDamageAmount = WindEffectDataAsset->TickDamageAmount;
+	TicksCount = WindEffectDataAsset->TicksCount;
+	TickAmount = WindEffectDataAsset->TickAmount;
+	TickEffectVFX = WindEffectDataAsset->TickEffectVFX;
+	ThrowForce = WindEffectDataAsset->ThrowForce;
+	ThrowNormal = InEffectData.EffectHitData.EffectImpactNormal;
+	ThrowPrimitiveComponent = InEffectData.EffectHitData.EffectHitComponent;
+
+	CurrTick = 0;
+	return true;
+}
 
 bool UWindEffect::ApplyEffect(const TScriptInterface<UAffectable>& InAffectedObject)
 {
@@ -24,9 +49,18 @@ bool UWindEffect::ApplyEffect(const TScriptInterface<UAffectable>& InAffectedObj
 		UNatureKeeperUtils::SetPlayerFocusComponentAsTarget(InAffectedObject.GetObject());
 	}
 
+	if (InAffectedObject.GetObject()->Implements<UThrowable>())
+	{
+		if (APhysicsManager* PM = UNatureKeeperUtils::GetPhysicsManager(this))
+		{
+			FVector FinalThrowVector = (-ThrowNormal + AdditionalThrowVector).GetSafeNormal();
+			PM->ThrowActor(InAffectedObject.GetObject(), ThrowPrimitiveComponent, FinalThrowVector, ThrowForce);
+		}
+	}
+
 	GetWorld()->GetTimerManager().SetTimer(DamageTimerHandle, this, &UTickableDamageableEffect::OnTickDamage, TickAmount, true);
 
-	UE_LOG(LogTemp, Display, TEXT("Wind Effect: %d"), InitialDamageAmount);
+	UE_LOG(LogTemp, Display, TEXT("Tickable Damageable Effect(%s): %d"), *UEnum::GetDisplayValueAsText(EffectElementType).ToString(), InitialDamageAmount);
 	
 	return true;
 }

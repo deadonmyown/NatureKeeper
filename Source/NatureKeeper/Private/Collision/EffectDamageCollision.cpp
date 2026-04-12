@@ -23,7 +23,7 @@ void AEffectDamageCollision::OnCollisionOverlap(UPrimitiveComponent* OverlappedC
 
 	if (!OtherActor->Implements<UAffectable>()) return;
 
-	UNatureKeeperUtils::TryCreateAndApplyEffects(this, EffectDamageCollisionData.EffectDataAsset, OtherActor);
+	UNatureKeeperUtils::TryCreateAndApplyEffects(this, EffectDamageCollisionData.EffectDataAsset, OtherActor, FEffectHitData(SweepResult.Normal, SweepResult.Location, SweepResult.GetComponent()));
 }
 
 void AEffectDamageCollision::InitEffectDamageCollisionData(const FEffectDamageCollisionData& NewDamageCollisionData)

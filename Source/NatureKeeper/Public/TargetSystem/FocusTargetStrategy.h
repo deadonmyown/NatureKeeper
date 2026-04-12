@@ -21,6 +21,10 @@ protected:
 	UFocusComponent* FocusComponent;
 	UPROPERTY()
 	ANatureKeeperPlayerController* PlayerController;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Target")
+	bool bUsePlayerHitNormal;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Target")
+	FVector OverrideHitNormal;
 	
 public:
 	virtual bool StartStrategy(UAbility* InAbility, UTargetComponent* InTargetComponent) override;

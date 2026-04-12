@@ -56,7 +56,10 @@ void UFocusTargetStrategy::OnPlayerClickStopped(float StopTriggerTime)
 	if (FocusComponent->CursorFocusedActor && FocusComponent->CursorFocusedActor->Implements<UAffectable>()
 		&& Ability && Ability->TrySpendMana())
 	{
-		Ability->ApplyAbilityEffect(FocusComponent->CursorFocusedActor);
+		const FVector HitNormal = bUsePlayerHitNormal ? (PlayerController->GetPawn()->GetActorLocation() - FocusComponent->CursorFocusedActor->GetActorLocation()).GetSafeNormal()
+		: FocusComponent->CursorFocusedActor->GetTransform().InverseTransformVector(HitNormal);
+		const FEffectHitData HitData = FEffectHitData(HitNormal, FocusComponent->CursorFocusHitCacheLocation, FocusComponent->CursorFocusedComponent);
+		Ability->ApplyAbilityEffect(FocusComponent->CursorFocusedActor, HitData);
 	}
 	
 	TargetComponent->CancelTargetStrategy();

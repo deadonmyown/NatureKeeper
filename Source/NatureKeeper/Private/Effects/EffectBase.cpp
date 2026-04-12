@@ -9,12 +9,14 @@
 #include "Effects/Data/EffectDataAsset.h"
 #include "Interfaces/Affectable.h"
 
-bool UEffectBase::InitEffect(UEffectDataAsset* InEffectDataAsset)
+bool UEffectBase::InitEffect(const FEffectData& InEffectData)
 {
-	EffectVFX = InEffectDataAsset->EffectVFX;
-	EffectElementType = InEffectDataAsset->EffectElementType;
-	BlendingEffectDataAsset = InEffectDataAsset->BlendingEffectDataAsset;
-	BlendingEffectElementType = InEffectDataAsset->BlendingEffectElementType;
+	if (!InEffectData.EffectDataAsset)
+		return false;
+	
+	EffectVFX = InEffectData.EffectDataAsset->EffectVFX;
+	EffectElementType = InEffectData.EffectDataAsset->EffectElementType;
+	BlendingEffectDataMap = InEffectData.EffectDataAsset->BlendingEffectDataMap;
 	
 	return true;
 }
@@ -31,32 +33,33 @@ bool UEffectBase::ApplyEffect(const TScriptInterface<UAffectable>& InAffectedObj
 
 	AffectedObject = InAffectedObject;
 	
-	if (BlendingEffectElementType != EEffectElement::EE_None && BlendingEffectDataAsset)
+	if (!BlendingEffectDataMap.IsEmpty())
 	{
 		TArray<UEffectBase*> ObjectEffects = IAffectable::Execute_GetEffects(InAffectedObject.GetObject());
 
-		bool bHasOppositeEffect = false;
+		TArray<EEffectElement> OppositeEffectElements;
 		for (int i = ObjectEffects.Num() - 1; i >= 0; i--)
 		{
-			if (ObjectEffects[i]->EffectElementType == BlendingEffectElementType)
+			if (BlendingEffectDataMap.Contains(ObjectEffects[i]->EffectElementType))
 			{
 				ObjectEffects[i]->CancelEffect();
-				bHasOppositeEffect = true;
+				OppositeEffectElements.Add(ObjectEffects[i]->EffectElementType);
 			}
 		}
 
-		if (bHasOppositeEffect)
+		if (!OppositeEffectElements.IsEmpty())
 		{
-			if (UEffectBase* OppositeEffect = UNatureKeeperUtils::CreateEffect(InAffectedObject.GetObject(), BlendingEffectDataAsset))
+			CancelEffect();
+			for (int i = 0; i < OppositeEffectElements.Num(); i++)
 			{
-				CancelEffect();
-				
-				OppositeEffect->ApplyEffect(InAffectedObject);
+				if (UEffectBase* OppositeEffect = UNatureKeeperUtils::CreateEffect(InAffectedObject.GetObject(), BlendingEffectDataMap[OppositeEffectElements[i]]))
+				{
+					OppositeEffect->ApplyEffect(InAffectedObject);
 
-				UE_LOG(LogTemp, Display, TEXT("Opposite Effect: %s"), *UEnum::GetDisplayValueAsText(BlendingEffectDataAsset->EffectElementType).ToString());
-		
-				return false;
+					UE_LOG(LogTemp, Display, TEXT("Opposite Effect: %s"), *UEnum::GetDisplayValueAsText(OppositeEffectElements[i]).ToString());
+				}
 			}
+			return false;
 		}
 	}
 	

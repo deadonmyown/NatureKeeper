@@ -6,17 +6,16 @@
 #include "Effects/Data/TickableHealEffectDataAsset.h"
 #include "Interfaces/Affectable.h"
 
-bool UTickableHealEffect::InitEffect(UEffectDataAsset* InEffectDataAsset)
+bool UTickableHealEffect::InitEffect(const FEffectData& InEffectData)
 {
-	UTickableHealEffectDataAsset* TickableDataAsset = Cast<UTickableHealEffectDataAsset>(InEffectDataAsset);
+	const UTickableHealEffectDataAsset* TickableDataAsset = Cast<UTickableHealEffectDataAsset>(InEffectData.EffectDataAsset);
 
 	if (!TickableDataAsset)
 		return false;
 	
 	EffectVFX = TickableDataAsset->EffectVFX;
 	EffectElementType = TickableDataAsset->EffectElementType;
-	BlendingEffectDataAsset = InEffectDataAsset->BlendingEffectDataAsset;
-	BlendingEffectElementType = InEffectDataAsset->BlendingEffectElementType;
+	BlendingEffectDataMap = TickableDataAsset->BlendingEffectDataMap;
 	InitialHealAmount = TickableDataAsset->InitialHealAmount;
 	TickHealAmount = TickableDataAsset->TickHealAmount;
 	TicksCount = TickableDataAsset->TicksCount;

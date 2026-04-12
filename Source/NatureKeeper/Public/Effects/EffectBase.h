@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
+#include "Data/EffectData.h"
 #include "EffectBase.generated.h"
 
 
@@ -39,12 +40,10 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Effects")
 	EEffectElement EffectElementType;
 	UPROPERTY(BlueprintReadWrite, Category = "Effects")
-	UEffectDataAsset* BlendingEffectDataAsset;
-	UPROPERTY(BlueprintReadWrite, Category = "Effects")
-	EEffectElement BlendingEffectElementType;
+	TMap<EEffectElement, UEffectDataAsset*> BlendingEffectDataMap;
 
 	UFUNCTION(BlueprintCallable, Category = "Effects")
-	virtual bool InitEffect(UEffectDataAsset* InEffectDataAsset);
+	virtual bool InitEffect(const FEffectData& InEffectData);
 	
 	UFUNCTION(BlueprintCallable, Category = "Effects")
 	virtual bool ApplyEffect(const TScriptInterface<UAffectable>& InAffectedObject);

@@ -17,6 +17,11 @@ void ADamageableInteractiveActor::BeginPlay()
 	HealthComponent->OnResourceValueReachMin.AddDynamic(this, &ADamageableInteractiveActor::Death);
 }
 
+UPrimitiveComponent* ADamageableInteractiveActor::GetMainPrimitiveComponent_Implementation()
+{
+	return GetComponentByClass<UPrimitiveComponent>();
+}
+
 void ADamageableInteractiveActor::Revive_Implementation(int MaxValue)
 {
 	OnRevive(MaxValue);
@@ -69,5 +74,30 @@ bool ADamageableInteractiveActor::UnregisterEffect_Implementation(UEffectBase* E
 USceneComponent* ADamageableInteractiveActor::GetEffectLocation_Implementation()
 {
 	return GetRootComponent();
+}
+
+void ADamageableInteractiveActor::AddThrowImpulse_Implementation(UPrimitiveComponent* ThrowPrimitiveComponent, const FVector& InThrowVector)
+{
+	if (!ThrowPrimitiveComponent)
+	{
+		ThrowPrimitiveComponent = GetMainPrimitiveComponent();
+	}
+
+	if (!ThrowPrimitiveComponent)
+		return;
+
+	if (ThrowPrimitiveComponent->IsSimulatingPhysics())
+		ThrowPrimitiveComponent->AddImpulse(InThrowVector);
+}
+
+void ADamageableInteractiveActor::StartFreeze_Implementation()
+{
+	//TODO: Change physical material in bps or in this cpp
+	IFreezable::StartFreeze_Implementation();
+}
+
+void ADamageableInteractiveActor::StopFreeze_Implementation()
+{
+	IFreezable::StopFreeze_Implementation();
 }
 

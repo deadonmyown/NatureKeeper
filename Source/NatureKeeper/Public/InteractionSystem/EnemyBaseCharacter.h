@@ -6,13 +6,16 @@
 #include "InteractiveCharacter.h"
 #include "Interfaces/Affectable.h"
 #include "Interfaces/Damageable.h"
+#include "Interfaces/Freezable.h"
+#include "Interfaces/Movable.h"
+#include "Interfaces/Throwable.h"
 #include "EnemyBaseCharacter.generated.h"
 
 class USphereComponent;
 class UHealthComponent;
 
 UCLASS()
-class NATUREKEEPER_API AEnemyBaseCharacter : public AInteractiveCharacter, public IAffectable, public IDamageable
+class NATUREKEEPER_API AEnemyBaseCharacter : public AInteractiveCharacter, public IAffectable, public IDamageable, public IMovable, public IThrowable, public IFreezable
 {
 	GENERATED_BODY()
 
@@ -45,7 +48,18 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Enemy")
 	float CurrAttackDelay;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
+	float DefaultMaxWalkSpeed = 450.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Enemy")
+	int32 StunCount = 0;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Enemy")
+	int32 FreezeCount = 0;
+
 	virtual void BeginPlay() override;
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Enemy")
+	UPrimitiveComponent* GetMainPrimitiveComponent();
 public:
 	virtual void Tick(float DeltaSeconds) override;
 
@@ -77,5 +91,21 @@ public:
 	virtual TArray<EEffectElement> GetWeaknessEffectElements_Implementation() override {return {};}
 	virtual TArray<EEffectElement> GetResistEffectElements_Implementation() override {return {};}
 	virtual TArray<UEffectBase*> GetEffects_Implementation() override {return Effects; }
+
+	//Movable Inteface
+	virtual void StartSlow_Implementation(float InSlowPercent) override;
+	virtual void StartStun_Implementation() override;
+	virtual void StopSlow_Implementation() override;
+	virtual void StopStun_Implementation() override;
+
+	//Throwable Inteface
+	virtual void AddThrowImpulse_Implementation(UPrimitiveComponent* ThrowPrimitiveComponent, const FVector& InThrowVector) override;
+	
+	//Freezable Interface
+	virtual void StartFreeze_Implementation() override;
+	virtual void StopFreeze_Implementation() override;
+
+	void StartCharacterLogic();
+	void StopCharacterLogic();
 
 };

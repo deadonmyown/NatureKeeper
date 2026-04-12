@@ -13,4 +13,11 @@ UCLASS()
 class NATUREKEEPER_API UIceEffectDataAsset : public UTickableDamageableEffectDataAsset
 {
 	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	float IceSlowPercent = 0.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	UNiagaraSystem* IceSlowEffectVFX;
 };

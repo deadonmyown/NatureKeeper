@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Data/EffectData.h"
 #include "UObject/Object.h"
 #include "Ability.generated.h"
 
@@ -42,13 +43,15 @@ protected:
 	int32 MaxEffectsAmount = 1;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Ability")
+	AActor* AbilityOwner;
+	UPROPERTY(BlueprintReadWrite, Category = "Ability")
 	UManaComponent* ManaComponent;
 	/** Extra mana cost on ability cast, can be used by other systems*/
 	UPROPERTY(BlueprintReadWrite, Category = "Ability")
 	int32 ExtraManaCost = 0;
 public:
 	UFUNCTION(BlueprintCallable, Category = "Ability")
-	void InitManaComponent(UManaComponent* InManaComponent);
+	void InitAbility(AActor* InAbilityOwner);
 
 	UFUNCTION(BlueprintCallable, Category = "Ability")
 	void ChangeExtraManaCost(int32 DeltaCost);
@@ -66,7 +69,7 @@ public:
 	bool CanCastAbility();
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Ability")
-	void ApplyAbilityEffect(const TScriptInterface<UAffectable>& InAffectedObject);
+	void ApplyAbilityEffect(const TScriptInterface<UAffectable>& InAffectedObject, const FEffectHitData& InEffectHitData = FEffectHitData());
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Ability")
 	float GetAbilityCompletionTime();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Ability")

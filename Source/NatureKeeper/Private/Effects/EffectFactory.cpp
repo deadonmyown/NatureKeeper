@@ -6,12 +6,12 @@
 
 UEffectBase* UEffectFactory::CreateEffect()
 {
-	if (!EffectDataAsset)
+	if (!EffectData.EffectDataAsset)
 		return nullptr;
 	
-	UEffectBase* NewEffect = NewObject<UEffectBase>(this, EffectDataAsset->EffectClass);
+	UEffectBase* NewEffect = NewObject<UEffectBase>(this, EffectData.EffectDataAsset->EffectClass);
 
-	if (!NewEffect->InitEffect(EffectDataAsset))
+	if (!NewEffect->InitEffect(EffectData))
 		return nullptr;
 
 	NewEffect->OnComplete.AddDynamic(this, &UEffectFactory::RemoveEffect);
@@ -44,5 +44,5 @@ TArray<UEffectBase*>& UEffectFactory::GetEffects()
 
 float UEffectFactory::GetEffectCompletionTime()
 {
-	return EffectDataAsset->GetEffectCompletionTime();
+	return EffectData.EffectDataAsset->GetEffectCompletionTime();
 }
