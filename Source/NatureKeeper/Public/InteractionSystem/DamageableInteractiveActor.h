@@ -59,7 +59,7 @@ public:
 	virtual TArray<UEffectBase*> GetEffects_Implementation() override {return Effects; }
 
 	//Throwable Inteface
-	virtual void AddThrowImpulse_Implementation(UPrimitiveComponent* ThrowPrimitiveComponent, const FVector& InThrowVector) override;
+	virtual void AddThrowImpulse_Implementation(UPrimitiveComponent* ThrowPrimitiveComponent, const FVector& InThrowDirection, const float InThrowStrength, const FThrowCommonParams& InParams) override;
 	
 	//Freezable Interface
 	virtual void StartFreeze_Implementation() override;

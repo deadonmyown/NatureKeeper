@@ -27,7 +27,7 @@ bool UWindEffect::InitEffect(const FEffectData& InEffectData)
 	TicksCount = WindEffectDataAsset->TicksCount;
 	TickAmount = WindEffectDataAsset->TickAmount;
 	TickEffectVFX = WindEffectDataAsset->TickEffectVFX;
-	ThrowForce = WindEffectDataAsset->ThrowForce;
+	ThrowStrength = WindEffectDataAsset->ThrowStrength;
 	ThrowNormal = InEffectData.EffectHitData.EffectImpactNormal;
 	ThrowPrimitiveComponent = InEffectData.EffectHitData.EffectHitComponent;
 
@@ -54,7 +54,7 @@ bool UWindEffect::ApplyEffect(const TScriptInterface<UAffectable>& InAffectedObj
 		if (APhysicsManager* PM = UNatureKeeperUtils::GetPhysicsManager(this))
 		{
 			FVector FinalThrowVector = (-ThrowNormal + AdditionalThrowVector).GetSafeNormal();
-			PM->ThrowActor(InAffectedObject.GetObject(), ThrowPrimitiveComponent, FinalThrowVector, ThrowForce);
+			PM->ThrowActor(InAffectedObject.GetObject(), ThrowPrimitiveComponent, FinalThrowVector, ThrowStrength);
 		}
 	}
 

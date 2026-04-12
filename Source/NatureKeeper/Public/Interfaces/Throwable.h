@@ -6,6 +6,7 @@
 #include "UObject/Interface.h"
 #include "Throwable.generated.h"
 
+struct FThrowCommonParams;
 // This class does not need to be modified.
 UINTERFACE()
 class UThrowable : public UInterface
@@ -22,5 +23,5 @@ class NATUREKEEPER_API IThrowable
 
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="Movable Interface")
-	void AddThrowImpulse(UPrimitiveComponent* ThrowPrimitiveComponent, const FVector& InThrowVector);
+	void AddThrowImpulse(UPrimitiveComponent* ThrowPrimitiveComponent, const FVector& InThrowDirection, const float InThrowStrength, const FThrowCommonParams& InParams);
 };

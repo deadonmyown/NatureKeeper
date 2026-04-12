@@ -6,6 +6,7 @@
 #include "Components/SphereComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Managers/PhysicsManager.h"
 #include "ResourceSystem/HealthComponent.h"
 
 
@@ -160,11 +161,55 @@ void AEnemyBaseCharacter::StopStun_Implementation()
 	StartCharacterLogic();
 }
 
-void AEnemyBaseCharacter::AddThrowImpulse_Implementation(UPrimitiveComponent* ThrowPrimitiveComponent, const FVector& InThrowVector)
+void AEnemyBaseCharacter::AddThrowImpulse_Implementation(UPrimitiveComponent* ThrowPrimitiveComponent, const FVector& InThrowDirection, const float InThrowStrength, const FThrowCommonParams& InParams)
 {
-	UE_LOG(LogTemp, Display, TEXT("Add Throw Impulse %s"), *InThrowVector.ToString())
-	GetCharacterMovement()->StopActiveMovement();
-	GetCharacterMovement()->AddImpulse(InThrowVector);
+	auto* Move = GetCharacterMovement();
+	if (!Move) return;
+
+	const float TimeNow = GetWorld()->TimeSeconds;
+
+	if (TimeNow - LastKnockbackTime < InParams.Cooldown)
+	{
+		return;
+	}
+	LastKnockbackTime = TimeNow;
+
+	FVector Dir = InThrowDirection.GetSafeNormal();
+
+	if (!InParams.bAllowVertical)
+	{
+		Dir.Z = 0.f;
+		Dir.Normalize();
+	}
+
+	const FVector Knockback = Dir * InThrowStrength;
+
+	const bool bHasVertical = FMath::Abs(Knockback.Z) > 200.f;
+	const bool bStrongHit = InThrowStrength >= InParams.LaunchThreshold;
+
+	const bool bIsAI = Controller && Controller->IsA(AAIController::StaticClass());
+	
+	if ((bHasVertical || bStrongHit) && !bIsAI)
+	{
+		LaunchCharacter(Knockback, true, InParams.bAffectZOverride);
+	}
+	else
+	{
+		if(bIsAI)
+			Move->StopActiveMovement();
+		
+		Move->AddImpulse(Knockback, InParams.bVelocityChange);
+
+		const float Speed = Move->Velocity.Size();
+		if (Speed > InParams.MaxSpeed)
+		{
+			Move->Velocity = Move->Velocity.GetSafeNormal() * InParams.MaxSpeed;
+		}
+	}
+	if (!bIsAI)
+	{
+		Move->bForceMaxAccel = true;
+	}
 }
 
 void AEnemyBaseCharacter::StartFreeze_Implementation()

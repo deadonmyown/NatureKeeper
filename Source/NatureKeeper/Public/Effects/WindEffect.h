@@ -17,7 +17,7 @@ class NATUREKEEPER_API UWindEffect : public UTickableDamageableEffect
 
 public:
 	UPROPERTY(BlueprintReadWrite, Category = "Effects")
-	float ThrowForce = 0.0f;
+	float ThrowStrength = 0.0f;
 	UPROPERTY(BlueprintReadWrite, Category = "Effects")
 	FVector AdditionalThrowVector = FVector::UpVector;
 	UPROPERTY(BlueprintReadWrite, Category = "Effects")

@@ -76,6 +76,30 @@ struct FStunData
 	float StunTime = 0.0f;
 };
 
+USTRUCT(BlueprintType)
+struct FThrowCommonParams
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere)
+	float MaxSpeed = 1600.f;
+
+	UPROPERTY(EditAnywhere)
+	float Cooldown = 0.15f;
+
+	UPROPERTY(EditAnywhere)
+	bool bAllowVertical = true;
+
+	UPROPERTY(EditAnywhere)
+	float LaunchThreshold = 1200.f; 
+
+	UPROPERTY(EditAnywhere)
+	bool bAffectZOverride = true;
+
+	UPROPERTY(EditAnywhere)
+	bool bVelocityChange = true;
+};
+
 UCLASS()
 class NATUREKEEPER_API APhysicsManager : public AActor
 {
@@ -97,6 +121,9 @@ protected:
 	TArray<FIceSlowData> IceSlowedActors;
 	UPROPERTY(BlueprintReadOnly, Category="Physics Manager")
 	TArray<FStunData> StunnedActors;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Physics Manager")
+	FThrowCommonParams ThrowParams;
 	
 public:
 	UFUNCTION(BlueprintCallable, Category="Physics Manager")
@@ -113,7 +140,7 @@ public:
 	void StartStunActor(UObject* InMovableActor, float InStunTime);
 	bool StopStunActor(UObject* InMovableActor, bool bForceStop = false);
 	bool StopStunActorByID(int32 InStunActorID, bool bForceStop = false);
-	void ThrowActor(UObject* InThrowableActor, UPrimitiveComponent* ThrowPrimitiveComponent, const FVector& InThrowNormal, const float InThrowForce);
+	void ThrowActor(UObject* InThrowableActor, UPrimitiveComponent* ThrowPrimitiveComponent, const FVector& InThrowNormal, const float InThrowStrength);
 
 	virtual void Tick(float DeltaTime) override;
 };

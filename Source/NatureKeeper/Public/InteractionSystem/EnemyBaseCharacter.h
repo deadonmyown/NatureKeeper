@@ -60,6 +60,8 @@ protected:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Enemy")
 	UPrimitiveComponent* GetMainPrimitiveComponent();
+
+	float LastKnockbackTime = -1000.f;
 public:
 	virtual void Tick(float DeltaSeconds) override;
 
@@ -99,7 +101,7 @@ public:
 	virtual void StopStun_Implementation() override;
 
 	//Throwable Inteface
-	virtual void AddThrowImpulse_Implementation(UPrimitiveComponent* ThrowPrimitiveComponent, const FVector& InThrowVector) override;
+	virtual void AddThrowImpulse_Implementation(UPrimitiveComponent* ThrowPrimitiveComponent, const FVector& InThrowDirection, const float InThrowStrength, const FThrowCommonParams& InParams) override;
 	
 	//Freezable Interface
 	virtual void StartFreeze_Implementation() override;

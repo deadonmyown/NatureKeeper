@@ -327,12 +327,12 @@ bool APhysicsManager::StopStunActorByID(int32 InStunActorID, bool bForceStop)
 	return false;
 }
 
-void APhysicsManager::ThrowActor(UObject* InThrowableActor, UPrimitiveComponent* ThrowPrimitiveComponent, const FVector& InThrowNormal, const float InThrowForce)
+void APhysicsManager::ThrowActor(UObject* InThrowableActor, UPrimitiveComponent* ThrowPrimitiveComponent, const FVector& InThrowNormal, const float InThrowStrength)
 {
 	if (!InThrowableActor)
 		return;
 
-	IThrowable::Execute_AddThrowImpulse(InThrowableActor, ThrowPrimitiveComponent, InThrowNormal * InThrowForce);
+	IThrowable::Execute_AddThrowImpulse(InThrowableActor, ThrowPrimitiveComponent, InThrowNormal, InThrowStrength, ThrowParams);
 }
 
 void APhysicsManager::Tick(float DeltaTime)

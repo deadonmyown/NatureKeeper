@@ -76,7 +76,7 @@ USceneComponent* ADamageableInteractiveActor::GetEffectLocation_Implementation()
 	return GetRootComponent();
 }
 
-void ADamageableInteractiveActor::AddThrowImpulse_Implementation(UPrimitiveComponent* ThrowPrimitiveComponent, const FVector& InThrowVector)
+void ADamageableInteractiveActor::AddThrowImpulse_Implementation(UPrimitiveComponent* ThrowPrimitiveComponent, const FVector& InThrowDirection, const float InThrowStrength, const FThrowCommonParams& InParams)
 {
 	if (!ThrowPrimitiveComponent)
 	{
@@ -87,7 +87,7 @@ void ADamageableInteractiveActor::AddThrowImpulse_Implementation(UPrimitiveCompo
 		return;
 
 	if (ThrowPrimitiveComponent->IsSimulatingPhysics())
-		ThrowPrimitiveComponent->AddImpulse(InThrowVector);
+		ThrowPrimitiveComponent->AddImpulse(InThrowDirection * InThrowStrength);
 }
 
 void ADamageableInteractiveActor::StartFreeze_Implementation()
