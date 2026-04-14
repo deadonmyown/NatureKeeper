@@ -6,7 +6,7 @@
 #include "NatureKeeperUtils.h"
 #include "Effects/Data/IceEffectDataAsset.h"
 #include "Interfaces/Affectable.h"
-#include "Interfaces/Freezable.h"
+#include "Interfaces/Movable.h"
 #include "Managers/PhysicsManager.h"
 
 bool UIceEffect::InitEffect(const FEffectData& InEffectData)
@@ -39,7 +39,7 @@ bool UIceEffect::ApplyEffect(const TScriptInterface<UAffectable>& InAffectedObje
 
 	TryDamage(InitialDamageAmount);
 
-	if (AffectedObject.GetObject()->Implements<UFreezable>())
+	if (AffectedObject.GetObject()->Implements<UMovable>())
 	{
 		if (APhysicsManager* PM = UNatureKeeperUtils::GetPhysicsManager(this))
 		{
@@ -66,7 +66,7 @@ bool UIceEffect::CancelEffect()
 		return false;
 	}
 
-	if (AffectedObject.GetObject()->Implements<UFreezable>())
+	if (AffectedObject.GetObject()->Implements<UMovable>())
 	{
 		if (APhysicsManager* PM = UNatureKeeperUtils::GetPhysicsManager(this))
 		{
