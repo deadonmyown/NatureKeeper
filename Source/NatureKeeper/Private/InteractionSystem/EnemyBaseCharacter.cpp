@@ -109,6 +109,9 @@ void AEnemyBaseCharacter::Heal_Implementation(int HealAmount)
 
 void AEnemyBaseCharacter::TakeDamage_Implementation(int Damage, EEffectElement EffectElement, FVector DamageNormal)
 {
+	if (Execute_GetResistEffectElements(this).Contains(EffectElement))
+		return;
+	
 	HealthComponent->DecreaseResourceValue(Damage);
 }
 

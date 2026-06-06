@@ -163,6 +163,9 @@ void ANatureKeeperCharacter::Heal_Implementation(int HealAmount)
 
 void ANatureKeeperCharacter::TakeDamage_Implementation(int Damage, EEffectElement EffectElement, FVector DamageNormal)
 {
+	if (Execute_GetResistEffectElements(this).Contains(EffectElement))
+		return;
+	
 	HealthComponent->DecreaseResourceValue(Damage);
 }
 
