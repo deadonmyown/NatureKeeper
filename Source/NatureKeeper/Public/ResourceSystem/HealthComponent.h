@@ -2,11 +2,12 @@
 
 #include "CoreMinimal.h"
 #include "EntityResourceComponent.h"
+#include "RestorableEntityResourceComponent.h"
 #include "HealthComponent.generated.h"
 
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class NATUREKEEPER_API UHealthComponent : public UEntityResourceComponent
+class NATUREKEEPER_API UHealthComponent : public URestorableEntityResourceComponent
 {
 	GENERATED_BODY()
 

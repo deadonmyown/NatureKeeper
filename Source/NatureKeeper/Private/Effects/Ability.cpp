@@ -125,7 +125,7 @@ void UAbility::ChangeExtraManaCost(int32 DeltaCost)
 bool UAbility::CanCastAbility()
 {
 	//Can't cast ability if mana cost greater than zero and we didn't have enough mana or mana component is invalid
-	if (EffectDataAssets.IsEmpty() || !ManaComponent || (ManaComponent->GetResourceValue() < GetManaCost()))
+	if (EffectDataAssets.IsEmpty() || (ManaComponent && (ManaComponent->GetResourceValue() < GetManaCost())))
 		return false;
 
 	return true;

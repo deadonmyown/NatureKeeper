@@ -1,7 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
-#include "TargetSystem/FlowTargetStrategy.h"
+﻿#include "TargetSystem/FlowTargetStrategy.h"
 
 #include "FocusComponent.h"
 #include "GameCollisionChannels.h"

@@ -15,9 +15,9 @@ public:
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Resource Component")
-	float RestoreDelayInSec = 2.5f;
+	float RestoreDelayInSec = 0.0f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Resource Component")
-	int RestoreAmount = 10;
+	int RestoreAmount = 0;
 
 	FTimerHandle RestoreTimer;
 	

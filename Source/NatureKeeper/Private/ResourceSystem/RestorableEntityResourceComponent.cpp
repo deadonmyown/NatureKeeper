@@ -11,7 +11,8 @@ void URestorableEntityResourceComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GetWorld()->GetTimerManager().SetTimer(RestoreTimer, this, &URestorableEntityResourceComponent::OnRestore, RestoreDelayInSec, true);
+	if (RestoreAmount > 0 && RestoreDelayInSec > 0.0f)
+		GetWorld()->GetTimerManager().SetTimer(RestoreTimer, this, &URestorableEntityResourceComponent::OnRestore, RestoreDelayInSec, true);
 }
 
 void URestorableEntityResourceComponent::OnRestore()

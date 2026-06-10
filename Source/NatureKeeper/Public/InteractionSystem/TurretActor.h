@@ -4,6 +4,7 @@
 #include "DamageableInteractiveActor.h"
 #include "TurretActor.generated.h"
 
+class UTargetComponent;
 class USphereComponent;
 
 USTRUCT(BlueprintType, Blueprintable)
@@ -43,6 +44,8 @@ public:
 protected:
 	UPROPERTY(Category = Components, EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true, NoEditInline))
 	USphereComponent* SphereComponent;
+	UPROPERTY(Category = Components, EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = true, NoEditInline))
+	UTargetComponent* TargetComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Turret")
 	TArray<FTurretData> ActorsInRadius;
@@ -51,9 +54,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Turret")
 	float FOVAngle;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Turret")
-	float SortPeriodInSec = 2.0f;
-
-	float LastSortTime = 0.0f;
+	float RotationToTargetSpeed = 3.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Turret")
+	TArray<EDamageableType> DamageableTypesTarget = {EDamageableType::DT_GoodPlayer, EDamageableType::DT_GoodNPC};
 
 	virtual void BeginPlay() override;
 
